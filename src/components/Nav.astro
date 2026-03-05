@@ -1,0 +1,117 @@
+---
+interface Props {
+  currentPath?: string
+}
+const { currentPath = '/' } = Astro.props
+---
+
+<nav class="nav">
+  <a href="/" class="nav-wordmark" aria-label="TRACED — Home">TRACED</a>
+  <div class="nav-links">
+    <a href="/" class:list={['nav-link', { active: currentPath === '/' }]}>ARCHIVE</a>
+    <a href="/check" class:list={['nav-link', { active: currentPath === '/check' }]}>CHECK</a>
+    <a href="/about" class:list={['nav-link', { active: currentPath === '/about' }]}>ABOUT</a>
+    <button class="nav-cmd" id="nav-cmd-btn" aria-label="Open command search (Cmd+K)" onclick="window.dispatchEvent(new CustomEvent('open-command-palette'))">
+      <kbd>⌘K</kbd>
+    </button>
+  </div>
+</nav>
+
+<style>
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+    height: 56px;
+    background: rgba(8, 11, 15, 0.92);
+    border-bottom: 1px solid var(--color-border);
+    backdrop-filter: blur(8px);
+  }
+
+  .nav-wordmark {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 1.5rem;
+    letter-spacing: 0.25em;
+    color: var(--color-text);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+
+  .nav-wordmark:hover {
+    color: var(--color-accent);
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+  }
+
+  .nav-link {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    color: var(--color-muted);
+    text-decoration: none;
+    transition: color 0.15s;
+    position: relative;
+  }
+
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: var(--color-accent);
+    transition: width 0.2s;
+  }
+
+  .nav-link:hover,
+  .nav-link.active {
+    color: var(--color-text);
+  }
+
+  .nav-link.active::after,
+  .nav-link:hover::after {
+    width: 100%;
+  }
+
+  .nav-cmd {
+    display: flex;
+    align-items: center;
+    background: none;
+    border: 1px solid var(--color-border);
+    border-radius: 2px;
+    padding: 2px 7px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .nav-cmd:hover {
+    border-color: var(--color-accent);
+    background: rgba(59,130,246,0.06);
+  }
+  .nav-cmd kbd {
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.08em;
+    color: var(--color-muted);
+    pointer-events: none;
+  }
+  @media (max-width: 480px) {
+    .nav {
+      padding: 0 1rem;
+    }
+    .nav-links {
+      gap: 1.2rem;
+    }
+    .nav-cmd { display: none; }
+  }
+</style>

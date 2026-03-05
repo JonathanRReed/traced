@@ -1,0 +1,682 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import Nav from '../components/Nav.astro'
+---
+
+<BaseLayout
+  title="About — TRACED"
+  description="Traced is a weekend project by Jonathan R. Reed — a fun way to browse known data breaches and check if your password has shown up in one."
+>
+  <Nav currentPath="/about" />
+
+  <main class="about-page">
+    <div class="about-container">
+
+      <!-- Author block -->
+      <header class="author-block">
+        <div class="author-identity">
+          <img
+            src="https://img.jonathanrreed.com/personal/jonathan.avif"
+            alt="Jonathan R. Reed"
+            class="author-photo"
+            onerror="this.style.display='none'"
+          />
+          <div class="author-text">
+            <span class="author-byline">BY</span>
+            <span class="author-name">JONATHAN R. REED</span>
+            <a href="https://jonathanrreed.com" target="_blank" rel="noopener" class="author-link" aria-label="Jonathan R. Reed's website (opens in new tab)">
+              jonathanrreed.com ↗
+            </a>
+          </div>
+        </div>
+        <div class="author-intro">
+          <p>
+            Traced is a weekend project. I wanted a more interesting way to browse the
+            <a href="https://haveibeenpwned.com" target="_blank" rel="noopener">Have I Been Pwned</a> dataset
+            — the noir case-file thing just felt like a fun way to present it. It also has a password
+            checker so you can see if yours has turned up in a breach.
+          </p>
+        </div>
+      </header>
+
+      <!-- Two-column body -->
+      <div class="about-body">
+        <div class="about-left">
+
+          <section class="about-section">
+            <h2 class="about-section-title">WHAT IS THIS</h2>
+            <div class="about-section-body">
+              <p>
+                It's a browser for the Have I Been Pwned breach database, styled like a noir case-file
+                archive. Every breach gets its own page with dates, account counts, data types stolen,
+                and how long it took for the breach to be made public.
+              </p>
+              <p>
+                It's not trying to be anything serious. It's just a more interesting way to look at
+                data that's already freely available — and a reminder that a lot of your old accounts
+                have probably been compromised at some point.
+              </p>
+            </div>
+          </section>
+
+          <section class="about-section">
+            <h2 class="about-section-title">HOW IT WORKS</h2>
+            <div class="about-section-body">
+              <div class="how-step">
+                <span class="how-num">01</span>
+                <div>
+                  <strong>Pre-built pages</strong> — All the breach pages are generated at build time
+                  from HIBP's free public API. There's no server, no database — just static HTML.
+                </div>
+              </div>
+              <div class="how-step">
+                <span class="how-num">02</span>
+                <div>
+                  <strong>No tracking</strong> — No analytics, no cookies. Nothing you do here
+                  is logged anywhere.
+                </div>
+              </div>
+              <div class="how-step">
+                <span class="how-num">03</span>
+                <div>
+                  <strong>Password check</strong> — Your password is hashed in your browser and
+                  only the first 5 characters of the hash are ever sent anywhere. Your actual
+                  password never leaves your device.
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="about-section">
+            <h2 class="about-section-title">THE STATUS LABELS</h2>
+            <div class="about-section-body">
+              <div class="status-row">
+                <span class="stamp stamp-critical stamp-inline">CRITICAL</span>
+                <span class="status-desc">Passwords, financial data, or government IDs were stolen. Worth actually doing something about.</span>
+              </div>
+              <div class="status-row">
+                <span class="stamp stamp-unsolved stamp-inline">UNSOLVED</span>
+                <span class="status-desc">Happened in the last 5 years. The data is probably still floating around somewhere.</span>
+              </div>
+              <div class="status-row">
+                <span class="stamp stamp-cold stamp-inline">COLD CASE</span>
+                <span class="status-desc">Old breach, lower-risk data. Interesting history, less urgent.</span>
+              </div>
+            </div>
+          </section>
+
+        </div>
+
+        <div class="about-right">
+
+          <div class="privacy-callout">
+            <div class="pc-header">
+              <span class="pc-icon">◈</span>
+              <span class="pc-title">PRIVACY FIRST</span>
+            </div>
+            <ul class="pc-list">
+              <li>No tracking · No analytics</li>
+              <li>No cookies · No logs</li>
+              <li>Open data only</li>
+              <li>Passwords never transmitted</li>
+              <li>Client-side hashing only</li>
+            </ul>
+            <div class="pc-footer">
+              This is a static site. There's no backend, no database,
+              no server. Nothing you do here is recorded.
+            </div>
+          </div>
+
+          <div class="stack-callout">
+            <div class="sc-title">BUILT WITH</div>
+            <div class="sc-list">
+              <div class="sc-item">
+                <span class="sc-name">Astro 5</span>
+                <span class="sc-desc">Static-first framework</span>
+              </div>
+              <div class="sc-item">
+                <span class="sc-name">React 19</span>
+                <span class="sc-desc">Interactive islands only</span>
+              </div>
+              <div class="sc-item">
+                <span class="sc-name">Tailwind CSS v4</span>
+                <span class="sc-desc">CSS-first design system</span>
+              </div>
+              <div class="sc-item">
+                <span class="sc-name">Framer Motion</span>
+                <span class="sc-desc">Animations & reveals</span>
+              </div>
+              <div class="sc-item">
+                <span class="sc-name">Cloudflare Pages</span>
+                <span class="sc-desc">Global static hosting</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Sources -->
+      <section class="sources-section">
+        <h2 class="sources-title">DATA SOURCES</h2>
+        <p class="sources-intro">
+          Everything here comes from Troy Hunt's Have I Been Pwned — a free, public breach database
+          he's been running since 2013. No keys needed, no scraping. Just his open API.
+        </p>
+
+        <div class="sources-grid">
+          <div class="source-card">
+            <div class="source-header">
+              <span class="source-name">HAVE I BEEN PWNED</span>
+              <span class="source-badge">FREE · NO KEY</span>
+            </div>
+            <p class="source-description">
+              The main breach database. Every publicly known breach with dates, how many accounts
+              were affected, what data was taken, and whether it's been verified.
+              Troy Hunt has been maintaining this since 2013.
+            </p>
+            <div class="source-endpoints">
+              <div class="endpoint">
+                <span class="endpoint-method">GET</span>
+                <span class="endpoint-path">haveibeenpwned.com/api/v3/breaches</span>
+              </div>
+              <div class="endpoint">
+                <span class="endpoint-method">GET</span>
+                <span class="endpoint-path">haveibeenpwned.com/api/v3/breach/{'{name}'}</span>
+              </div>
+            </div>
+            <a href="https://haveibeenpwned.com" target="_blank" rel="noopener" class="source-link" aria-label="Have I Been Pwned (opens in new tab)">
+              haveibeenpwned.com ↗
+            </a>
+          </div>
+
+          <div class="source-card">
+            <div class="source-header">
+              <span class="source-name">PWNED PASSWORDS</span>
+              <span class="source-badge">FREE · K-ANONYMITY</span>
+            </div>
+            <p class="source-description">
+              Over 900 million real passwords from past breaches. The password checker on this
+              site uses this API — your password is hashed locally and only 5 characters are
+              sent, so it never actually knows what you typed.
+            </p>
+            <div class="source-endpoints">
+              <div class="endpoint">
+                <span class="endpoint-method">GET</span>
+                <span class="endpoint-path">api.pwnedpasswords.com/range/{'{prefix}'}</span>
+              </div>
+            </div>
+            <a href="https://haveibeenpwned.com/Passwords" target="_blank" rel="noopener" class="source-link" aria-label="Have I Been Pwned Passwords (opens in new tab)">
+              haveibeenpwned.com/Passwords ↗
+            </a>
+          </div>
+        </div>
+
+        <div class="attribution-note">
+          <span class="attr-icon">◈</span>
+          <p>
+            All the data here belongs to <strong>Troy Hunt</strong> and Have I Been Pwned.
+            Traced is just a fan-made frontend — not affiliated with or endorsed by HIBP.
+            If you find this useful, the real credit goes to Troy.
+            Check out his work at <a href="https://haveibeenpwned.com" target="_blank" rel="noopener">haveibeenpwned.com</a>.
+          </p>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .about-page {
+    min-height: 100vh;
+    padding-bottom: 6rem;
+  }
+
+  .about-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 3rem 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 4rem;
+  }
+
+  /* Author block */
+  .author-block {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: 3rem;
+  }
+
+  .author-identity {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+
+  .author-photo {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--color-border);
+    filter: grayscale(20%);
+    flex-shrink: 0;
+  }
+
+  .author-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .author-byline {
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.3em;
+    color: var(--color-muted);
+  }
+
+  .author-name {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 1.6rem;
+    letter-spacing: 0.08em;
+    color: var(--color-text);
+    line-height: 1;
+  }
+
+  .author-link {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    color: var(--color-accent);
+    text-decoration: none;
+    letter-spacing: 0.06em;
+    transition: opacity 0.15s;
+  }
+
+  .author-link:hover { opacity: 0.7; }
+
+  .author-intro p {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    line-height: 1.8;
+    color: var(--color-text);
+    opacity: 0.75;
+    margin: 0;
+    max-width: 720px;
+  }
+
+  /* Two-column */
+  .about-body {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 3rem;
+    align-items: start;
+  }
+
+  .about-left {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+
+  .about-section {}
+
+  .about-section-title {
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.3em;
+    color: var(--color-muted);
+    margin: 0 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .about-section-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+  }
+
+  .about-section-body p {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    line-height: 1.8;
+    color: var(--color-text);
+    opacity: 0.75;
+    margin: 0;
+  }
+
+  .how-step {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    line-height: 1.7;
+    color: var(--color-text);
+    opacity: 0.75;
+  }
+
+  .how-num {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 1rem;
+    color: var(--color-accent);
+    opacity: 0.5;
+    flex-shrink: 0;
+    line-height: 1.4;
+  }
+
+  .how-step strong {
+    color: var(--color-text);
+    opacity: 1;
+    font-family: var(--font-mono);
+    font-weight: 600;
+  }
+
+  .status-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.625rem 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .status-row:last-child { border-bottom: none; }
+
+  .stamp-inline {
+    flex-shrink: 0;
+    font-size: 0.6rem !important;
+    padding: 2px 8px !important;
+  }
+
+  .status-desc {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--color-muted);
+    line-height: 1.5;
+  }
+
+  /* Right column */
+  .about-right {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    position: sticky;
+    top: 72px;
+  }
+
+  .privacy-callout {
+    border: 1px solid var(--color-accent);
+    background: rgba(59, 130, 246, 0.04);
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+  }
+
+  .pc-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .pc-icon {
+    color: var(--color-accent);
+    font-size: 0.9rem;
+  }
+
+  .pc-title {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    color: var(--color-accent);
+    font-weight: 600;
+  }
+
+  .pc-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .pc-list li {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--color-text);
+    letter-spacing: 0.05em;
+    padding-left: 0.75rem;
+    position: relative;
+  }
+
+  .pc-list li::before {
+    content: '·';
+    position: absolute;
+    left: 0;
+    color: var(--color-accent);
+  }
+
+  .pc-footer {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    color: var(--color-muted);
+    line-height: 1.6;
+    border-top: 1px solid rgba(59, 130, 246, 0.2);
+    padding-top: 0.75rem;
+  }
+
+  .stack-callout {
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    padding: 1.25rem 1.5rem;
+  }
+
+  .sc-title {
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.25em;
+    color: var(--color-muted);
+    margin-bottom: 0.875rem;
+  }
+
+  .sc-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .sc-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .sc-item:last-child { border-bottom: none; }
+
+  .sc-name {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--color-text);
+    letter-spacing: 0.04em;
+  }
+
+  .sc-desc {
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    color: var(--color-muted);
+  }
+
+  /* Sources */
+  .sources-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    border-top: 1px solid var(--color-border);
+    padding-top: 3rem;
+  }
+
+  .sources-title {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.3em;
+    color: var(--color-muted);
+    margin: 0;
+  }
+
+  .sources-intro {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    line-height: 1.8;
+    color: var(--color-text);
+    opacity: 0.7;
+    margin: 0;
+    max-width: 680px;
+  }
+
+  .sources-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1px;
+    background: var(--color-border);
+    border: 1px solid var(--color-border);
+  }
+
+  .source-card {
+    background: var(--color-surface);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+  }
+
+  .source-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .source-name {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: 0.08em;
+    color: var(--color-text);
+  }
+
+  .source-badge {
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.12em;
+    color: var(--color-accent);
+    border: 1px solid var(--color-accent);
+    padding: 2px 7px;
+    white-space: nowrap;
+  }
+
+  .source-description {
+    font-family: var(--font-mono);
+    font-size: 0.67rem;
+    line-height: 1.75;
+    color: var(--color-text);
+    opacity: 0.7;
+    margin: 0;
+  }
+
+  .source-endpoints {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .endpoint {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--color-surface-2);
+    padding: 4px 8px;
+    border-radius: 2px;
+  }
+
+  .endpoint-method {
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.1em;
+    color: var(--color-accent);
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .endpoint-path {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    color: var(--color-muted);
+    word-break: break-all;
+  }
+
+  .source-link {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    color: var(--color-accent);
+    text-decoration: none;
+    letter-spacing: 0.06em;
+    align-self: flex-start;
+    margin-top: auto;
+  }
+
+  .source-link:hover { text-decoration: underline; }
+
+  .attribution-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+  }
+
+  .attr-icon {
+    color: var(--color-muted);
+    font-size: 0.9rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .attribution-note p {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    line-height: 1.7;
+    color: var(--color-muted);
+    margin: 0;
+  }
+
+  .attribution-note strong { color: var(--color-text); }
+
+  .attribution-note a {
+    color: var(--color-accent);
+    text-decoration: none;
+  }
+
+  .attribution-note a:hover { text-decoration: underline; }
+
+  @media (max-width: 900px) {
+    .about-body { grid-template-columns: 1fr; }
+    .about-right { position: static; }
+  }
+
+  @media (max-width: 600px) {
+    .about-container { padding: 2rem 1rem; gap: 2.5rem; }
+    .author-intro p { font-size: 0.68rem; }
+    .sources-grid { grid-template-columns: 1fr; }
+  }
+</style>

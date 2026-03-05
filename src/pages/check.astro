@@ -1,0 +1,215 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import Nav from '../components/Nav.astro'
+import { PasswordChecker } from '../components/PasswordChecker'
+import { getAllBreaches } from '../lib/hibp'
+
+const allBreaches = await getAllBreaches()
+const passwordBreaches = allBreaches
+  .filter((b) => b.DataClasses.includes('Passwords'))
+  .sort((a, b) => b.PwnCount - a.PwnCount)
+  .slice(0, 8)
+  .map((b) => ({
+    name: b.Name.toLowerCase(),
+    title: b.Title,
+    pwnCount: b.PwnCount,
+    breachDate: b.BreachDate,
+  }))
+---
+
+<BaseLayout
+  title="Password Check — TRACED"
+  description="Check if your password has appeared in known data breaches using k-anonymity. Your password never leaves your device."
+>
+  <Nav currentPath="/check" />
+
+  <main class="check-page">
+    <div class="check-container">
+
+      <div class="check-header">
+        <div class="check-eyebrow">BREACH LOOKUP</div>
+        <h1 class="check-title">PASSWORD<br />CHECK</h1>
+        <p class="check-subtitle">
+          Has your password appeared in a known breach?<br />
+          Find out without exposing it.
+        </p>
+      </div>
+
+      <div class="check-how-it-works">
+        <div class="hiw-step">
+          <span class="hiw-num">01</span>
+          <span class="hiw-text">Your password is hashed with SHA-1 locally in your browser</span>
+        </div>
+        <div class="hiw-arrow">→</div>
+        <div class="hiw-step">
+          <span class="hiw-num">02</span>
+          <span class="hiw-text">Only the first 5 characters of the hash are transmitted</span>
+        </div>
+        <div class="hiw-arrow">→</div>
+        <div class="hiw-step">
+          <span class="hiw-num">03</span>
+          <span class="hiw-text">Matching suffixes are returned and checked client-side</span>
+        </div>
+      </div>
+
+      <PasswordChecker passwordBreaches={passwordBreaches} client:load />
+
+      <div class="check-footer-note">
+        <div class="fn-row">
+          <span class="fn-icon">◈</span>
+          <div>
+            <span class="fn-title">K-ANONYMITY MODEL</span>
+            <p class="fn-body">
+              This check uses the Pwned Passwords k-anonymity API by Troy Hunt.
+              The full password hash is never transmitted — only a 5-character prefix.
+              The server returns all matching suffixes and the match is resolved entirely in your browser.
+              <a href="https://haveibeenpwned.com/Passwords" target="_blank" rel="noopener">Learn more ↗</a>
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .check-page {
+    min-height: 100vh;
+    padding-bottom: 6rem;
+  }
+
+  .check-container {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 3rem 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+  }
+
+  .check-header {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .check-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.35em;
+    color: var(--color-accent);
+    opacity: 0.8;
+  }
+
+  .check-title {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: clamp(3rem, 10vw, 6rem);
+    letter-spacing: 0.08em;
+    color: var(--color-text);
+    margin: 0;
+    line-height: 0.9;
+  }
+
+  .check-subtitle {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    line-height: 1.7;
+    color: var(--color-muted);
+    margin: 0;
+    letter-spacing: 0.05em;
+  }
+
+  .check-how-it-works {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding: 1.25rem 1.5rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+  }
+
+  .hiw-step {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+    min-width: 140px;
+  }
+
+  .hiw-num {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 1.4rem;
+    color: var(--color-accent);
+    opacity: 0.4;
+    line-height: 1;
+  }
+
+  .hiw-text {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    line-height: 1.6;
+    color: var(--color-muted);
+    letter-spacing: 0.04em;
+  }
+
+  .hiw-arrow {
+    font-family: var(--font-mono);
+    color: var(--color-border);
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+
+  .check-footer-note {
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    padding: 1.25rem 1.5rem;
+  }
+
+  .fn-row {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .fn-icon {
+    color: var(--color-accent);
+    font-size: 1rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .fn-title {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.2em;
+    color: var(--color-muted);
+    margin-bottom: 6px;
+  }
+
+  .fn-body {
+    font-family: var(--font-mono);
+    font-size: 0.67rem;
+    line-height: 1.7;
+    color: var(--color-text);
+    opacity: 0.7;
+    margin: 0;
+  }
+
+  .fn-body a {
+    color: var(--color-accent);
+    text-decoration: none;
+  }
+
+  .fn-body a:hover { text-decoration: underline; }
+
+  @media (max-width: 600px) {
+    .check-container { padding: 2rem 1rem; gap: 2rem; }
+    .hiw-arrow { display: none; }
+    .check-how-it-works { gap: 1.5rem; }
+  }
+</style>

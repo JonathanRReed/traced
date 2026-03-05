@@ -1,0 +1,250 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #080b0f;
+  --color-text: #c9cdd4;
+  --color-accent: #3b82f6;
+  --color-danger: #ef4444;
+  --color-muted: #8390a2;
+  --color-border: #1a2030;
+  --color-surface: #0d1117;
+  --color-surface-2: #111827;
+
+  --font-display: 'Barlow Condensed', sans-serif;
+  --font-mono: 'Geist Mono', 'JetBrains Mono', monospace;
+
+  --animate-fade-up: fade-up 0.6s ease forwards;
+  --animate-fade-in: fade-in 0.4s ease forwards;
+  --animate-blink: blink 1s step-end infinite;
+  --animate-count-up: count-up 0.8s ease forwards;
+  --animate-gap-fill: gap-fill 1.2s ease forwards;
+  --animate-stamp-in: stamp-in 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  --animate-scanline: scanline 8s linear infinite;
+
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0; }
+  }
+
+  @keyframes gap-fill {
+    from { width: 0%; }
+    to   { width: 100%; }
+  }
+
+  @keyframes stamp-in {
+    from { opacity: 0; transform: rotate(var(--stamp-rotate, -3deg)) scale(1.4); }
+    to   { opacity: 0.85; transform: rotate(var(--stamp-rotate, -3deg)) scale(1); }
+  }
+
+  @keyframes scanline {
+    0%   { transform: translateY(-100%); }
+    100% { transform: translateY(100vh); }
+  }
+
+  @keyframes stamp-glitch {
+    0%, 89%, 100% {
+      clip-path: none;
+      transform: rotate(var(--stamp-rotate, -5deg)) translateX(0);
+      opacity: 0.85;
+    }
+    90% {
+      clip-path: polygon(0 15%, 100% 15%, 100% 45%, 0 45%);
+      transform: rotate(var(--stamp-rotate, -5deg)) translateX(3px);
+      opacity: 1;
+    }
+    91% {
+      clip-path: polygon(0 55%, 100% 55%, 100% 80%, 0 80%);
+      transform: rotate(var(--stamp-rotate, -5deg)) translateX(-3px);
+      opacity: 0.7;
+    }
+    92% {
+      clip-path: none;
+      transform: rotate(var(--stamp-rotate, -5deg)) translateX(2px);
+      opacity: 0.9;
+    }
+    93% {
+      clip-path: polygon(0 30%, 100% 30%, 100% 65%, 0 65%);
+      transform: rotate(var(--stamp-rotate, -5deg)) translateX(-1px);
+      opacity: 1;
+    }
+    94% {
+      clip-path: none;
+      transform: rotate(var(--stamp-rotate, -5deg)) translateX(0);
+      opacity: 0.85;
+    }
+  }
+
+  @keyframes stamp-fade {
+    0%, 100% { opacity: 0.85; }
+    50%       { opacity: 0.35; }
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  cursor: default;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* Grain overlay */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size: 256px 256px;
+  opacity: 0.035;
+  pointer-events: none;
+  z-index: 9999;
+  mix-blend-mode: overlay;
+}
+
+/* Scanlines effect — apply to panels with .scanlines class */
+.scanlines {
+  position: relative;
+  overflow: hidden;
+}
+
+.scanlines::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    transparent 2px,
+    rgba(0, 0, 0, 0.025) 2px,
+    rgba(0, 0, 0, 0.025) 4px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Selection */
+::selection {
+  background: var(--color-accent);
+  color: #fff;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track { background: var(--color-bg); }
+::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-muted); }
+
+/* Body text links — underlined for accessibility */
+p a, li a, .about-section-body a, .fn-body a, .source-description a, .concept-desc a, .nf-body a {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+p a:hover, li a:hover, .about-section-body a:hover, .fn-body a:hover, .source-description a:hover, .concept-desc a:hover, .nf-body a:hover {
+  opacity: 0.8;
+}
+
+/* Typography helpers */
+.font-display { font-family: var(--font-display); }
+.font-mono    { font-family: var(--font-mono); }
+
+/* Redacted text */
+.redacted {
+  background: var(--color-danger);
+  color: var(--color-danger);
+  border-radius: 2px;
+  user-select: none;
+  cursor: default;
+  letter-spacing: 0.1em;
+}
+
+/* Evidence tag pills */
+.evidence-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 2px 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 2px;
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.evidence-tag.sensitive {
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+}
+
+/* Status stamp base */
+.stamp {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 0.8rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-width: 2px;
+  border-style: solid;
+  border-radius: 2px;
+  opacity: 0.85;
+  line-height: 1.4;
+}
+
+.stamp-critical {
+  --stamp-rotate: -5deg;
+  color: var(--color-danger);
+  border-color: var(--color-danger);
+  transform: rotate(-5deg);
+  animation: stamp-in 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards,
+             stamp-glitch 6s 1.5s infinite;
+}
+
+.stamp-unsolved {
+  --stamp-rotate: 2deg;
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+  transform: rotate(2deg);
+  animation: stamp-in 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.stamp-cold {
+  --stamp-rotate: -3deg;
+  color: var(--color-muted);
+  border-color: var(--color-muted);
+  transform: rotate(-3deg);
+  animation: stamp-in 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards,
+             stamp-fade 4s 1s infinite;
+}

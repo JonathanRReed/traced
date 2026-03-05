@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://traced.jonathanrreed.com/sitemap.xml
