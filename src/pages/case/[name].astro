@@ -1,0 +1,527 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import Nav from '../../components/Nav.astro'
+import { getAllBreaches } from '../../lib/hibp'
+import { getBreachStatus, getCaseNumber, getDiscoveryGap, formatBreachDate, formatPwnCount } from '../../lib/utils'
+import { CaseReveal } from '../../components/CaseReveal'
+import { DiscoveryGap } from '../../components/DiscoveryGap'
+import type { HibpBreach } from '../../lib/types'
+
+export async function getStaticPaths() {
+  const breaches = await getAllBreaches()
+  return breaches.map((breach) => ({
+    params: { name: breach.Name.toLowerCase() },
+    props: { breach, allBreaches: breaches },
+  }))
+}
+
+interface Props {
+  breach: HibpBreach
+  allBreaches: HibpBreach[]
+}
+
+const { breach, allBreaches } = Astro.props
+const status = getBreachStatus(breach)
+const caseNumber = getCaseNumber(breach)
+const gap = getDiscoveryGap(breach)
+
+const SENSITIVE_DATA_CLASSES = ['Passwords', 'Credit cards', 'Social security numbers', 'Bank account numbers', 'Payment histories']
+const hasPasswords = breach.DataClasses.includes('Passwords')
+
+const statusLabel = status === 'CRITICAL' ? 'CRITICAL' : status === 'UNSOLVED' ? 'UNSOLVED' : 'COLD CASE'
+const statusClass = status === 'CRITICAL' ? 'stamp-critical' : status === 'UNSOLVED' ? 'stamp-unsolved' : 'stamp-cold'
+
+const breachYear = new Date(breach.BreachDate).getFullYear()
+const related = allBreaches
+  .filter((b) => {
+    if (b.Name === breach.Name) return false
+    const y = new Date(b.BreachDate).getFullYear()
+    return Math.abs(y - breachYear) <= 1
+  })
+  .slice(0, 4)
+---
+
+<BaseLayout
+  title={`${breach.Title} — TRACED`}
+  description={`Case file: ${breach.Title}. ${formatPwnCount(breach.PwnCount)} accounts compromised. Breach date: ${formatBreachDate(breach.BreachDate)}.`}
+>
+  <Nav />
+
+  <main class="case-page">
+    <div class="case-container">
+
+      <div class="case-breadcrumb">
+        <a href="/" class="breadcrumb-link">← ARCHIVE</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">{caseNumber}</span>
+      </div>
+
+      <header class="case-header">
+        <div class="case-header-left">
+          <div class="case-classification">
+            <span class="case-label">CASE FILE</span>
+            <span class="case-number">{caseNumber}</span>
+          </div>
+
+          <div class="case-title-row">
+            {breach.LogoPath && (
+              <img
+                src={breach.LogoPath}
+                alt={breach.Title}
+                class="case-logo"
+                onerror="this.style.display='none'"
+              />
+            )}
+            <h1 class="case-title">{breach.Title}</h1>
+          </div>
+
+          {breach.Domain && (
+            <a href={`https://${breach.Domain}`} target="_blank" rel="noopener" class="case-domain">
+              {breach.Domain} ↗
+            </a>
+          )}
+        </div>
+
+        <div class="case-stamp-wrap">
+          <span class={`stamp ${statusClass}`}>{statusLabel}</span>
+          {breach.IsSensitive && (
+            <span class="sensitive-badge">SENSITIVE</span>
+          )}
+        </div>
+      </header>
+
+      <div class="case-quick-stats">
+        <div class="quick-stat">
+          <span class="qs-value">{formatPwnCount(breach.PwnCount)}</span>
+          <span class="qs-label">ACCOUNTS</span>
+        </div>
+        <div class="qs-divider" />
+        <div class="quick-stat">
+          <span class="qs-value">{formatBreachDate(breach.BreachDate)}</span>
+          <span class="qs-label">BREACH DATE</span>
+        </div>
+        <div class="qs-divider" />
+        <div class="quick-stat">
+          <span class="qs-value">{breach.DataClasses.length}</span>
+          <span class="qs-label">DATA TYPES</span>
+        </div>
+        {gap && (
+          <>
+            <div class="qs-divider" />
+            <div class="quick-stat">
+              <span class="qs-value qs-gap">{gap.months}mo</span>
+              <span class="qs-label">DARK PERIOD</span>
+            </div>
+          </>
+        )}
+      </div>
+
+      <section class="case-section">
+        <h2 class="section-title">EVIDENCE FILE</h2>
+        <CaseReveal breach={breach} client:load />
+      </section>
+
+      {gap && (
+        <section class="case-section">
+          <h2 class="section-title">DISCOVERY GAP</h2>
+          <DiscoveryGap gap={gap} client:visible />
+        </section>
+      )}
+
+      {hasPasswords && (
+        <section class="case-section">
+          <h2 class="section-title">REDACTED EVIDENCE</h2>
+          <div class="redacted-panel scanlines">
+            <div class="redacted-header">
+              <span class="redacted-label">PASSWORD DATA</span>
+              <span class="redacted-status">CLASSIFIED</span>
+            </div>
+            <div class="redacted-content">
+              <div class="redacted-block">
+                <span class="redacted">████████████</span>
+                <span class="redacted">████████</span>
+                <span class="redacted">████████████████</span>
+              </div>
+              <div class="redacted-block">
+                <span class="redacted">████████████████████</span>
+                <span class="redacted">████████████</span>
+                <span class="redacted">████████</span>
+              </div>
+            </div>
+            <div class="redacted-note">
+              <span class="redacted-note-icon">⚠</span>
+              <p>This data is not recoverable. Passwords from this breach should be considered permanently compromised. If reused elsewhere, change them immediately.</p>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {related.length > 0 && (
+        <section class="case-section">
+          <h2 class="section-title">RELATED CASES — {breachYear} ERA</h2>
+          <div class="related-grid">
+            {related.map((b) => {
+              const s = getBreachStatus(b)
+              const sc = s === 'CRITICAL' ? 'stamp-critical' : s === 'UNSOLVED' ? 'stamp-unsolved' : 'stamp-cold'
+              return (
+                <a href={`/case/${b.Name.toLowerCase()}`} class="related-card">
+                  <span class={`stamp ${sc} stamp-sm`}>{s}</span>
+                  <span class="related-title">{b.Title}</span>
+                  <span class="related-meta">{formatBreachDate(b.BreachDate)} · {formatPwnCount(b.PwnCount)}</span>
+                </a>
+              )
+            })}
+          </div>
+        </section>
+      )}
+
+      <div class="case-footer">
+        <a href="/" class="back-link">← RETURN TO ARCHIVE</a>
+        <span class="case-footer-num">{caseNumber}</span>
+      </div>
+
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .case-page {
+    min-height: 100vh;
+    padding-bottom: 6rem;
+  }
+
+  .case-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2.5rem 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+
+  .case-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+  }
+
+  .breadcrumb-link {
+    color: var(--color-accent);
+    text-decoration: none;
+    transition: opacity 0.15s;
+  }
+
+  .breadcrumb-link:hover { opacity: 0.7; }
+  .breadcrumb-sep { color: var(--color-border); }
+  .breadcrumb-current { color: var(--color-muted); }
+
+  .case-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1.5rem;
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: 2rem;
+  }
+
+  .case-header-left {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .case-classification {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .case-label {
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.3em;
+    color: var(--color-muted);
+  }
+
+  .case-number {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    color: var(--color-accent);
+  }
+
+  .case-title-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .case-logo {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+    filter: grayscale(100%) brightness(0.6);
+    flex-shrink: 0;
+  }
+
+  .case-title {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: clamp(2rem, 6vw, 3.5rem);
+    letter-spacing: 0.05em;
+    color: var(--color-text);
+    margin: 0;
+    line-height: 0.95;
+  }
+
+  .case-domain {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--color-muted);
+    text-decoration: none;
+    letter-spacing: 0.08em;
+    transition: color 0.15s;
+  }
+
+  .case-domain:hover { color: var(--color-accent); }
+
+  .case-stamp-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+    flex-shrink: 0;
+    padding-top: 0.5rem;
+  }
+
+  .sensitive-badge {
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    color: var(--color-danger);
+    border: 1px solid var(--color-danger);
+    padding: 2px 6px;
+    opacity: 0.7;
+  }
+
+  .case-quick-stats {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+    padding: 1rem 1.5rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+  }
+
+  .quick-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .qs-value {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--color-text);
+    letter-spacing: 0.05em;
+    line-height: 1;
+  }
+
+  .qs-gap { color: var(--color-danger); }
+
+  .qs-label {
+    font-family: var(--font-mono);
+    font-size: 0.5rem;
+    letter-spacing: 0.18em;
+    color: var(--color-muted);
+  }
+
+  .qs-divider {
+    width: 1px;
+    height: 2rem;
+    background: var(--color-border);
+  }
+
+  .case-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .section-title {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.3em;
+    color: var(--color-muted);
+    margin: 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .redacted-panel {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-left: 3px solid var(--color-danger);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .redacted-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .redacted-label {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: var(--color-muted);
+  }
+
+  .redacted-status {
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    color: var(--color-danger);
+    border: 1px solid var(--color-danger);
+    padding: 2px 6px;
+    opacity: 0.8;
+  }
+
+  .redacted-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .redacted-block {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .redacted-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: rgba(239, 68, 68, 0.05);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+  }
+
+  .redacted-note-icon {
+    color: var(--color-danger);
+    font-size: 0.9rem;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .redacted-note p {
+    font-family: var(--font-mono);
+    font-size: 0.67rem;
+    line-height: 1.65;
+    color: var(--color-text);
+    opacity: 0.8;
+    margin: 0;
+  }
+
+  .related-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--color-border);
+    border: 1px solid var(--color-border);
+  }
+
+  .related-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 1rem 1rem 1rem 1.25rem;
+    background: var(--color-surface);
+    text-decoration: none;
+    transition: background 0.15s, border-left-color 0.15s;
+    border-left: 2px solid transparent;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .related-card:hover {
+    background: var(--color-surface-2);
+    border-left-color: var(--color-accent);
+  }
+
+  .stamp-sm {
+    font-size: 0.5rem !important;
+    padding: 1px 5px !important;
+    transform: none !important;
+    animation: none !important;
+    align-self: flex-start;
+  }
+
+  .related-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--color-text);
+    letter-spacing: 0.04em;
+    line-height: 1.15;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .related-meta {
+    font-family: var(--font-mono);
+    font-size: 0.56rem;
+    color: var(--color-muted);
+    letter-spacing: 0.1em;
+    margin-top: auto;
+  }
+
+  .case-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .back-link {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--color-accent);
+    text-decoration: none;
+    transition: opacity 0.15s;
+  }
+
+  .back-link:hover { opacity: 0.7; }
+
+  .case-footer-num {
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.1em;
+    color: var(--color-muted);
+    opacity: 0.5;
+  }
+
+  @media (max-width: 600px) {
+    .case-container { padding: 1.5rem 1rem; gap: 2rem; }
+    .case-header { flex-direction: column; }
+    .case-stamp-wrap { align-items: flex-start; }
+    .case-quick-stats { gap: 1rem; }
+    .qs-divider { display: none; }
+    .related-grid { grid-template-columns: 1fr; }
+  }
+</style>

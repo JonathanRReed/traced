@@ -1,0 +1,294 @@
+---
+interface Props {
+  breachCount: number
+  criticalCount: number
+}
+const { breachCount, criticalCount } = Astro.props
+---
+
+<section class="briefing">
+  <div class="briefing-inner">
+
+    <div class="briefing-header">
+      <div class="briefing-header-left">
+        <span class="briefing-eyebrow">FIELD BRIEFING</span>
+        <span class="briefing-subtitle">HOW TO READ THESE FILES</span>
+      </div>
+      <div class="briefing-header-right">
+        <span class="briefing-stamp">QUICK REFERENCE</span>
+      </div>
+    </div>
+
+    <div class="briefing-body">
+
+      <div class="briefing-classifications">
+
+        <div class="classification-card critical-card">
+          <div class="cls-tag cls-tag-critical">CRITICAL</div>
+          <p class="cls-desc">
+            Passwords, financial data, or government IDs were in this one.
+            If you had an account there, it's worth changing your password
+            and checking if you reused it elsewhere.
+          </p>
+          <div class="cls-footer">
+            <span class="cls-count">{criticalCount} on file</span>
+          </div>
+        </div>
+
+        <div class="classification-card unsolved-card">
+          <div class="cls-tag cls-tag-unsolved">UNSOLVED</div>
+          <p class="cls-desc">
+            Happened within the last 5 years. The data is likely
+            still floating around. If you had an account with the affected
+            service, consider it compromised.
+          </p>
+          <div class="cls-footer">
+            <span class="cls-count">Recent breach window</span>
+          </div>
+        </div>
+
+        <div class="classification-card cold-card">
+          <div class="cls-tag cls-tag-cold">COLD CASE</div>
+          <p class="cls-desc">
+            Older breach, lower-stakes data. Good historical context —
+            usernames, email addresses, that kind of thing. Less urgent,
+            but worth knowing about.
+          </p>
+          <div class="cls-footer">
+            <span class="cls-count">Historical record</span>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="briefing-concepts">
+
+        <div class="concept">
+          <span class="concept-icon">◉</span>
+          <div>
+            <span class="concept-title">CASE FILE</span>
+            <p class="concept-desc">
+              Each breach gets its own page with dates, what data was taken, and
+              how long it sat undiscovered. It's the same data HIBP has — just
+              presented in a way that makes it more interesting to browse. {breachCount} total.
+            </p>
+          </div>
+        </div>
+
+        <div class="concept">
+          <span class="concept-icon">◈</span>
+          <div>
+            <span class="concept-title">DISCOVERY GAP</span>
+            <p class="concept-desc">
+              How long between when a breach <em>happened</em> and when anyone
+              <em>found out</em>. Some went years. That's the window where
+              the data was out there and nobody was warned.
+            </p>
+          </div>
+        </div>
+
+        <div class="concept">
+          <span class="concept-icon">◆</span>
+          <div>
+            <span class="concept-title">DATA SOURCE</span>
+            <p class="concept-desc">
+              All of this comes from <a href="https://haveibeenpwned.com" target="_blank" rel="noopener">Have I Been Pwned</a>,
+              Troy Hunt's free breach database. This site is just a different
+              way to look at data he's already made public.
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+<style>
+  .briefing {
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-surface);
+  }
+
+  .briefing-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem 2rem;
+  }
+
+  .briefing-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .briefing-header-left {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .briefing-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.52rem;
+    letter-spacing: 0.35em;
+    color: var(--color-accent);
+  }
+
+  .briefing-subtitle {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 1.6rem;
+    letter-spacing: 0.1em;
+    color: var(--color-text);
+    line-height: 1;
+  }
+
+  .briefing-stamp {
+    font-family: var(--font-mono);
+    font-size: 0.5rem;
+    letter-spacing: 0.2em;
+    color: var(--color-muted);
+    border: 1px solid var(--color-border);
+    padding: 3px 8px;
+    opacity: 0.5;
+    white-space: nowrap;
+  }
+
+  .briefing-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  /* Classification cards */
+  .briefing-classifications {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--color-border);
+    border: 1px solid var(--color-border);
+  }
+
+  .classification-card {
+    background: var(--color-bg);
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    border-left: 3px solid transparent;
+    position: relative;
+  }
+
+  .critical-card { border-left-color: var(--color-danger); }
+  .unsolved-card { border-left-color: var(--color-accent); }
+  .cold-card     { border-left-color: var(--color-muted); }
+
+  .cls-tag {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    padding: 2px 8px;
+    border-width: 1px;
+    border-style: solid;
+    align-self: flex-start;
+  }
+
+  .cls-tag-critical { color: var(--color-danger); border-color: var(--color-danger); }
+  .cls-tag-unsolved { color: var(--color-accent); border-color: var(--color-accent); }
+  .cls-tag-cold     { color: var(--color-muted);  border-color: var(--color-muted); }
+
+  .cls-desc {
+    font-family: var(--font-mono);
+    font-size: 0.67rem;
+    line-height: 1.75;
+    color: var(--color-text);
+    opacity: 0.65;
+    margin: 0;
+    flex: 1;
+  }
+
+  .cls-footer {
+    border-top: 1px solid var(--color-border);
+    padding-top: 0.5rem;
+    margin-top: auto;
+  }
+
+  .cls-count {
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.15em;
+    color: var(--color-muted);
+  }
+
+  /* Concepts row */
+  .briefing-concepts {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    padding-top: 0.5rem;
+  }
+
+  .concept {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+
+  .concept-icon {
+    color: var(--color-accent);
+    font-size: 0.85rem;
+    flex-shrink: 0;
+    margin-top: 1px;
+    opacity: 0.6;
+  }
+
+  .concept-title {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.25em;
+    color: var(--color-muted);
+    margin-bottom: 5px;
+  }
+
+  .concept-desc {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    line-height: 1.75;
+    color: var(--color-text);
+    opacity: 0.6;
+    margin: 0;
+  }
+
+  .concept-desc a {
+    color: var(--color-accent);
+    text-decoration: none;
+  }
+
+  .concept-desc a:hover { text-decoration: underline; }
+
+  .concept-desc em {
+    font-style: normal;
+    color: var(--color-text);
+    opacity: 1;
+  }
+
+  @media (max-width: 900px) {
+    .briefing-classifications { grid-template-columns: 1fr; }
+    .briefing-concepts { grid-template-columns: 1fr; gap: 1rem; }
+  }
+
+  @media (max-width: 640px) {
+    .briefing-inner { padding: 1.5rem 1rem; }
+    .briefing-subtitle { font-size: 1.2rem; }
+  }
+</style>
