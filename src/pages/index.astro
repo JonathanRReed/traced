@@ -19,30 +19,30 @@ function formatBigNumber(n: number): string {
 }
 ---
 
-<BaseLayout title="TRACED — Every Breach. Every Record." description="Browse every known data breach as a case file. Check if your password has been compromised.">
+<BaseLayout title="TRACED — Every Breach. Every Record." description="Browse known data breaches as case files and check whether a password appears in known breach data.">
   <Nav currentPath="/" />
 
-  <main>
+  <main id="main-content" tabindex="-1">
     <section class="hero">
       <div class="hero-inner">
-        <div class="hero-eyebrow">Data Breach Case Files</div>
+        <div class="hero-eyebrow">Public Breach Archive</div>
         <h1 class="hero-title">TRACED</h1>
-        <p class="hero-tagline">EVERY BREACH. EVERY RECORD. FULLY EXPOSED.</p>
+        <p class="hero-tagline">KNOWN BREACHES. ON THE RECORD.</p>
 
         <div class="hero-stats">
           <div class="stat">
             <span class="stat-value" data-count={breaches.length}>{breaches.length}</span>
-            <span class="stat-label">CASES ON FILE</span>
+            <span class="stat-label">CASE FILES</span>
           </div>
           <div class="stat-divider">·</div>
           <div class="stat">
             <span class="stat-value" data-count={totalPwned} data-count-format="big">{formatBigNumber(totalPwned)}</span>
-            <span class="stat-label">ACCOUNTS COMPROMISED</span>
+            <span class="stat-label">EXPOSED ACCOUNTS</span>
           </div>
           <div class="stat-divider">·</div>
           <div class="stat">
             <span class="stat-value" data-count={totalDataClasses}>{totalDataClasses}</span>
-            <span class="stat-label">DATA TYPES STOLEN</span>
+            <span class="stat-label">DATA TYPES EXPOSED</span>
           </div>
           <div class="stat-divider">·</div>
           <div class="stat">
@@ -52,8 +52,8 @@ function formatBigNumber(n: number): string {
         </div>
 
         <div class="hero-cta-row">
-          <a href="#archive" class="hero-cta">VIEW ALL CASES ↓</a>
-          <a href="/check" class="hero-cta hero-cta-ghost">CHECK PASSWORD →</a>
+          <a href="#archive" class="hero-cta">BROWSE THE ARCHIVE ↓</a>
+          <a href="/check" class="hero-cta hero-cta-ghost">CHECK A PASSWORD →</a>
         </div>
       </div>
 
@@ -78,12 +78,12 @@ function formatBigNumber(n: number): string {
     <div class="footer-inner">
       <div class="footer-left">
         <span class="footer-wordmark">TRACED</span>
-        <span class="footer-tagline">Data Breach Case Files</span>
+        <span class="footer-tagline">Public Breach Archive</span>
       </div>
       <div class="footer-center">
         <span class="footer-stat">{breaches.length} <span class="footer-stat-label">CASES</span></span>
         <span class="footer-dot">·</span>
-        <span class="footer-stat">{formatBigNumber(totalPwned)} <span class="footer-stat-label">PWNED</span></span>
+        <span class="footer-stat">{formatBigNumber(totalPwned)} <span class="footer-stat-label">ACCOUNTS</span></span>
         <span class="footer-dot">·</span>
         <span class="footer-stat">{criticalCount} <span class="footer-stat-label">CRITICAL</span></span>
       </div>
@@ -93,7 +93,7 @@ function formatBigNumber(n: number): string {
           <a href="/check">Password Check</a>
           <a href="https://haveibeenpwned.com" target="_blank" rel="noopener" aria-label="Have I Been Pwned (opens in new tab)">HIBP ↗</a>
         </div>
-        <span class="footer-data">Data: <a href="https://haveibeenpwned.com" target="_blank" rel="noopener">Have I Been Pwned</a> · Troy Hunt</span>
+        <span class="footer-data">Source: <a href="https://haveibeenpwned.com" target="_blank" rel="noopener">Have I Been Pwned</a> · Troy Hunt</span>
       </div>
     </div>
   </footer>

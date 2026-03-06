@@ -9,7 +9,7 @@ import Nav from '../components/Nav.astro'
 >
   <Nav currentPath="/about" />
 
-  <main class="about-page">
+  <main id="main-content" tabindex="-1" class="about-page">
     <div class="about-container">
 
       <!-- Author block -->
@@ -31,10 +31,10 @@ import Nav from '../components/Nav.astro'
         </div>
         <div class="author-intro">
           <p>
-            Traced is a weekend project. I wanted a more interesting way to browse the
+            Traced is a weekend project. I wanted a better way to browse the
             <a href="https://haveibeenpwned.com" target="_blank" rel="noopener">Have I Been Pwned</a> dataset
-            — the noir case-file thing just felt like a fun way to present it. It also has a password
-            checker so you can see if yours has turned up in a breach.
+            and the case-file format felt like a good fit. It also includes a password
+            checker so you can see whether yours has appeared in known breach data.
           </p>
         </div>
       </header>
@@ -47,14 +47,13 @@ import Nav from '../components/Nav.astro'
             <h2 class="about-section-title">WHAT IS THIS</h2>
             <div class="about-section-body">
               <p>
-                It's a browser for the Have I Been Pwned breach database, styled like a noir case-file
-                archive. Every breach gets its own page with dates, account counts, data types stolen,
-                and how long it took for the breach to be made public.
+                It&apos;s a browser for the Have I Been Pwned breach database, framed like a noir case-file
+                archive. Each breach gets its own page with dates, affected account counts, exposed data,
+                and how long it took for the breach to become public.
               </p>
               <p>
-                It's not trying to be anything serious. It's just a more interesting way to look at
-                data that's already freely available — and a reminder that a lot of your old accounts
-                have probably been compromised at some point.
+                It&apos;s not meant to replace HIBP. It&apos;s just a different way to browse public breach
+                history — and a reminder that old accounts tend to stick around longer than you think.
               </p>
             </div>
           </section>
@@ -65,22 +64,22 @@ import Nav from '../components/Nav.astro'
               <div class="how-step">
                 <span class="how-num">01</span>
                 <div>
-                  <strong>Pre-built pages</strong> — All the breach pages are generated at build time
-                  from HIBP's free public API. There's no server, no database — just static HTML.
+                  <strong>Pre-built pages</strong> — All breach pages are generated at build time
+                  from HIBP&apos;s public breach feed. There&apos;s no app server or database behind it.
                 </div>
               </div>
               <div class="how-step">
                 <span class="how-num">02</span>
                 <div>
-                  <strong>No tracking</strong> — No analytics, no cookies. Nothing you do here
-                  is logged anywhere.
+                  <strong>No tracking</strong> — No analytics, no cookies, no behavioral tracking.
+                  Nothing you do here is logged by the site.
                 </div>
               </div>
               <div class="how-step">
                 <span class="how-num">03</span>
                 <div>
                   <strong>Password check</strong> — Your password is hashed in your browser and
-                  only the first 5 characters of the hash are ever sent anywhere. Your actual
+                  only the first 5 characters of the hash are ever sent. Your actual
                   password never leaves your device.
                 </div>
               </div>
@@ -92,15 +91,15 @@ import Nav from '../components/Nav.astro'
             <div class="about-section-body">
               <div class="status-row">
                 <span class="stamp stamp-critical stamp-inline">CRITICAL</span>
-                <span class="status-desc">Passwords, financial data, or government IDs were stolen. Worth actually doing something about.</span>
+                <span class="status-desc">Passwords, financial data, or government IDs were exposed. Start here if you&apos;re checking your own risk.</span>
               </div>
               <div class="status-row">
                 <span class="stamp stamp-unsolved stamp-inline">UNSOLVED</span>
-                <span class="status-desc">Happened in the last 5 years. The data is probably still floating around somewhere.</span>
+                <span class="status-desc">Happened in the last 5 years. Recent enough to treat the affected account as compromised.</span>
               </div>
               <div class="status-row">
                 <span class="stamp stamp-cold stamp-inline">COLD CASE</span>
-                <span class="status-desc">Old breach, lower-risk data. Interesting history, less urgent.</span>
+                <span class="status-desc">Older breach, usually lower-risk data. Still useful context, just less urgent.</span>
               </div>
             </div>
           </section>
@@ -122,8 +121,7 @@ import Nav from '../components/Nav.astro'
               <li>Client-side hashing only</li>
             </ul>
             <div class="pc-footer">
-              This is a static site. There's no backend, no database,
-              no server. Nothing you do here is recorded.
+              This is a static site. No backend, no database, and nothing you do here is stored.
             </div>
           </div>
 
@@ -160,8 +158,8 @@ import Nav from '../components/Nav.astro'
       <section class="sources-section">
         <h2 class="sources-title">DATA SOURCES</h2>
         <p class="sources-intro">
-          Everything here comes from Troy Hunt's Have I Been Pwned — a free, public breach database
-          he's been running since 2013. No keys needed, no scraping. Just his open API.
+          Everything here comes from Troy Hunt&apos;s Have I Been Pwned — a public breach database
+          he&apos;s been running since 2013. This site uses that public data directly.
         </p>
 
         <div class="sources-grid">

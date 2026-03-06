@@ -1,6 +1,7 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useCallback } from 'react'
 import type { HibpBreach } from '../lib/types'
 import { getBreachStatus, getAllDataClasses } from '../lib/utils'
+import { fetchBreachesClient } from '../lib/breaches-client'
 import { BreachCard } from './BreachCard'
 
 type StatusFilter = 'ALL' | 'CRITICAL' | 'UNSOLVED' | 'COLD CASE'
@@ -18,14 +19,27 @@ function getDecade(dateStr: string): string {
 export function BreachArchive() {
   const [breaches, setBreaches] = useState<HibpBreach[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [search, setSearch] = useState('')
 
-  useEffect(() => {
-    fetch('/breaches.json')
-      .then((r) => r.json())
-      .then((data: HibpBreach[]) => { setBreaches(data); setLoading(false) })
-      .catch(() => setLoading(false))
+  const loadBreaches = useCallback(async (force = false) => {
+    setLoading(true)
+    setError(null)
+
+    try {
+      const data = await fetchBreachesClient(force)
+      setBreaches(data)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not load case files.')
+    } finally {
+      setLoading(false)
+    }
   }, [])
+
+  useEffect(() => {
+    void loadBreaches()
+  }, [loadBreaches])
+
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('ALL')
   const [decadeFilter, setDecadeFilter] = useState('ALL')
   const [dataClassFilter, setDataClassFilter] = useState('ALL')
@@ -39,7 +53,7 @@ export function BreachArchive() {
         const q = search.toLowerCase()
         if (
           !b.Title.toLowerCase().includes(q) &&
-          !b.Domain.toLowerCase().includes(q) &&
+          !b.Domain?.toLowerCase().includes(q) &&
           !b.DataClasses.some((dc) => dc.toLowerCase().includes(q))
         ) return false
       }
@@ -82,6 +96,84 @@ export function BreachArchive() {
     )
   }
 
+  if (error && breaches.length === 0) {
+    return (
+      <div className="archive-root">
+        <div className="archive-error" role="status" aria-live="polite">
+          <span className="archive-error-kicker">ARCHIVE OFFLINE</span>
+          <p className="archive-error-message">
+            The case files could not be loaded right now. Please try again.
+          </p>
+          <p className="archive-error-detail">{error}</p>
+          <button
+            type="button"
+            onClick={() => void loadBreaches(true)}
+            className="archive-error-retry"
+          >
+            RETRY LOAD
+          </button>
+        </div>
+        <style>{`
+          .archive-root {
+            padding: 0 2rem 4rem;
+            max-width: 1400px;
+            margin: 0 auto;
+          }
+          .archive-error {
+            max-width: 32rem;
+            margin: 3rem 0;
+            padding: 1.25rem;
+            border: 1px solid rgba(239, 68, 68, 0.24);
+            border-left: 3px solid var(--color-danger);
+            background: rgba(239, 68, 68, 0.06);
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+          }
+          .archive-error-kicker {
+            font-family: var(--font-mono);
+            font-size: 0.58rem;
+            letter-spacing: 0.22em;
+            color: var(--color-danger);
+          }
+          .archive-error-message {
+            margin: 0;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.25rem;
+            letter-spacing: 0.05em;
+            color: var(--color-text);
+          }
+          .archive-error-detail {
+            margin: 0;
+            font-family: var(--font-mono);
+            font-size: 0.64rem;
+            line-height: 1.7;
+            letter-spacing: 0.06em;
+            color: var(--color-muted);
+          }
+          .archive-error-retry {
+            align-self: flex-start;
+            font-family: var(--font-mono);
+            font-size: 0.62rem;
+            letter-spacing: 0.16em;
+            background: none;
+            border: 1px solid var(--color-danger);
+            color: var(--color-danger);
+            padding: 0.6rem 0.9rem;
+            cursor: pointer;
+            border-radius: 2px;
+            transition: background 0.15s, color 0.15s, opacity 0.15s;
+          }
+          .archive-error-retry:hover {
+            background: rgba(239, 68, 68, 0.12);
+            color: #fca5a5;
+          }
+        `}</style>
+      </div>
+    )
+  }
+
   return (
     <div className="archive-root">
       <div className="archive-controls">
@@ -97,7 +189,8 @@ export function BreachArchive() {
           />
           {search && (
             <button
-              onClick={() => setSearch('')}
+              type="button"
+              onClick={() => { setSearch(''); setShowCount(48) }}
               className="search-clear"
               aria-label="Clear search"
             >
@@ -112,6 +205,7 @@ export function BreachArchive() {
             {(['ALL', 'CRITICAL', 'UNSOLVED', 'COLD CASE'] as StatusFilter[]).map((s) => (
               <button
                 key={s}
+                type="button"
                 onClick={() => { setStatusFilter(s); setShowCount(48) }}
                 className={`filter-btn${statusFilter === s ? ' active' : ''}`}
                 data-status={s.toLowerCase().replace(' ', '-')}
@@ -127,6 +221,7 @@ export function BreachArchive() {
             {DECADES.map((d) => (
               <button
                 key={d}
+                type="button"
                 onClick={() => { setDecadeFilter(d); setShowCount(48) }}
                 className={`filter-btn${decadeFilter === d ? ' active' : ''}`}
                 aria-pressed={decadeFilter === d}
@@ -157,6 +252,7 @@ export function BreachArchive() {
         <span>{filtered.length} CASE{filtered.length !== 1 ? 'S' : ''} ON FILE</span>
         {(search || statusFilter !== 'ALL' || decadeFilter !== 'ALL' || dataClassFilter !== 'ALL') && (
           <button
+            type="button"
             onClick={() => { setSearch(''); setStatusFilter('ALL'); setDecadeFilter('ALL'); setDataClassFilter('ALL'); setShowCount(48) }}
             className="clear-filters"
           >
@@ -181,6 +277,7 @@ export function BreachArchive() {
           {showCount < filtered.length && (
             <div className="load-more-wrap">
               <button
+                type="button"
                 onClick={() => setShowCount((c) => c + 48)}
                 className="load-more-btn"
               >
@@ -209,6 +306,56 @@ export function BreachArchive() {
           padding: 1rem 0;
           backdrop-filter: blur(8px);
           margin-bottom: 2rem;
+        }
+        .archive-error {
+          max-width: 32rem;
+          margin: 3rem 0;
+          padding: 1.25rem;
+          border: 1px solid rgba(239, 68, 68, 0.24);
+          border-left: 3px solid var(--color-danger);
+          background: rgba(239, 68, 68, 0.06);
+          display: flex;
+          flex-direction: column;
+          gap: 0.75rem;
+        }
+        .archive-error-kicker {
+          font-family: var(--font-mono);
+          font-size: 0.58rem;
+          letter-spacing: 0.22em;
+          color: var(--color-danger);
+        }
+        .archive-error-message {
+          margin: 0;
+          font-family: var(--font-display);
+          font-weight: 700;
+          font-size: 1.25rem;
+          letter-spacing: 0.05em;
+          color: var(--color-text);
+        }
+        .archive-error-detail {
+          margin: 0;
+          font-family: var(--font-mono);
+          font-size: 0.64rem;
+          line-height: 1.7;
+          letter-spacing: 0.06em;
+          color: var(--color-muted);
+        }
+        .archive-error-retry {
+          align-self: flex-start;
+          font-family: var(--font-mono);
+          font-size: 0.62rem;
+          letter-spacing: 0.16em;
+          background: none;
+          border: 1px solid var(--color-danger);
+          color: var(--color-danger);
+          padding: 0.6rem 0.9rem;
+          cursor: pointer;
+          border-radius: 2px;
+          transition: background 0.15s, color 0.15s, opacity 0.15s;
+        }
+        .archive-error-retry:hover {
+          background: rgba(239, 68, 68, 0.12);
+          color: #fca5a5;
         }
         .search-wrap {
           position: relative;

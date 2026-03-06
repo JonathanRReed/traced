@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import type { HibpBreach } from '../lib/types'
-import { getBreachStatus, formatPwnCount } from '../lib/utils'
+import { getBreachStatus, formatPwnCount, slugify } from '../lib/utils'
+import { fetchBreachesClient } from '../lib/breaches-client'
 
 const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%'
 const STATUS_COLOR: Record<string, string> = {
@@ -13,18 +14,25 @@ export function CommandPalette() {
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [breaches, setBreaches] = useState<HibpBreach[]>([])
+  const [error, setError] = useState<string | null>(null)
   const [activeIdx, setActiveIdx] = useState(0)
   const inputRef = useRef<HTMLInputElement>(null)
   const listRef = useRef<HTMLDivElement>(null)
   const fetchedRef = useRef(false)
 
-  const fetchBreaches = useCallback(() => {
-    if (fetchedRef.current) return
+  const loadBreaches = useCallback(async (force = false) => {
+    if (fetchedRef.current && !force) return
+
     fetchedRef.current = true
-    fetch('/breaches.json')
-      .then((r) => r.json())
-      .then((data: HibpBreach[]) => setBreaches(data))
-      .catch(() => {})
+    setError(null)
+
+    try {
+      const data = await fetchBreachesClient(force)
+      setBreaches(data)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not load case files.')
+      fetchedRef.current = false
+    }
   }, [])
 
   useEffect(() => {
@@ -32,13 +40,13 @@ export function CommandPalette() {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault()
         setOpen((o) => !o)
-        fetchBreaches()
+        void loadBreaches()
       }
       if (e.key === 'Escape') setOpen(false)
     }
     function onCustom() {
       setOpen(true)
-      fetchBreaches()
+      void loadBreaches()
     }
     window.addEventListener('keydown', onKey)
     window.addEventListener('open-command-palette', onCustom)
@@ -46,7 +54,7 @@ export function CommandPalette() {
       window.removeEventListener('keydown', onKey)
       window.removeEventListener('open-command-palette', onCustom)
     }
-  }, [fetchBreaches])
+  }, [loadBreaches])
 
   useEffect(() => {
     if (open) {
@@ -71,7 +79,7 @@ export function CommandPalette() {
   }, [breaches, query])
 
   function navigate(breach: HibpBreach) {
-    window.location.href = `/case/${breach.Name.toLowerCase()}`
+    window.location.href = `/case/${slugify(breach.Name)}`
   }
 
   function onKeyDown(e: React.KeyboardEvent) {
@@ -97,7 +105,7 @@ export function CommandPalette() {
 
   return (
     <div className="cp-backdrop" onClick={() => setOpen(false)}>
-      <div className="cp-modal" onClick={(e) => e.stopPropagation()} onKeyDown={onKeyDown}>
+      <div className="cp-modal" onClick={(e) => e.stopPropagation()} onKeyDown={onKeyDown} role="dialog" aria-modal="true" aria-label="Search case files">
         <div className="cp-header">
           <span className="cp-prompt">⌕</span>
           <input
@@ -116,7 +124,21 @@ export function CommandPalette() {
         <div className="cp-divider" />
 
         <div className="cp-results" ref={listRef} role="listbox" aria-label="Breach results">
-          {breaches.length === 0 ? (
+          {error && breaches.length === 0 ? (
+            <div className="cp-empty cp-error" role="status" aria-live="polite">
+              <div className="cp-error-copy">
+                <span className="cp-error-label">CASE FILES UNAVAILABLE</span>
+                <span className="cp-error-detail">{error}</span>
+              </div>
+              <button
+                type="button"
+                className="cp-retry"
+                onClick={() => void loadBreaches(true)}
+              >
+                RETRY
+              </button>
+            </div>
+          ) : breaches.length === 0 ? (
             <div className="cp-empty">
               <span className="cp-loading-dot" />
               ACCESSING DATABASE...
@@ -253,6 +275,41 @@ export function CommandPalette() {
           font-size: 0.6rem;
           letter-spacing: 0.2em;
           color: #4b5563;
+        }
+        .cp-error {
+          justify-content: space-between;
+          align-items: center;
+          gap: 1rem;
+        }
+        .cp-error-copy {
+          display: flex;
+          flex-direction: column;
+          gap: 0.45rem;
+        }
+        .cp-error-label {
+          color: #f87171;
+        }
+        .cp-error-detail {
+          font-size: 0.58rem;
+          letter-spacing: 0.08em;
+          color: #8390a2;
+        }
+        .cp-retry {
+          font-family: var(--font-mono);
+          font-size: 0.55rem;
+          letter-spacing: 0.12em;
+          color: #f87171;
+          border: 1px solid rgba(248, 113, 113, 0.35);
+          background: transparent;
+          padding: 0.45rem 0.65rem;
+          border-radius: 2px;
+          cursor: pointer;
+          flex-shrink: 0;
+          transition: background 0.15s, color 0.15s;
+        }
+        .cp-retry:hover {
+          background: rgba(248, 113, 113, 0.1);
+          color: #fca5a5;
         }
         .cp-loading-dot {
           width: 6px;

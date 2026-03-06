@@ -1,6 +1,7 @@
-import { useRef, useState, useMemo, useEffect } from 'react'
+import { useRef, useState, useMemo, useEffect, useCallback } from 'react'
 import type { HibpBreach } from '../lib/types'
-import { getBreachStatus } from '../lib/utils'
+import { getBreachStatus, slugify } from '../lib/utils'
+import { fetchBreachesClient } from '../lib/breaches-client'
 
 interface YearData {
   year: number
@@ -21,15 +22,27 @@ const BAR_H = 80
 export function TimelineScrubber() {
   const [breaches, setBreaches] = useState<HibpBreach[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [tooltip, setTooltip] = useState<TooltipState | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
-    fetch('/breaches.json')
-      .then((r) => r.json())
-      .then((data: HibpBreach[]) => { setBreaches(data); setLoading(false) })
-      .catch(() => setLoading(false))
+  const loadBreaches = useCallback(async (force = false) => {
+    setLoading(true)
+    setError(null)
+
+    try {
+      const data = await fetchBreachesClient(force)
+      setBreaches(data)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not load timeline data.')
+    } finally {
+      setLoading(false)
+    }
   }, [])
+
+  useEffect(() => {
+    void loadBreaches()
+  }, [loadBreaches])
 
   const yearMap = useMemo(() => {
     const map = new Map<number, HibpBreach[]>()
@@ -84,6 +97,124 @@ export function TimelineScrubber() {
 
   const labelYears = yearData.filter((_, i) => i % 5 === 0 || i === yearData.length - 1)
 
+  if (loading) {
+    return (
+      <div className="tl-wrap" aria-live="polite">
+        <div className="tl-status-row">
+          <span className="tl-status-dot" />
+          <span className="tl-status-text">BUILDING TIMELINE...</span>
+        </div>
+        <style>{`
+          .tl-wrap {
+            padding: 1.5rem 2rem 1rem;
+            border: 1px solid var(--color-border);
+            background: var(--color-surface);
+            margin: 0 2rem 2rem;
+          }
+          .tl-status-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            min-height: 7rem;
+            font-family: var(--font-mono);
+            font-size: 0.62rem;
+            letter-spacing: 0.18em;
+            color: var(--color-muted);
+          }
+          .tl-status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--color-accent);
+            animation: blink 1s step-end infinite;
+          }
+          @media (max-width: 640px) {
+            .tl-wrap { padding: 1rem; margin: 0 1rem 1.5rem; }
+          }
+        `}</style>
+      </div>
+    )
+  }
+
+  if (error && breaches.length === 0) {
+    return (
+      <div className="tl-wrap" role="status" aria-live="polite">
+        <div className="tl-error-panel">
+          <span className="tl-error-kicker">TIMELINE UNAVAILABLE</span>
+          <p className="tl-error-message">
+            We could not load the incident timeline right now.
+          </p>
+          <p className="tl-error-detail">{error}</p>
+          <button
+            type="button"
+            className="tl-error-retry"
+            onClick={() => void loadBreaches(true)}
+          >
+            RETRY TIMELINE
+          </button>
+        </div>
+        <style>{`
+          .tl-wrap {
+            padding: 1.5rem 2rem 1rem;
+            border: 1px solid var(--color-border);
+            background: var(--color-surface);
+            margin: 0 2rem 2rem;
+          }
+          .tl-error-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            max-width: 30rem;
+            min-height: 7rem;
+            justify-content: center;
+          }
+          .tl-error-kicker {
+            font-family: var(--font-mono);
+            font-size: 0.56rem;
+            letter-spacing: 0.22em;
+            color: var(--color-danger);
+          }
+          .tl-error-message {
+            margin: 0;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.15rem;
+            letter-spacing: 0.05em;
+            color: var(--color-text);
+          }
+          .tl-error-detail {
+            margin: 0;
+            font-family: var(--font-mono);
+            font-size: 0.62rem;
+            line-height: 1.7;
+            letter-spacing: 0.05em;
+            color: var(--color-muted);
+          }
+          .tl-error-retry {
+            align-self: flex-start;
+            font-family: var(--font-mono);
+            font-size: 0.6rem;
+            letter-spacing: 0.16em;
+            background: none;
+            border: 1px solid var(--color-danger);
+            color: var(--color-danger);
+            padding: 0.55rem 0.85rem;
+            cursor: pointer;
+            border-radius: 2px;
+            transition: background 0.15s, color 0.15s;
+          }
+          .tl-error-retry:hover {
+            background: rgba(239, 68, 68, 0.12);
+            color: #fca5a5;
+          }
+          @media (max-width: 640px) {
+            .tl-wrap { padding: 1rem; margin: 0 1rem 1.5rem; }
+          }
+        `}</style>
+      </div>
+    )
+  }
+
   return (
     <div className="tl-wrap">
       <div className="tl-header">
@@ -114,7 +245,7 @@ export function TimelineScrubber() {
                 onMouseLeave={() => setTooltip(null)}
                 onClick={() => {
                   if (d.total > 0 && d.topBreach) {
-                    window.location.href = `/case/${d.topBreach.Name.toLowerCase()}`
+                    window.location.href = `/case/${slugify(d.topBreach.Name)}`
                   }
                 }}
                 aria-label={d.total > 0 ? `${d.year}: ${d.total} incidents` : `${d.year}: no recorded incidents`}
@@ -168,6 +299,70 @@ export function TimelineScrubber() {
           border: 1px solid var(--color-border);
           background: var(--color-surface);
           margin: 0 2rem 2rem;
+        }
+        .tl-status-row {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          min-height: 7rem;
+          font-family: var(--font-mono);
+          font-size: 0.62rem;
+          letter-spacing: 0.18em;
+          color: var(--color-muted);
+        }
+        .tl-status-dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: var(--color-accent);
+          animation: blink 1s step-end infinite;
+        }
+        .tl-error-panel {
+          display: flex;
+          flex-direction: column;
+          gap: 0.75rem;
+          max-width: 30rem;
+          min-height: 7rem;
+          justify-content: center;
+        }
+        .tl-error-kicker {
+          font-family: var(--font-mono);
+          font-size: 0.56rem;
+          letter-spacing: 0.22em;
+          color: var(--color-danger);
+        }
+        .tl-error-message {
+          margin: 0;
+          font-family: var(--font-display);
+          font-weight: 700;
+          font-size: 1.15rem;
+          letter-spacing: 0.05em;
+          color: var(--color-text);
+        }
+        .tl-error-detail {
+          margin: 0;
+          font-family: var(--font-mono);
+          font-size: 0.62rem;
+          line-height: 1.7;
+          letter-spacing: 0.05em;
+          color: var(--color-muted);
+        }
+        .tl-error-retry {
+          align-self: flex-start;
+          font-family: var(--font-mono);
+          font-size: 0.6rem;
+          letter-spacing: 0.16em;
+          background: none;
+          border: 1px solid var(--color-danger);
+          color: var(--color-danger);
+          padding: 0.55rem 0.85rem;
+          cursor: pointer;
+          border-radius: 2px;
+          transition: background 0.15s, color 0.15s;
+        }
+        .tl-error-retry:hover {
+          background: rgba(239, 68, 68, 0.12);
+          color: #fca5a5;
         }
         .tl-header {
           display: flex;

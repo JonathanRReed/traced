@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { HibpBreach, BreachStatus } from '../lib/types'
-import { getBreachStatus, getCaseNumber, formatBreachDate, formatPwnCount } from '../lib/utils'
+import { getBreachStatus, getCaseNumber, formatBreachDate, formatPwnCount, slugify } from '../lib/utils'
 import { useScramble } from '../hooks/useScramble'
 
 interface Props {
@@ -24,6 +24,7 @@ const SENSITIVE_CLASSES = ['Passwords', 'Credit cards', 'Social security numbers
 export function BreachCard({ breach }: Props) {
   const status = getBreachStatus(breach)
   const caseNum = getCaseNumber(breach)
+  const caseSlug = slugify(breach.Name)
   const topClasses = breach.DataClasses.slice(0, 3)
   const hasMore = breach.DataClasses.length > 3
   const [hovered, setHovered] = useState(false)
@@ -31,7 +32,7 @@ export function BreachCard({ breach }: Props) {
 
   return (
     <a
-      href={`/case/${breach.Name.toLowerCase()}`}
+      href={`/case/${caseSlug}`}
       style={{ textDecoration: 'none', display: 'block' }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
