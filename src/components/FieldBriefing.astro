@@ -26,9 +26,9 @@ const { breachCount, criticalCount } = Astro.props
         <div class="classification-card critical-card">
           <div class="cls-tag cls-tag-critical">CRITICAL</div>
           <p class="cls-desc">
-            Passwords, financial data, or government IDs were in this one.
-            If you had an account there, it's worth changing your password
-            and checking if you reused it elsewhere.
+            Passwords, financial data, or government IDs were exposed.
+            If you had an account there, change your password and check
+            whether you reused it anywhere else.
           </p>
           <div class="cls-footer">
             <span class="cls-count">{criticalCount} on file</span>
@@ -38,9 +38,9 @@ const { breachCount, criticalCount } = Astro.props
         <div class="classification-card unsolved-card">
           <div class="cls-tag cls-tag-unsolved">UNSOLVED</div>
           <p class="cls-desc">
-            Happened within the last 5 years. The data is likely
-            still floating around. If you had an account with the affected
-            service, consider it compromised.
+            Happened within the last 5 years. If you had an account with the
+            affected service, treat it as compromised and review anything tied
+            to it.
           </p>
           <div class="cls-footer">
             <span class="cls-count">Recent breach window</span>
@@ -50,9 +50,8 @@ const { breachCount, criticalCount } = Astro.props
         <div class="classification-card cold-card">
           <div class="cls-tag cls-tag-cold">COLD CASE</div>
           <p class="cls-desc">
-            Older breach, lower-stakes data. Good historical context —
-            usernames, email addresses, that kind of thing. Less urgent,
-            but worth knowing about.
+            Older breach, generally lower-risk data. Less urgent, but still
+            useful context if you want the full history on a service.
           </p>
           <div class="cls-footer">
             <span class="cls-count">Historical record</span>
@@ -68,9 +67,9 @@ const { breachCount, criticalCount } = Astro.props
           <div>
             <span class="concept-title">CASE FILE</span>
             <p class="concept-desc">
-              Each breach gets its own page with dates, what data was taken, and
-              how long it sat undiscovered. It's the same data HIBP has — just
-              presented in a way that makes it more interesting to browse. {breachCount} total.
+              Each breach gets its own page with dates, exposed data types, and
+              how long it took to become public. Same HIBP data, just easier to
+              browse. {breachCount} total.
             </p>
           </div>
         </div>
@@ -80,9 +79,8 @@ const { breachCount, criticalCount } = Astro.props
           <div>
             <span class="concept-title">DISCOVERY GAP</span>
             <p class="concept-desc">
-              How long between when a breach <em>happened</em> and when anyone
-              <em>found out</em>. Some went years. That's the window where
-              the data was out there and nobody was warned.
+              The gap between when a breach <em>happened</em> and when it became
+              public. Sometimes that window lasted months or years.
             </p>
           </div>
         </div>
@@ -93,8 +91,8 @@ const { breachCount, criticalCount } = Astro.props
             <span class="concept-title">DATA SOURCE</span>
             <p class="concept-desc">
               All of this comes from <a href="https://haveibeenpwned.com" target="_blank" rel="noopener">Have I Been Pwned</a>,
-              Troy Hunt's free breach database. This site is just a different
-              way to look at data he's already made public.
+              Troy Hunt's public breach database. This site just presents that
+              data in a different format.
             </p>
           </div>
         </div>

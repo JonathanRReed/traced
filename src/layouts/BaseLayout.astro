@@ -14,6 +14,7 @@ const {
 
 const siteUrl = 'https://traced.jonathanrreed.com'
 const ogImage = `${siteUrl}/TracedLogo.webp`
+const canonicalUrl = new URL(Astro.url.pathname, siteUrl).toString()
 ---
 
 <!doctype html>
@@ -24,16 +25,19 @@ const ogImage = `${siteUrl}/TracedLogo.webp`
     <meta name="description" content={description} />
     <meta name="generator" content={Astro.generator} />
     <meta name="theme-color" content="#080b0f" />
+    <meta name="robots" content="index,follow" />
+    <link rel="canonical" href={canonicalUrl} />
 
     <!-- Open Graph -->
     <meta property="og:site_name" content="TRACED" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content={siteUrl} />
+    <meta property="og:url" content={canonicalUrl} />
     <meta property="og:image" content={ogImage} />
     <meta property="og:image:width" content="1080" />
     <meta property="og:image:height" content="452" />
+    <meta property="og:image:alt" content="TRACED — Data Breach Case Files" />
 
     <!-- Twitter / X -->
     <meta name="twitter:card" content="summary_large_image" />
@@ -68,6 +72,7 @@ const ogImage = `${siteUrl}/TracedLogo.webp`
     <title>{title}</title>
   </head>
   <body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
     <CommandPalette client:load />
     <slot />
   </body>

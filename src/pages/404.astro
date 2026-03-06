@@ -6,7 +6,7 @@ import Nav from '../components/Nav.astro'
 <BaseLayout title="FILE NOT FOUND — TRACED" description="This case file does not exist in the archive.">
   <Nav currentPath="/" />
 
-  <main class="nf-page">
+  <main id="main-content" tabindex="-1" class="nf-page">
     <div class="nf-container">
 
       <div class="nf-code-wrap">
@@ -20,8 +20,8 @@ import Nav from '../components/Nav.astro'
         <div class="nf-eyebrow">CASE FILE ERROR</div>
         <h1 class="nf-headline">RECORD DOES NOT EXIST</h1>
         <p class="nf-body">
-          The file you requested is not in the archive. It may have been redacted,
-          moved, or never existed. All active case files are accessible from the main archive.
+          That case file is not in the archive. It may have been removed,
+          renamed, or never existed. You can head back to the archive or run a password check instead.
         </p>
 
         <div class="nf-actions">
@@ -35,11 +35,11 @@ import Nav from '../components/Nav.astro'
           <span class="nf-prompt">TRACED</span>
           <span class="nf-cmd">$ lookup --case <span class="nf-arg">[REDACTED]</span></span>
         </div>
-        <div class="nf-term-line nf-err">✗ ERROR: No matching record in breach database</div>
-        <div class="nf-term-line nf-muted">→ Cross-referencing secondary index... <span class="nf-fail">FAILED</span></div>
-        <div class="nf-term-line nf-muted">→ Checking cold storage... <span class="nf-fail">FAILED</span></div>
-        <div class="nf-term-line nf-muted">→ Querying HIBP relay... <span class="nf-fail">FAILED</span></div>
-        <div class="nf-term-line nf-warn">⚠ FILE NOT LOCATED IN ANY KNOWN INDEX</div>
+        <div class="nf-term-line nf-err">✗ ERROR: No matching case file</div>
+        <div class="nf-term-line nf-muted">→ Checking archive index... <span class="nf-fail">NONE</span></div>
+        <div class="nf-term-line nf-muted">→ Checking alternate slug... <span class="nf-fail">NONE</span></div>
+        <div class="nf-term-line nf-muted">→ Return to main archive recommended</div>
+        <div class="nf-term-line nf-warn">⚠ RECORD NOT FOUND</div>
         <div class="nf-term-cursor">_</div>
       </div>
 

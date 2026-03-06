@@ -27,7 +27,6 @@ export function PasswordChecker({ passwordBreaches = [] }: Props) {
   const [state, setState] = useState<CheckState>('idle')
   const [logs, setLogs] = useState<string[]>([])
   const [count, setCount] = useState<number | null>(null)
-  const [hash, setHash] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
 
   function addLog(line: string) {
@@ -36,28 +35,28 @@ export function PasswordChecker({ passwordBreaches = [] }: Props) {
 
   async function handleCheck(e: React.FormEvent) {
     e.preventDefault()
-    if (!password.trim()) return
+    const candidate = password
+    if (!candidate) return
 
     setState('hashing')
     setLogs([])
     setCount(null)
-    setHash('')
 
     await new Promise((r) => setTimeout(r, 200))
-    addLog('> initializing sha-1 digest...')
+    addLog('> preparing local sha-1 digest...')
 
     await new Promise((r) => setTimeout(r, 300))
-    addLog('> encoding input...')
+    addLog('> hashing on this device...')
 
     await new Promise((r) => setTimeout(r, 300))
-    const fullHash = await sha1(password)
-    setHash(fullHash)
-    addLog(`> sha-1: ${fullHash.toLowerCase()}`)
+    const fullHash = await sha1(candidate)
+    addLog('> hash generated successfully')
+    setPassword('')
 
     await new Promise((r) => setTimeout(r, 400))
     const prefix = fullHash.slice(0, 5)
     const suffix = fullHash.slice(5)
-    addLog(`> transmitting prefix: ${prefix.toLowerCase()}...`)
+    addLog(`> transmitting first 5 hash characters: ${prefix.toLowerCase()}...`)
     addLog('> querying pwned passwords api (k-anonymity)...')
 
     setState('querying')
@@ -105,7 +104,6 @@ export function PasswordChecker({ passwordBreaches = [] }: Props) {
     setState('idle')
     setLogs([])
     setCount(null)
-    setHash('')
     setPassword('')
     setTimeout(() => inputRef.current?.focus(), 50)
   }
@@ -129,19 +127,20 @@ export function PasswordChecker({ passwordBreaches = [] }: Props) {
               placeholder="••••••••••••"
               className="checker-input"
               disabled={isChecking}
+              aria-describedby="pwd-privacy"
               autoComplete="off"
               autoCorrect="off"
               spellCheck={false}
             />
             <button
               type="submit"
-              disabled={isChecking || !password.trim()}
+              disabled={isChecking || !password}
               className="checker-btn"
             >
               {isChecking ? 'CHECKING...' : 'CHECK'}
             </button>
           </div>
-          <p className="checker-privacy">
+          <p className="checker-privacy" id="pwd-privacy">
             ◈ Your full password never leaves your device. Only the first 5 characters of its SHA-1 hash are transmitted.
           </p>
         </div>
@@ -154,6 +153,7 @@ export function PasswordChecker({ passwordBreaches = [] }: Props) {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             transition={{ duration: 0.3 }}
+            aria-live="polite"
           >
             <div className="terminal-header">
               <span className="terminal-dot" style={{ background: '#ef4444' }} />
@@ -188,6 +188,7 @@ export function PasswordChecker({ passwordBreaches = [] }: Props) {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.2 }}
+            aria-live="polite"
           >
             <div className="result-main">
               {count > 0 ? (
@@ -195,10 +196,10 @@ export function PasswordChecker({ passwordBreaches = [] }: Props) {
                   <span className="result-icon result-icon-danger">⚠</span>
                   <div className="result-content">
                     <span className="result-headline result-headline-danger">
-                      COMPROMISED
+                      FOUND IN BREACH DATA
                     </span>
                     <span className="result-sub">
-                      Seen <strong>{count.toLocaleString()}</strong> times in known data breaches
+                      This password appears <strong>{count.toLocaleString()}</strong> times in known breach datasets
                     </span>
                   </div>
                 </>
@@ -210,7 +211,7 @@ export function PasswordChecker({ passwordBreaches = [] }: Props) {
                       NOT FOUND
                     </span>
                     <span className="result-sub">
-                      No matches found in known breach databases
+                      This password was not found in the Pwned Passwords dataset
                     </span>
                   </div>
                 </>
@@ -219,7 +220,13 @@ export function PasswordChecker({ passwordBreaches = [] }: Props) {
 
             {count > 0 && (
               <div className="result-advice">
-                <p>This password has appeared in known data breaches. If you use it anywhere, change it immediately. Do not use it for any new accounts.</p>
+                <p>If you still use it anywhere, change it now. If you reused it on other accounts, change those too.</p>
+              </div>
+            )}
+
+            {count === 0 && (
+              <div className="result-advice result-advice-safe-copy">
+                <p>Good news, but not a guarantee. The safest move is still a unique password for every account and two-factor authentication where available.</p>
               </div>
             )}
 
@@ -227,7 +234,7 @@ export function PasswordChecker({ passwordBreaches = [] }: Props) {
               <div className="result-cases">
                 <div className="result-cases-header">
                   <span className="result-cases-label">BREACHES CONTAINING PASSWORD DATA</span>
-                  <span className="result-cases-sub">These are the largest incidents where passwords were exposed — explore case files</span>
+                  <span className="result-cases-sub">Some of the largest public breaches that included password data</span>
                 </div>
                 <div className="result-cases-grid">
                   {passwordBreaches.map((b) => (
@@ -243,14 +250,14 @@ export function PasswordChecker({ passwordBreaches = [] }: Props) {
               </div>
             )}
 
-            {hash && (
-              <div className="result-hash">
-                <span className="result-hash-label">SHA-1 HASH</span>
-                <span className="result-hash-value">{hash.toLowerCase()}</span>
-              </div>
-            )}
+            <div className="result-privacy-note">
+              <span className="result-privacy-label">PRIVACY</span>
+              <p className="result-privacy-copy">
+                Only the first 5 characters of the SHA-1 hash were sent to Pwned Passwords. Your full password never left your device.
+              </p>
+            </div>
 
-            <button onClick={handleReset} className="result-reset">
+            <button type="button" onClick={handleReset} className="result-reset">
               CHECK ANOTHER
             </button>
           </motion.div>
@@ -261,10 +268,11 @@ export function PasswordChecker({ passwordBreaches = [] }: Props) {
             className="checker-result result-error"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
+            aria-live="polite"
           >
             <span className="result-headline result-headline-danger">REQUEST FAILED</span>
-            <p className="result-sub">Could not reach the Pwned Passwords API. Check your connection and try again.</p>
-            <button onClick={handleReset} className="result-reset">TRY AGAIN</button>
+            <p className="result-sub">Could not reach Pwned Passwords. Your full password was never sent. Check your connection and try again.</p>
+            <button type="button" onClick={handleReset} className="result-reset">TRY AGAIN</button>
           </motion.div>
         )}
       </AnimatePresence>
@@ -434,24 +442,29 @@ export function PasswordChecker({ passwordBreaches = [] }: Props) {
           background: #ef44440a;
           border-radius: 2px;
         }
+        .result-advice-safe-copy {
+          border-color: #22c55e30;
+          background: #22c55e0a;
+        }
         .result-advice p { margin: 0; }
-        .result-hash {
+        .result-privacy-note {
           display: flex;
           flex-direction: column;
           gap: 4px;
         }
-        .result-hash-label {
+        .result-privacy-label {
           font-family: var(--font-mono);
           font-size: 0.55rem;
           letter-spacing: 0.2em;
           color: var(--color-muted);
         }
-        .result-hash-value {
+        .result-privacy-copy {
+          margin: 0;
           font-family: var(--font-mono);
-          font-size: 0.65rem;
+          font-size: 0.63rem;
           color: var(--color-muted);
-          word-break: break-all;
-          opacity: 0.6;
+          line-height: 1.7;
+          opacity: 0.75;
         }
         .result-reset {
           font-family: var(--font-mono);

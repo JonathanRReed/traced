@@ -2,7 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro'
 import Nav from '../../components/Nav.astro'
 import { getAllBreaches } from '../../lib/hibp'
-import { getBreachStatus, getCaseNumber, getDiscoveryGap, formatBreachDate, formatPwnCount } from '../../lib/utils'
+import { getBreachStatus, getCaseNumber, getDiscoveryGap, formatBreachDate, formatPwnCount, slugify } from '../../lib/utils'
 import { CaseReveal } from '../../components/CaseReveal'
 import { DiscoveryGap } from '../../components/DiscoveryGap'
 import type { HibpBreach } from '../../lib/types'
@@ -10,7 +10,7 @@ import type { HibpBreach } from '../../lib/types'
 export async function getStaticPaths() {
   const breaches = await getAllBreaches()
   return breaches.map((breach) => ({
-    params: { name: breach.Name.toLowerCase() },
+    params: { name: slugify(breach.Name) },
     props: { breach, allBreaches: breaches },
   }))
 }
@@ -47,7 +47,7 @@ const related = allBreaches
 >
   <Nav />
 
-  <main class="case-page">
+  <main id="main-content" tabindex="-1" class="case-page">
     <div class="case-container">
 
       <div class="case-breadcrumb">
@@ -150,7 +150,7 @@ const related = allBreaches
             </div>
             <div class="redacted-note">
               <span class="redacted-note-icon">⚠</span>
-              <p>This data is not recoverable. Passwords from this breach should be considered permanently compromised. If reused elsewhere, change them immediately.</p>
+              <p>If this breach included passwords, treat them as compromised. If they were reused anywhere else, change them there too.</p>
             </div>
           </div>
         </section>
@@ -158,13 +158,13 @@ const related = allBreaches
 
       {related.length > 0 && (
         <section class="case-section">
-          <h2 class="section-title">RELATED CASES — {breachYear} ERA</h2>
+          <h2 class="section-title">RELATED CASES — {breachYear}</h2>
           <div class="related-grid">
             {related.map((b) => {
               const s = getBreachStatus(b)
               const sc = s === 'CRITICAL' ? 'stamp-critical' : s === 'UNSOLVED' ? 'stamp-unsolved' : 'stamp-cold'
               return (
-                <a href={`/case/${b.Name.toLowerCase()}`} class="related-card">
+                <a href={`/case/${slugify(b.Name)}`} class="related-card">
                   <span class={`stamp ${sc} stamp-sm`}>{s}</span>
                   <span class="related-title">{b.Title}</span>
                   <span class="related-meta">{formatBreachDate(b.BreachDate)} · {formatPwnCount(b.PwnCount)}</span>
