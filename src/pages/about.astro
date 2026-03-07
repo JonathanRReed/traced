@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro'
 import Nav from '../components/Nav.astro'
+import Footer from '../components/Footer.astro'
 ---
 
 <BaseLayout
@@ -13,7 +14,7 @@ import Nav from '../components/Nav.astro'
     <div class="about-container">
 
       <!-- Author block -->
-      <header class="author-block">
+      <header class="author-block reveal">
         <div class="author-identity">
           <img
             src="https://img.jonathanrreed.com/personal/jonathan.avif"
@@ -43,7 +44,7 @@ import Nav from '../components/Nav.astro'
       <div class="about-body">
         <div class="about-left">
 
-          <section class="about-section">
+          <section class="about-section reveal" style="transition-delay: 0.1s">
             <h2 class="about-section-title">WHAT IS THIS</h2>
             <div class="about-section-body">
               <p>
@@ -58,7 +59,7 @@ import Nav from '../components/Nav.astro'
             </div>
           </section>
 
-          <section class="about-section">
+          <section class="about-section reveal" style="transition-delay: 0.2s">
             <h2 class="about-section-title">HOW IT WORKS</h2>
             <div class="about-section-body">
               <div class="how-step">
@@ -86,7 +87,7 @@ import Nav from '../components/Nav.astro'
             </div>
           </section>
 
-          <section class="about-section">
+          <section class="about-section reveal" style="transition-delay: 0.3s">
             <h2 class="about-section-title">THE STATUS LABELS</h2>
             <div class="about-section-body">
               <div class="status-row">
@@ -108,7 +109,7 @@ import Nav from '../components/Nav.astro'
 
         <div class="about-right">
 
-          <div class="privacy-callout">
+          <div class="privacy-callout reveal" style="transition-delay: 0.15s">
             <div class="pc-header">
               <span class="pc-icon">◈</span>
               <span class="pc-title">PRIVACY FIRST</span>
@@ -125,7 +126,7 @@ import Nav from '../components/Nav.astro'
             </div>
           </div>
 
-          <div class="stack-callout">
+          <div class="stack-callout reveal" style="transition-delay: 0.25s">
             <div class="sc-title">BUILT WITH</div>
             <div class="sc-list">
               <div class="sc-item">
@@ -155,7 +156,7 @@ import Nav from '../components/Nav.astro'
       </div>
 
       <!-- Sources -->
-      <section class="sources-section">
+      <section class="sources-section reveal" style="transition-delay: 0.1s">
         <h2 class="sources-title">DATA SOURCES</h2>
         <p class="sources-intro">
           Everything here comes from Troy Hunt&apos;s Have I Been Pwned — a public breach database
@@ -223,6 +224,7 @@ import Nav from '../components/Nav.astro'
 
     </div>
   </main>
+  <Footer />
 </BaseLayout>
 
 <style>
@@ -296,7 +298,7 @@ import Nav from '../components/Nav.astro'
     transition: opacity 0.15s;
   }
 
-  .author-link:hover { opacity: 0.7; }
+  .author-link:hover { opacity: 0.8; }
 
   .author-intro p {
     font-family: var(--font-mono);

@@ -7,16 +7,17 @@ import Nav from '../components/Nav.astro'
   <Nav currentPath="/" />
 
   <main id="main-content" tabindex="-1" class="nf-page">
+    <div class="nf-glow" aria-hidden="true"></div>
     <div class="nf-container">
 
-      <div class="nf-code-wrap">
-        <span class="nf-code">404</span>
+      <div class="nf-code-wrap reveal">
+        <span class="nf-code nf-code-glitch">404</span>
         <div class="nf-code-label">FILE NOT FOUND</div>
       </div>
 
       <div class="nf-divider" />
 
-      <div class="nf-content">
+      <div class="nf-content reveal" style="transition-delay: 0.15s">
         <div class="nf-eyebrow">CASE FILE ERROR</div>
         <h1 class="nf-headline">RECORD DOES NOT EXIST</h1>
         <p class="nf-body">
@@ -30,16 +31,16 @@ import Nav from '../components/Nav.astro'
         </div>
       </div>
 
-      <div class="nf-terminal">
-        <div class="nf-term-line">
+      <div class="nf-terminal reveal" style="transition-delay: 0.3s">
+        <div class="nf-term-line nf-term-stagger" style="--d: 0">
           <span class="nf-prompt">TRACED</span>
           <span class="nf-cmd">$ lookup --case <span class="nf-arg">[REDACTED]</span></span>
         </div>
-        <div class="nf-term-line nf-err">✗ ERROR: No matching case file</div>
-        <div class="nf-term-line nf-muted">→ Checking archive index... <span class="nf-fail">NONE</span></div>
-        <div class="nf-term-line nf-muted">→ Checking alternate slug... <span class="nf-fail">NONE</span></div>
-        <div class="nf-term-line nf-muted">→ Return to main archive recommended</div>
-        <div class="nf-term-line nf-warn">⚠ RECORD NOT FOUND</div>
+        <div class="nf-term-line nf-err nf-term-stagger" style="--d: 1">✗ ERROR: No matching case file</div>
+        <div class="nf-term-line nf-muted nf-term-stagger" style="--d: 2">→ Checking archive index... <span class="nf-fail">NONE</span></div>
+        <div class="nf-term-line nf-muted nf-term-stagger" style="--d: 3">→ Checking alternate slug... <span class="nf-fail">NONE</span></div>
+        <div class="nf-term-line nf-muted nf-term-stagger" style="--d: 4">→ Return to main archive recommended</div>
+        <div class="nf-term-line nf-warn nf-term-stagger" style="--d: 5">⚠ RECORD NOT FOUND</div>
         <div class="nf-term-cursor">_</div>
       </div>
 
@@ -54,6 +55,15 @@ import Nav from '../components/Nav.astro'
     align-items: center;
     justify-content: center;
     padding: 4rem 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .nf-glow {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(ellipse 50% 40% at 50% 40%, rgba(239, 68, 68, 0.06) 0%, transparent 70%);
   }
 
   .nf-container {
@@ -62,6 +72,8 @@ import Nav from '../components/Nav.astro'
     display: flex;
     flex-direction: column;
     gap: 2rem;
+    position: relative;
+    z-index: 1;
   }
 
   .nf-code-wrap {
@@ -78,6 +90,33 @@ import Nav from '../components/Nav.astro'
     color: var(--color-danger);
     line-height: 0.9;
     opacity: 0.15;
+  }
+
+  .nf-code-glitch {
+    animation: nf-glitch 6s ease-in-out infinite;
+  }
+
+  @keyframes nf-glitch {
+    0%, 88%, 100% {
+      text-shadow: none;
+      transform: translateX(0);
+    }
+    89% {
+      text-shadow: 3px 0 var(--color-danger), -3px 0 var(--color-accent);
+      transform: translateX(2px);
+    }
+    90% {
+      text-shadow: -2px 0 var(--color-danger), 2px 0 var(--color-accent);
+      transform: translateX(-3px);
+    }
+    91% {
+      text-shadow: 2px 0 var(--color-danger), -1px 0 var(--color-accent);
+      transform: translateX(1px);
+    }
+    92% {
+      text-shadow: none;
+      transform: translateX(0);
+    }
   }
 
   .nf-code-label {
@@ -150,7 +189,7 @@ import Nav from '../components/Nav.astro'
     color: #fff;
   }
 
-  .nf-btn-primary:hover { background: #2563eb; border-color: #2563eb; }
+  .nf-btn-primary:hover { background: var(--color-accent-hover); border-color: var(--color-accent-hover); }
 
   .nf-btn-ghost {
     background: transparent;
@@ -200,6 +239,17 @@ import Nav from '../components/Nav.astro'
     margin-top: 4px;
   }
 
+  .nf-term-stagger {
+    opacity: 0;
+    animation: nf-type-in 0.3s ease forwards;
+    animation-delay: calc(0.5s + var(--d, 0) * 0.12s);
+  }
+
+  @keyframes nf-type-in {
+    from { opacity: 0; transform: translateX(-4px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
   @keyframes blink {
     0%, 100% { opacity: 1; }
     50% { opacity: 0; }
@@ -207,5 +257,10 @@ import Nav from '../components/Nav.astro'
 
   @media (max-width: 640px) {
     .nf-page { padding: 3rem 1rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nf-code-glitch { animation: none; }
+    .nf-term-stagger { opacity: 1; animation: none; }
   }
 </style>
