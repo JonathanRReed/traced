@@ -11,7 +11,7 @@ export function DiscoveryGap({ gap }: Props) {
   const isInView = useInView(ref, { once: true, margin: '-50px' })
 
   const severity = gap.months < 12 ? 'low' : gap.months < 36 ? 'medium' : 'high'
-  const severityColor = severity === 'high' ? '#ef4444' : severity === 'medium' ? '#f59e0b' : '#3b82f6'
+  const severityColor = severity === 'high' ? '#ef4444' : severity === 'medium' ? '#f59e0b' : '#3b82f6' // danger / amber / accent
 
   return (
     <div className="gap-wrap" ref={ref}>
@@ -66,120 +66,7 @@ export function DiscoveryGap({ gap }: Props) {
         </p>
       </div>
 
-      <style>{`
-        .gap-wrap {
-          border: 1px solid var(--color-border);
-          background: var(--color-surface);
-          padding: 1.5rem 2rem;
-        }
-        .gap-header {
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-          margin-bottom: 1.5rem;
-        }
-        .gap-label {
-          font-family: var(--font-mono);
-          font-size: 0.6rem;
-          letter-spacing: 0.2em;
-          color: var(--color-muted);
-        }
-        .gap-sublabel {
-          font-family: var(--font-mono);
-          font-size: 0.6rem;
-          color: var(--color-muted);
-          opacity: 0.6;
-        }
-        .gap-timeline {
-          display: grid;
-          grid-template-columns: auto 1fr auto;
-          gap: 1rem;
-          align-items: center;
-          margin-bottom: 1.25rem;
-        }
-        .gap-endpoint {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 4px;
-          min-width: 80px;
-        }
-        .gap-endpoint-right { align-items: center; }
-        .gap-dot {
-          width: 10px;
-          height: 10px;
-          border-radius: 50%;
-          border: 2px solid var(--color-border);
-          background: var(--color-surface);
-        }
-        .dot-breach { border-color: var(--color-muted); }
-        .gap-endpoint-label {
-          font-family: var(--font-mono);
-          font-size: 0.5rem;
-          letter-spacing: 0.12em;
-          color: var(--color-muted);
-          text-align: center;
-          white-space: nowrap;
-        }
-        .gap-endpoint-date {
-          font-family: var(--font-mono);
-          font-size: 0.62rem;
-          letter-spacing: 0.08em;
-          color: var(--color-text);
-          text-align: center;
-        }
-        .gap-bar-wrap {
-          display: flex;
-          flex-direction: column;
-          gap: 6px;
-          align-items: center;
-        }
-        .gap-bar-track {
-          width: 100%;
-          height: 4px;
-          background: var(--color-border);
-          border-radius: 2px;
-          overflow: hidden;
-          position: relative;
-        }
-        .gap-bar-fill {
-          height: 100%;
-          border-radius: 2px;
-        }
-        .gap-duration-label {
-          font-family: var(--font-mono);
-          font-size: 0.62rem;
-          letter-spacing: 0.08em;
-          text-align: center;
-          font-weight: 500;
-        }
-        .gap-callout {
-          display: flex;
-          align-items: flex-start;
-          gap: 0.75rem;
-          padding: 0.75rem 1rem;
-          border: 1px solid;
-          border-radius: 2px;
-        }
-        .gap-callout-icon {
-          font-size: 0.9rem;
-          flex-shrink: 0;
-          margin-top: 1px;
-        }
-        .gap-callout-text {
-          font-family: var(--font-mono);
-          font-size: 0.68rem;
-          line-height: 1.6;
-          color: var(--color-text);
-          opacity: 0.85;
-          margin: 0;
-        }
-        @media (max-width: 500px) {
-          .gap-wrap { padding: 1rem; }
-          .gap-timeline { grid-template-columns: auto 1fr auto; gap: 0.5rem; }
-          .gap-endpoint { min-width: 60px; }
-        }
-      `}</style>
+
     </div>
   )
 }

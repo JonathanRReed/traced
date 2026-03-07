@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css'
+import { ClientRouter } from 'astro:transitions'
 import { CommandPalette } from '../components/CommandPalette'
 
 interface Props {
@@ -55,25 +56,55 @@ const canonicalUrl = new URL(Astro.url.pathname, siteUrl).toString()
     <link
       rel="preload"
       as="style"
-      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;900&family=Geist+Mono:wght@400;500;600&display=optional"
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;900&family=Geist+Mono:wght@400;500;600&display=swap"
     />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;900&family=Geist+Mono:wght@400;500;600&display=optional"
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;900&family=Geist+Mono:wght@400;500;600&display=swap"
       media="print"
       onload="this.media='all'"
     />
     <noscript>
       <link
         rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;900&family=Geist+Mono:wght@400;500;600&display=optional"
+        href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;900&family=Geist+Mono:wght@400;500;600&display=swap"
       />
     </noscript>
     <title>{title}</title>
+    <ClientRouter />
   </head>
   <body>
     <a href="#main-content" class="skip-link">Skip to main content</a>
     <CommandPalette client:load />
     <slot />
+
+    <script>
+      function initReveals() {
+        const els = document.querySelectorAll('.reveal:not(.revealed)')
+        if (!els.length) return
+
+        const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
+        if (mq.matches) {
+          els.forEach((el) => el.classList.add('revealed'))
+          return
+        }
+
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('revealed')
+                observer.unobserve(entry.target)
+              }
+            })
+          },
+          { threshold: 0.1 }
+        )
+        els.forEach((el) => observer.observe(el))
+      }
+
+      initReveals()
+      document.addEventListener('astro:page-load', initReveals)
+    </script>
   </body>
 </html>

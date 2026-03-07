@@ -1,4 +1,5 @@
 import { useRef, useState, useMemo, useEffect, useCallback } from 'react'
+import { motion } from 'framer-motion'
 import type { HibpBreach } from '../lib/types'
 import { getBreachStatus, slugify } from '../lib/utils'
 import { fetchBreachesClient } from '../lib/breaches-client'
@@ -84,9 +85,9 @@ export function TimelineScrubber() {
   const maxCount = useMemo(() => Math.max(...yearData.map((d) => d.total), 1), [yearData])
 
   function barColor(d: YearData): string {
-    if (d.critical > 0) return '#ef4444'
-    if (d.unsolved > 0) return '#3b82f6'
-    return '#4b5563'
+    if (d.critical > 0) return '#ef4444' // --color-danger
+    if (d.unsolved > 0) return '#3b82f6' // --color-accent
+    return '#4b5563' // --color-dim
   }
 
   function handleEnter(e: React.MouseEvent, d: YearData) {
@@ -100,38 +101,26 @@ export function TimelineScrubber() {
   if (loading) {
     return (
       <div className="tl-wrap" aria-live="polite">
-        <div className="tl-status-row">
-          <span className="tl-status-dot" />
-          <span className="tl-status-text">BUILDING TIMELINE...</span>
+        <div className="tl-header">
+          <span className="tl-label">
+            <span className="skeleton" style={{ width: 200, height: 10, display: 'inline-block' }} />
+          </span>
         </div>
-        <style>{`
-          .tl-wrap {
-            padding: 1.5rem 2rem 1rem;
-            border: 1px solid var(--color-border);
-            background: var(--color-surface);
-            margin: 0 2rem 2rem;
-          }
-          .tl-status-row {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            min-height: 7rem;
-            font-family: var(--font-mono);
-            font-size: 0.62rem;
-            letter-spacing: 0.18em;
-            color: var(--color-muted);
-          }
-          .tl-status-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: var(--color-accent);
-            animation: blink 1s step-end infinite;
-          }
-          @media (max-width: 640px) {
-            .tl-wrap { padding: 1rem; margin: 0 1rem 1.5rem; }
-          }
-        `}</style>
+        <div className="tl-chart" style={{ height: BAR_H + 24 }}>
+          <div className="tl-bars">
+            {Array.from({ length: 24 }).map((_, i) => (
+              <div
+                key={i}
+                className="skeleton"
+                style={{
+                  width: '100%',
+                  height: Math.max(4, Math.round(Math.random() * BAR_H * 0.6)),
+                  alignSelf: 'flex-end',
+                }}
+              />
+            ))}
+          </div>
+        </div>
       </div>
     )
   }
@@ -139,78 +128,20 @@ export function TimelineScrubber() {
   if (error && breaches.length === 0) {
     return (
       <div className="tl-wrap" role="status" aria-live="polite">
-        <div className="tl-error-panel">
-          <span className="tl-error-kicker">TIMELINE UNAVAILABLE</span>
-          <p className="tl-error-message">
+        <div className="shared-error">
+          <span className="shared-error-kicker">TIMELINE UNAVAILABLE</span>
+          <p className="shared-error-message">
             We could not load the incident timeline right now.
           </p>
-          <p className="tl-error-detail">{error}</p>
+          <p className="shared-error-detail">{error}</p>
           <button
             type="button"
-            className="tl-error-retry"
+            className="shared-error-retry"
             onClick={() => void loadBreaches(true)}
           >
             RETRY TIMELINE
           </button>
         </div>
-        <style>{`
-          .tl-wrap {
-            padding: 1.5rem 2rem 1rem;
-            border: 1px solid var(--color-border);
-            background: var(--color-surface);
-            margin: 0 2rem 2rem;
-          }
-          .tl-error-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-            max-width: 30rem;
-            min-height: 7rem;
-            justify-content: center;
-          }
-          .tl-error-kicker {
-            font-family: var(--font-mono);
-            font-size: 0.56rem;
-            letter-spacing: 0.22em;
-            color: var(--color-danger);
-          }
-          .tl-error-message {
-            margin: 0;
-            font-family: var(--font-display);
-            font-weight: 700;
-            font-size: 1.15rem;
-            letter-spacing: 0.05em;
-            color: var(--color-text);
-          }
-          .tl-error-detail {
-            margin: 0;
-            font-family: var(--font-mono);
-            font-size: 0.62rem;
-            line-height: 1.7;
-            letter-spacing: 0.05em;
-            color: var(--color-muted);
-          }
-          .tl-error-retry {
-            align-self: flex-start;
-            font-family: var(--font-mono);
-            font-size: 0.6rem;
-            letter-spacing: 0.16em;
-            background: none;
-            border: 1px solid var(--color-danger);
-            color: var(--color-danger);
-            padding: 0.55rem 0.85rem;
-            cursor: pointer;
-            border-radius: 2px;
-            transition: background 0.15s, color 0.15s;
-          }
-          .tl-error-retry:hover {
-            background: rgba(239, 68, 68, 0.12);
-            color: #fca5a5;
-          }
-          @media (max-width: 640px) {
-            .tl-wrap { padding: 1rem; margin: 0 1rem 1.5rem; }
-          }
-        `}</style>
       </div>
     )
   }
@@ -220,19 +151,19 @@ export function TimelineScrubber() {
       <div className="tl-header">
         <span className="tl-label">INCIDENT FREQUENCY — {breaches.length} RECORDED EVENTS</span>
         <span className="tl-legend">
-          <span className="tl-swatch" style={{ background: '#ef4444' }} />CRITICAL
-          <span className="tl-swatch" style={{ background: '#3b82f6' }} />UNSOLVED
-          <span className="tl-swatch" style={{ background: '#4b5563' }} />COLD CASE
+          <span className="tl-swatch tl-swatch-critical" />CRITICAL
+          <span className="tl-swatch tl-swatch-unsolved" />UNSOLVED
+          <span className="tl-swatch tl-swatch-cold" />COLD CASE
         </span>
       </div>
 
       <div className="tl-chart" ref={containerRef} style={{ height: BAR_H + 24 }}>
         <div className="tl-bars">
-          {yearData.map((d) => {
+          {yearData.map((d, i) => {
             const h = d.total === 0 ? 1 : Math.max(2, Math.round((d.total / maxCount) * BAR_H))
             const color = barColor(d)
             return (
-              <button
+              <motion.button
                 key={d.year}
                 className={`tl-bar ${d.total === 0 ? 'tl-bar-empty' : ''}`}
                 style={{
@@ -240,7 +171,12 @@ export function TimelineScrubber() {
                   background: d.total === 0 ? 'var(--color-border)' : color,
                   opacity: d.total === 0 ? 0.2 : 0.75,
                   boxShadow: d.total > 0 ? `0 0 6px ${color}40` : 'none',
+                  transformOrigin: 'bottom',
                 }}
+                initial={{ scaleY: 0 }}
+                whileInView={{ scaleY: 1 }}
+                viewport={{ once: true, margin: '-40px' }}
+                transition={{ duration: 0.4, delay: i * 0.025, ease: 'easeOut' }}
                 onMouseEnter={(e) => d.total > 0 && handleEnter(e, d)}
                 onMouseLeave={() => setTooltip(null)}
                 onClick={() => {
@@ -293,216 +229,7 @@ export function TimelineScrubber() {
         )}
       </div>
 
-      <style>{`
-        .tl-wrap {
-          padding: 1.5rem 2rem 1rem;
-          border: 1px solid var(--color-border);
-          background: var(--color-surface);
-          margin: 0 2rem 2rem;
-        }
-        .tl-status-row {
-          display: flex;
-          align-items: center;
-          gap: 0.75rem;
-          min-height: 7rem;
-          font-family: var(--font-mono);
-          font-size: 0.62rem;
-          letter-spacing: 0.18em;
-          color: var(--color-muted);
-        }
-        .tl-status-dot {
-          width: 6px;
-          height: 6px;
-          border-radius: 50%;
-          background: var(--color-accent);
-          animation: blink 1s step-end infinite;
-        }
-        .tl-error-panel {
-          display: flex;
-          flex-direction: column;
-          gap: 0.75rem;
-          max-width: 30rem;
-          min-height: 7rem;
-          justify-content: center;
-        }
-        .tl-error-kicker {
-          font-family: var(--font-mono);
-          font-size: 0.56rem;
-          letter-spacing: 0.22em;
-          color: var(--color-danger);
-        }
-        .tl-error-message {
-          margin: 0;
-          font-family: var(--font-display);
-          font-weight: 700;
-          font-size: 1.15rem;
-          letter-spacing: 0.05em;
-          color: var(--color-text);
-        }
-        .tl-error-detail {
-          margin: 0;
-          font-family: var(--font-mono);
-          font-size: 0.62rem;
-          line-height: 1.7;
-          letter-spacing: 0.05em;
-          color: var(--color-muted);
-        }
-        .tl-error-retry {
-          align-self: flex-start;
-          font-family: var(--font-mono);
-          font-size: 0.6rem;
-          letter-spacing: 0.16em;
-          background: none;
-          border: 1px solid var(--color-danger);
-          color: var(--color-danger);
-          padding: 0.55rem 0.85rem;
-          cursor: pointer;
-          border-radius: 2px;
-          transition: background 0.15s, color 0.15s;
-        }
-        .tl-error-retry:hover {
-          background: rgba(239, 68, 68, 0.12);
-          color: #fca5a5;
-        }
-        .tl-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 1rem;
-          flex-wrap: wrap;
-          gap: 0.5rem;
-        }
-        .tl-label {
-          font-family: var(--font-mono);
-          font-size: 0.58rem;
-          letter-spacing: 0.2em;
-          color: var(--color-muted);
-        }
-        .tl-legend {
-          display: flex;
-          align-items: center;
-          gap: 0.875rem;
-          font-family: var(--font-mono);
-          font-size: 0.55rem;
-          letter-spacing: 0.1em;
-          color: var(--color-muted);
-        }
-        .tl-swatch {
-          display: inline-block;
-          width: 8px;
-          height: 8px;
-          margin-right: 4px;
-          vertical-align: middle;
-        }
-        .tl-chart {
-          position: relative;
-        }
-        .tl-bars {
-          display: flex;
-          align-items: flex-end;
-          gap: 2px;
-          height: ${BAR_H}px;
-        }
-        .tl-bar {
-          flex: 1;
-          min-width: 2px;
-          border: none;
-          padding: 0;
-          cursor: pointer;
-          transition: opacity 0.1s, box-shadow 0.1s, transform 0.1s;
-          transform-origin: bottom center;
-        }
-        .tl-bar:hover:not(:disabled) {
-          opacity: 1 !important;
-          transform: scaleY(1.06);
-        }
-        .tl-bar-empty {
-          cursor: default;
-        }
-        .tl-axis {
-          position: relative;
-          height: 20px;
-          margin-top: 4px;
-          border-top: 1px solid var(--color-border);
-        }
-        .tl-year {
-          position: absolute;
-          transform: translateX(-50%);
-          font-family: var(--font-mono);
-          font-size: 0.48rem;
-          color: var(--color-muted);
-          letter-spacing: 0.06em;
-          top: 4px;
-          opacity: 0.65;
-          white-space: nowrap;
-        }
-        .tl-tooltip {
-          position: absolute;
-          background: #080b0fef;
-          border: 1px solid var(--color-border);
-          border-left: 2px solid var(--color-accent);
-          padding: 8px 12px;
-          pointer-events: none;
-          z-index: 50;
-          display: flex;
-          flex-direction: column;
-          gap: 3px;
-          min-width: 140px;
-          box-shadow: 0 8px 32px rgba(0,0,0,0.6);
-        }
-        .tt-year {
-          font-family: var(--font-display);
-          font-weight: 900;
-          font-size: 1.4rem;
-          color: var(--color-text);
-          letter-spacing: 0.08em;
-          line-height: 1;
-        }
-        .tt-total {
-          font-family: var(--font-mono);
-          font-size: 0.6rem;
-          color: var(--color-muted);
-          letter-spacing: 0.1em;
-        }
-        .tt-breakdown {
-          display: flex;
-          gap: 6px;
-          flex-wrap: wrap;
-          margin-top: 1px;
-        }
-        .tt-crit {
-          font-family: var(--font-mono);
-          font-size: 0.52rem;
-          color: #ef4444;
-          letter-spacing: 0.1em;
-        }
-        .tt-unsolved {
-          font-family: var(--font-mono);
-          font-size: 0.52rem;
-          color: #3b82f6;
-          letter-spacing: 0.1em;
-        }
-        .tt-cold {
-          font-family: var(--font-mono);
-          font-size: 0.52rem;
-          color: var(--color-muted);
-          letter-spacing: 0.1em;
-        }
-        .tt-top {
-          font-family: var(--font-mono);
-          font-size: 0.58rem;
-          color: var(--color-muted);
-          margin-top: 3px;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-        @media (max-width: 640px) {
-          .tl-wrap { padding: 1rem; margin: 0 1rem 1.5rem; }
-          .tl-legend { display: none; }
-          .tl-bars { gap: 1px; }
-        }
-      `}</style>
+
     </div>
   )
 }

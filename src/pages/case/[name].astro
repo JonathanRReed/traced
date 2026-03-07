@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro'
 import Nav from '../../components/Nav.astro'
+import Footer from '../../components/Footer.astro'
 import { getAllBreaches } from '../../lib/hibp'
 import { getBreachStatus, getCaseNumber, getDiscoveryGap, formatBreachDate, formatPwnCount, slugify } from '../../lib/utils'
 import { CaseReveal } from '../../components/CaseReveal'
@@ -25,7 +26,6 @@ const status = getBreachStatus(breach)
 const caseNumber = getCaseNumber(breach)
 const gap = getDiscoveryGap(breach)
 
-const SENSITIVE_DATA_CLASSES = ['Passwords', 'Credit cards', 'Social security numbers', 'Bank account numbers', 'Payment histories']
 const hasPasswords = breach.DataClasses.includes('Passwords')
 
 const statusLabel = status === 'CRITICAL' ? 'CRITICAL' : status === 'UNSOLVED' ? 'UNSOLVED' : 'COLD CASE'
@@ -56,7 +56,7 @@ const related = allBreaches
         <span class="breadcrumb-current">{caseNumber}</span>
       </div>
 
-      <header class="case-header">
+      <header class="case-header reveal">
         <div class="case-header-left">
           <div class="case-classification">
             <span class="case-label">CASE FILE</span>
@@ -90,7 +90,7 @@ const related = allBreaches
         </div>
       </header>
 
-      <div class="case-quick-stats">
+      <div class="case-quick-stats reveal" style="transition-delay: 0.1s">
         <div class="quick-stat">
           <span class="qs-value">{formatPwnCount(breach.PwnCount)}</span>
           <span class="qs-label">ACCOUNTS</span>
@@ -116,20 +116,20 @@ const related = allBreaches
         )}
       </div>
 
-      <section class="case-section">
+      <section class="case-section reveal" style="transition-delay: 0.15s">
         <h2 class="section-title">EVIDENCE FILE</h2>
         <CaseReveal breach={breach} client:load />
       </section>
 
       {gap && (
-        <section class="case-section">
+        <section class="case-section reveal" style="transition-delay: 0.2s">
           <h2 class="section-title">DISCOVERY GAP</h2>
           <DiscoveryGap gap={gap} client:visible />
         </section>
       )}
 
       {hasPasswords && (
-        <section class="case-section">
+        <section class="case-section reveal" style="transition-delay: 0.25s">
           <h2 class="section-title">REDACTED EVIDENCE</h2>
           <div class="redacted-panel scanlines">
             <div class="redacted-header">
@@ -157,7 +157,7 @@ const related = allBreaches
       )}
 
       {related.length > 0 && (
-        <section class="case-section">
+        <section class="case-section reveal" style="transition-delay: 0.3s">
           <h2 class="section-title">RELATED CASES — {breachYear}</h2>
           <div class="related-grid">
             {related.map((b) => {
@@ -182,6 +182,7 @@ const related = allBreaches
 
     </div>
   </main>
+  <Footer />
 </BaseLayout>
 
 <style>
@@ -214,7 +215,7 @@ const related = allBreaches
     transition: opacity 0.15s;
   }
 
-  .breadcrumb-link:hover { opacity: 0.7; }
+  .breadcrumb-link:hover { opacity: 0.8; }
   .breadcrumb-sep { color: var(--color-border); }
   .breadcrumb-current { color: var(--color-muted); }
 
@@ -506,7 +507,7 @@ const related = allBreaches
     transition: opacity 0.15s;
   }
 
-  .back-link:hover { opacity: 0.7; }
+  .back-link:hover { opacity: 0.8; }
 
   .case-footer-num {
     font-family: var(--font-mono);

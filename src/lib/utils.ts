@@ -1,10 +1,4 @@
-import { type ClassValue, clsx } from 'clsx'
-import { twMerge } from 'tailwind-merge'
 import type { HibpBreach, BreachStatus, DiscoveryGap } from './types'
-
-export function cn(...inputs: ClassValue[]): string {
-  return twMerge(clsx(inputs))
-}
 
 const SENSITIVE_DATA_CLASSES = [
   'Passwords',

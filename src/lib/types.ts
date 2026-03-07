@@ -20,12 +20,6 @@ export interface HibpBreach {
 
 export type BreachStatus = 'CRITICAL' | 'UNSOLVED' | 'COLD CASE'
 
-export interface BreachWithStatus extends HibpBreach {
-  status: BreachStatus
-  caseNumber: string
-  discoveryGap: DiscoveryGap | null
-}
-
 export interface DiscoveryGap {
   label: string
   months: number
