@@ -21,14 +21,20 @@ function formatBigNumber(n: number): string {
 }
 ---
 
-<BaseLayout title="TRACED — Every Breach. Every Record." description="Browse known data breaches as case files and check whether a password appears in known breach data.">
+<BaseLayout
+  title="TRACED | Public Data Breach Archive and Password Exposure Checker"
+  description="Browse public data breach case files, compare exposed account records, and check whether a password appears in known breach data using Have I Been Pwned sources."
+>
   <Nav currentPath="/" />
 
   <main id="main-content" tabindex="-1">
     <section class="hero">
       <div class="hero-inner">
         <div class="hero-eyebrow">Public Breach Archive</div>
-        <h1 class="hero-title"><HeroTitle client:load /></h1>
+        <h1 class="hero-title">
+          <span class="sr-only">TRACED public data breach archive</span>
+          <span aria-hidden="true"><HeroTitle client:load /></span>
+        </h1>
         <p class="hero-tagline">KNOWN BREACHES. ON THE RECORD.</p>
 
         <div class="hero-stats">
@@ -55,7 +61,7 @@ function formatBigNumber(n: number): string {
 
         <div class="hero-cta-row">
           <a href="#archive" class="hero-cta">BROWSE THE ARCHIVE ↓</a>
-          <a href="/check" class="hero-cta hero-cta-ghost">CHECK A PASSWORD →</a>
+          <a href="/check/" class="hero-cta hero-cta-ghost">CHECK A PASSWORD →</a>
         </div>
       </div>
 

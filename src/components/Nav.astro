@@ -6,15 +6,15 @@ const { currentPath = '/' } = Astro.props
 ---
 
 <nav class="nav">
-  <a href="/" class="nav-wordmark" aria-label="TRACED — Home">TRACED</a>
+  <a href="/" class="nav-wordmark" aria-label="TRACED Home">TRACED</a>
   <div class="nav-links">
     <a href="/" class:list={['nav-link', { active: currentPath === '/' }]}>ARCHIVE</a>
-    <a href="/check" class:list={['nav-link', { active: currentPath === '/check' }]}>CHECK</a>
-    <a href="/about" class:list={['nav-link', { active: currentPath === '/about' }]}>ABOUT</a>
+    <a href="/check/" class:list={['nav-link', { active: currentPath === '/check/' }]}>CHECK</a>
+    <a href="/about/" class:list={['nav-link', { active: currentPath === '/about/' }]}>ABOUT</a>
     <button class="nav-search-mobile" aria-label="Search breaches" onclick="window.dispatchEvent(new CustomEvent('open-command-palette'))">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
     </button>
-    <button class="nav-cmd" id="nav-cmd-btn" aria-label="Open command search (Cmd+K)" onclick="window.dispatchEvent(new CustomEvent('open-command-palette'))">
+    <button class="nav-cmd" id="nav-cmd-btn" aria-label="⌘K search case files" onclick="window.dispatchEvent(new CustomEvent('open-command-palette'))">
       <kbd>⌘K</kbd>
     </button>
   </div>
