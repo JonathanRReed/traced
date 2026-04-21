@@ -1,0 +1,116 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import Nav from '../components/Nav.astro'
+import Footer from '../components/Footer.astro'
+---
+
+<BaseLayout
+  title="Privacy Policy | TRACED Public Breach Archive"
+  description="Read the TRACED privacy policy. The site has no analytics, cookies, accounts, or tracking, and password checks happen with client-side hashing and k-anonymity."
+>
+  <Nav currentPath="/privacy/" />
+
+  <main id="main-content" tabindex="-1" class="privacy-page">
+    <article class="privacy-container">
+      <p class="privacy-eyebrow">TRACED PRIVACY POLICY</p>
+      <h1>Privacy Policy</h1>
+      <p class="privacy-updated">Last updated April 21, 2026</p>
+
+      <section>
+        <h2>No Accounts, Cookies, or Analytics</h2>
+        <p>
+          TRACED is a static public breach archive. It does not create user accounts, set tracking
+          cookies, run analytics, or store behavioral profiles. Pages are served by Cloudflare Pages
+          as static assets.
+        </p>
+      </section>
+
+      <section>
+        <h2>Password Checks</h2>
+        <p>
+          Password checks use the Have I Been Pwned k-anonymity model. Your browser hashes the
+          password locally, sends only the first five characters of the hash prefix, receives possible
+          matches, and completes the final comparison on your device. The full password is not sent to
+          TRACED.
+        </p>
+      </section>
+
+      <section>
+        <h2>Data Sources</h2>
+        <p>
+          Breach case files are built from public Have I Been Pwned breach data. TRACED is not
+          affiliated with Have I Been Pwned or Troy Hunt.
+        </p>
+      </section>
+
+      <section>
+        <h2>Contact</h2>
+        <p>
+          For questions about this site, contact Jonathan R. Reed through
+          <a href="https://jonathanrreed.com/contact/" rel="noopener">jonathanrreed.com/contact/</a>.
+        </p>
+      </section>
+    </article>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  .privacy-page {
+    min-height: 100vh;
+    padding-bottom: 6rem;
+  }
+
+  .privacy-container {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .privacy-eyebrow,
+  .privacy-updated {
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.22em;
+    color: var(--color-muted);
+    margin: 0;
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: clamp(3.5rem, 10vw, 7rem);
+    letter-spacing: 0.08em;
+    line-height: 0.9;
+    margin: 0;
+    color: var(--color-text);
+    text-transform: uppercase;
+  }
+
+  section {
+    border-top: 1px solid var(--color-border);
+    padding-top: 1.25rem;
+  }
+
+  h2 {
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.24em;
+    color: var(--color-accent);
+    text-transform: uppercase;
+    margin: 0 0 0.75rem;
+  }
+
+  p {
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    line-height: 1.85;
+    color: var(--color-text);
+    opacity: 0.78;
+    margin: 0;
+  }
+</style>

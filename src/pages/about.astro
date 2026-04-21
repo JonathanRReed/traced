@@ -5,10 +5,10 @@ import Footer from '../components/Footer.astro'
 ---
 
 <BaseLayout
-  title="About — TRACED"
-  description="Traced is a weekend project by Jonathan R. Reed — a fun way to browse known data breaches and check if your password has shown up in one."
+  title="About TRACED | Jonathan R. Reed Data Breach Archive Project"
+  description="Learn how Jonathan R. Reed built TRACED as a static public breach archive using Have I Been Pwned data, client-side password checking, and privacy-first design."
 >
-  <Nav currentPath="/about" />
+  <Nav currentPath="/about/" />
 
   <main id="main-content" tabindex="-1" class="about-page">
     <div class="about-container">
@@ -18,14 +18,16 @@ import Footer from '../components/Footer.astro'
         <div class="author-identity">
           <img
             src="https://img.jonathanrreed.com/personal/jonathan.avif"
-            alt="Jonathan R. Reed"
+            alt=""
+            width="72"
+            height="72"
             class="author-photo"
             onerror="this.style.display='none'"
           />
           <div class="author-text">
             <span class="author-byline">BY</span>
-            <span class="author-name">JONATHAN R. REED</span>
-            <a href="https://jonathanrreed.com" target="_blank" rel="noopener" class="author-link" aria-label="Jonathan R. Reed's website (opens in new tab)">
+            <h1 class="author-name">JONATHAN R. REED</h1>
+            <a href="https://jonathanrreed.com" target="_blank" rel="noopener" class="author-link">
               jonathanrreed.com ↗
             </a>
           </div>
@@ -184,7 +186,7 @@ import Footer from '../components/Footer.astro'
                 <span class="endpoint-path">haveibeenpwned.com/api/v3/breach/{'{name}'}</span>
               </div>
             </div>
-            <a href="https://haveibeenpwned.com" target="_blank" rel="noopener" class="source-link" aria-label="Have I Been Pwned (opens in new tab)">
+            <a href="https://haveibeenpwned.com" target="_blank" rel="noopener" class="source-link">
               haveibeenpwned.com ↗
             </a>
           </div>
@@ -205,7 +207,7 @@ import Footer from '../components/Footer.astro'
                 <span class="endpoint-path">api.pwnedpasswords.com/range/{'{prefix}'}</span>
               </div>
             </div>
-            <a href="https://haveibeenpwned.com/Passwords" target="_blank" rel="noopener" class="source-link" aria-label="Have I Been Pwned Passwords (opens in new tab)">
+            <a href="https://haveibeenpwned.com/Passwords" target="_blank" rel="noopener" class="source-link">
               haveibeenpwned.com/Passwords ↗
             </a>
           </div>
@@ -287,6 +289,7 @@ import Footer from '../components/Footer.astro'
     letter-spacing: 0.08em;
     color: var(--color-text);
     line-height: 1;
+    margin: 0;
   }
 
   .author-link {
