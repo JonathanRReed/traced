@@ -79,7 +79,7 @@ export function CommandPalette() {
   }, [breaches, query])
 
   function navigate(breach: HibpBreach) {
-    window.location.href = `/case/${slugify(breach.Name)}`
+    window.location.href = `/case/${slugify(breach.Name)}/`
   }
 
   function onKeyDown(e: React.KeyboardEvent) {

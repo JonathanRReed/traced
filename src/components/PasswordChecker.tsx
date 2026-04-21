@@ -238,7 +238,7 @@ export function PasswordChecker({ passwordBreaches = [] }: Props) {
                 </div>
                 <div className="result-cases-grid">
                   {passwordBreaches.map((b) => (
-                    <a key={b.name} href={`/case/${b.name}`} className="case-link">
+                    <a key={b.name} href={`/case/${b.name}/`} className="case-link">
                       <span className="case-link-title">{b.title}</span>
                       <span className="case-link-meta">
                         {new Date(b.breachDate).getFullYear()} · {b.pwnCount >= 1_000_000 ? (b.pwnCount / 1_000_000).toFixed(0) + 'M' : b.pwnCount.toLocaleString()}

@@ -1,0 +1,103 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import Nav from '../components/Nav.astro'
+import Footer from '../components/Footer.astro'
+---
+
+<BaseLayout
+  title="Contact TRACED | Corrections and Source Questions"
+  description="Contact TRACED for breach archive corrections, source questions, privacy questions, or responsible notes about public breach data."
+>
+  <Nav currentPath="/contact/" />
+  <main id="main-content" tabindex="-1" class="contact-page">
+    <section class="contact-panel reveal">
+      <span class="contact-kicker">TRACED CONTACT</span>
+      <h1>Corrections, source questions, and privacy notes</h1>
+      <p>
+        TRACED is maintained by Jonathan R. Reed as a public breach archive and privacy-first password exposure checker.
+        If a case file needs a correction, a source should be clarified, or a privacy concern needs review, send the note
+        through Jonathan's primary site.
+      </p>
+      <div class="contact-actions">
+        <a href="https://jonathanrreed.com/" target="_blank" rel="noopener">JonathanRReed.com</a>
+        <a href="https://helloworldfirm.com/" target="_blank" rel="noopener">Hello World Coding</a>
+      </div>
+      <p class="contact-note">
+        Do not send passwords, private keys, personal documents, or breach samples through a contact form. TRACED does not
+        need sensitive material to answer archive corrections or source questions.
+      </p>
+    </section>
+  </main>
+  <Footer />
+</BaseLayout>
+
+<style>
+  .contact-page {
+    min-height: 72vh;
+    display: grid;
+    place-items: center;
+    padding: 7rem 2rem 5rem;
+  }
+
+  .contact-panel {
+    max-width: 720px;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    padding: 2rem;
+  }
+
+  .contact-kicker {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.24em;
+    color: var(--color-accent);
+  }
+
+  h1 {
+    margin: 0.75rem 0 1rem;
+    font-family: var(--font-display);
+    font-size: clamp(2.2rem, 6vw, 4.5rem);
+    line-height: 0.9;
+    letter-spacing: 0;
+    text-transform: uppercase;
+  }
+
+  p {
+    color: var(--color-muted);
+    line-height: 1.75;
+    margin: 0;
+  }
+
+  .contact-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin: 1.5rem 0;
+  }
+
+  .contact-actions a {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+    padding: 0.75rem 0.9rem;
+    text-decoration: none;
+    text-transform: uppercase;
+  }
+
+  .contact-actions a:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+
+  .contact-note {
+    font-size: 0.9rem;
+    color: var(--color-dim);
+  }
+
+  @media (max-width: 640px) {
+    .contact-page { padding: 6rem 1rem 4rem; }
+    .contact-panel { padding: 1.25rem; }
+  }
+</style>

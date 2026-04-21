@@ -39,11 +39,15 @@ const related = allBreaches
     return Math.abs(y - breachYear) <= 1
   })
   .slice(0, 4)
+
+const caseTitle = `${breach.Title} Data Breach Case File | TRACED`
+const exposedData = breach.DataClasses.slice(0, 4).join(', ')
+const caseDescription = `${breach.Title} breach case file covering ${formatPwnCount(breach.PwnCount)} exposed accounts, the ${formatBreachDate(breach.BreachDate)} incident date, affected data classes, and Have I Been Pwned source details.`
 ---
 
 <BaseLayout
-  title={`${breach.Title} — TRACED`}
-  description={`Case file: ${breach.Title}. ${formatPwnCount(breach.PwnCount)} accounts compromised. Breach date: ${formatBreachDate(breach.BreachDate)}.`}
+  title={caseTitle}
+  description={caseDescription}
 >
   <Nav />
 
@@ -68,6 +72,8 @@ const related = allBreaches
               <img
                 src={breach.LogoPath}
                 alt={breach.Title}
+                width="64"
+                height="64"
                 class="case-logo"
                 onerror="this.style.display='none'"
               />
@@ -76,9 +82,7 @@ const related = allBreaches
           </div>
 
           {breach.Domain && (
-            <a href={`https://${breach.Domain}`} target="_blank" rel="noopener" class="case-domain">
-              {breach.Domain} ↗
-            </a>
+            <span class="case-domain">{breach.Domain}</span>
           )}
         </div>
 
@@ -119,6 +123,21 @@ const related = allBreaches
       <section class="case-section reveal" style="transition-delay: 0.15s">
         <h2 class="section-title">EVIDENCE FILE</h2>
         <CaseReveal breach={breach} client:load />
+      </section>
+
+      <section class="case-section case-context reveal" style="transition-delay: 0.18s">
+        <h2 class="section-title">CASE CONTEXT</h2>
+        <p>
+          This TRACED record summarizes the public breach profile for {breach.Title}. The file tracks the known incident date,
+          the date the breach surfaced publicly, the estimated account exposure, and whether Have I Been Pwned currently marks
+          the case as verified. It is written for quick risk review, source attribution, and follow-up checks by people who need
+          a plain-English view of what was exposed.
+        </p>
+        <p>
+          The reported data classes include {exposedData || 'publicly disclosed account data'}. If the case includes passwords,
+          reused credentials should be treated as compromised and replaced anywhere they were used. The password checker on TRACED
+          uses the Have I Been Pwned k-anonymity range API so the full password is never sent off the device.
+        </p>
       </section>
 
       {gap && (
@@ -164,7 +183,7 @@ const related = allBreaches
               const s = getBreachStatus(b)
               const sc = s === 'CRITICAL' ? 'stamp-critical' : s === 'UNSOLVED' ? 'stamp-unsolved' : 'stamp-cold'
               return (
-                <a href={`/case/${slugify(b.Name)}`} class="related-card">
+                <a href={`/case/${slugify(b.Name)}/`} class="related-card">
                   <span class={`stamp ${sc} stamp-sm`}>{s}</span>
                   <span class="related-title">{b.Title}</span>
                   <span class="related-meta">{formatBreachDate(b.BreachDate)} · {formatPwnCount(b.PwnCount)}</span>
@@ -284,12 +303,17 @@ const related = allBreaches
     font-family: var(--font-mono);
     font-size: 0.65rem;
     color: var(--color-muted);
-    text-decoration: none;
     letter-spacing: 0.08em;
-    transition: color 0.15s;
   }
 
-  .case-domain:hover { color: var(--color-accent); }
+  .case-context p {
+    margin: 0 0 1rem;
+    color: var(--color-muted);
+    line-height: 1.75;
+    font-size: 0.95rem;
+  }
+
+  .case-context p:last-child { margin-bottom: 0; }
 
   .case-stamp-wrap {
     display: flex;

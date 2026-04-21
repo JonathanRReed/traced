@@ -23,6 +23,7 @@ export const GET: APIRoute = async () => {
     '/',
     '/check/',
     '/about/',
+    '/contact/',
     '/privacy/',
     ...breaches.map((breach) => `/case/${slugify(breach.Name)}/`),
   ]

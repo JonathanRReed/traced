@@ -72,14 +72,7 @@ export function CaseReveal({ breach }: Props) {
     {
       label: 'DOMAIN',
       value: breach.Domain ? (
-        <a
-          href={`https://${breach.Domain}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="field-link"
-        >
-          {breach.Domain}
-        </a>
+        <span className="field-value">{breach.Domain}</span>
       ) : (
         <span className="field-value field-muted">UNKNOWN</span>
       ),

@@ -32,7 +32,7 @@ export function BreachCard({ breach }: Props) {
 
   return (
     <a
-      href={`/case/${caseSlug}`}
+      href={`/case/${caseSlug}/`}
       style={{ textDecoration: 'none', display: 'block' }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -48,6 +48,8 @@ export function BreachCard({ breach }: Props) {
             <img
               src={breach.LogoPath}
               alt={breach.Title}
+              width={64}
+              height={64}
               className="breach-logo"
               loading="lazy"
               onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
