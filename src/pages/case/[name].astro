@@ -40,9 +40,15 @@ const related = allBreaches
   })
   .slice(0, 4)
 
-const caseTitle = `${breach.Title} Data Breach Case File | TRACED`
+function compactTitle(value: string): string {
+  if (value.length <= 30) return value
+  return `${value.slice(0, 27).trim()}...`
+}
+
+const displayTitle = compactTitle(breach.Title)
+const caseTitle = `${displayTitle} Data Breach Case | TRACED`
 const exposedData = breach.DataClasses.slice(0, 4).join(', ')
-const caseDescription = `${breach.Title} breach case file covering ${formatPwnCount(breach.PwnCount)} exposed accounts, the ${formatBreachDate(breach.BreachDate)} incident date, affected data classes, and Have I Been Pwned source details.`
+const caseDescription = `${displayTitle} breach case covering ${formatPwnCount(breach.PwnCount)} exposed accounts, incident timing, affected data classes, verification status, and HIBP source details.`
 ---
 
 <BaseLayout
@@ -137,6 +143,11 @@ const caseDescription = `${breach.Title} breach case file covering ${formatPwnCo
           The reported data classes include {exposedData || 'publicly disclosed account data'}. If the case includes passwords,
           reused credentials should be treated as compromised and replaced anywhere they were used. The password checker on TRACED
           uses the Have I Been Pwned k-anonymity range API so the full password is never sent off the device.
+        </p>
+        <p>
+          Each case page is intentionally narrow: it separates the public incident record from account recovery advice, keeps the
+          source data visible, and avoids collecting visitor identifiers. Use it as a starting point for reviewing exposure, then
+          confirm account-specific impact with the affected service and your password manager.
         </p>
       </section>
 

@@ -63,6 +63,11 @@ function formatBigNumber(n: number): string {
           <a href="#archive" class="hero-cta">BROWSE THE ARCHIVE ↓</a>
           <a href="/check/" class="hero-cta hero-cta-ghost">CHECK A PASSWORD →</a>
         </div>
+
+        <p class="hero-note">
+          TRACED turns public Have I Been Pwned breach records into readable case files. It is built for quick research,
+          password hygiene, and privacy-aware review, with no accounts, analytics, or server-side password collection.
+        </p>
       </div>
 
       <div class="hero-grid-bg" aria-hidden="true">
@@ -259,6 +264,15 @@ function formatBigNumber(n: number): string {
   }
 
   .hero-cta-ghost:hover { color: var(--color-text); border-color: var(--color-muted); background: transparent; }
+
+  .hero-note {
+    max-width: 640px;
+    margin: 1.25rem auto 0;
+    color: var(--color-muted);
+    line-height: 1.7;
+    font-size: 0.95rem;
+    animation: fade-up 0.8s ease 1s both;
+  }
 
   .hero-grid-bg {
     position: absolute;
