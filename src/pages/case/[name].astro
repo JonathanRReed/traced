@@ -41,14 +41,24 @@ const related = allBreaches
   .slice(0, 4)
 
 function compactTitle(value: string): string {
-  if (value.length <= 30) return value
-  return `${value.slice(0, 27).trim()}...`
+  if (value.length <= 42) return value
+  return `${value.slice(0, 39).trim()}...`
 }
 
 const displayTitle = compactTitle(breach.Title)
-const caseTitle = `${displayTitle} Data Breach Case | TRACED`
+const caseTitle = `${displayTitle} Data Breach Case File | TRACED Public Archive`
 const exposedData = breach.DataClasses.slice(0, 4).join(', ')
-const caseDescription = `${displayTitle} breach case covering ${formatPwnCount(breach.PwnCount)} exposed accounts, incident timing, affected data classes, verification status, and HIBP source details.`
+const allExposedData = breach.DataClasses.join(', ')
+const verifiedCopy = breach.IsVerified
+  ? 'Have I Been Pwned currently marks this breach as verified, which means the service has reviewed the incident record against its source standards.'
+  : 'Have I Been Pwned does not currently mark this breach as verified, so the file should be treated as a public archive record rather than an account-specific confirmation.'
+const sensitiveCopy = breach.IsSensitive
+  ? 'HIBP marks this breach as sensitive. TRACED keeps the public facts readable while avoiding collection of visitor identifiers, passwords, or account lookups tied to a person.'
+  : 'HIBP does not mark this breach as sensitive, but the exposed data can still matter if it helps attackers identify, profile, or credential-stuff affected users.'
+const passwordCopy = hasPasswords
+  ? 'Because this breach includes password data, reused passwords should be replaced anywhere they appear. A unique password manager entry and multi-factor authentication are the safest follow-up steps.'
+  : 'This public record does not list passwords among the exposed data classes. It can still support phishing, account recovery abuse, or identity profiling when combined with other breach records.'
+const caseDescription = `${displayTitle} TRACED case file covering ${formatPwnCount(breach.PwnCount)} exposed accounts, breach timing, affected data classes, HIBP verification, and source context.`
 ---
 
 <BaseLayout
@@ -151,6 +161,26 @@ const caseDescription = `${displayTitle} breach case covering ${formatPwnCount(b
         </p>
       </section>
 
+      <section class="case-section case-context reveal" style="transition-delay: 0.2s">
+        <h2 class="section-title">RISK REVIEW</h2>
+        <p>
+          The affected data classes for {breach.Title} are listed as {allExposedData || 'publicly disclosed account data'}.
+          TRACED repeats those fields in plain language because the practical response depends on the type of information
+          exposed. Email addresses and usernames can support phishing or account enumeration, profile data can help with
+          impersonation, and financial or government identifiers require a more careful fraud review.
+        </p>
+        <p>
+          {verifiedCopy} The breach date is recorded as {formatBreachDate(breach.BreachDate)}, and the exposure estimate is
+          {formatPwnCount(breach.PwnCount)} accounts. Those numbers describe the public incident record, not a guarantee that a
+          specific visitor had an account in the service or that every exposed record contained the same fields.
+        </p>
+        <p>
+          {passwordCopy} {sensitiveCopy} For personal cleanup, start with password reuse, two-factor settings, recovery email
+          security, and alerts from the affected service. For research, use the case file as a source pointer and compare it
+          with the original HIBP entry before citing exact impact.
+        </p>
+      </section>
+
       {gap && (
         <section class="case-section reveal" style="transition-delay: 0.2s">
           <h2 class="section-title">DISCOVERY GAP</h2>
@@ -188,7 +218,7 @@ const caseDescription = `${displayTitle} breach case covering ${formatPwnCount(b
 
       {related.length > 0 && (
         <section class="case-section reveal" style="transition-delay: 0.3s">
-          <h2 class="section-title">RELATED CASES — {breachYear}</h2>
+          <h2 class="section-title">RELATED CASES - {breachYear}</h2>
           <div class="related-grid">
             {related.map((b) => {
               const s = getBreachStatus(b)
