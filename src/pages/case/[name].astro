@@ -41,12 +41,12 @@ const related = allBreaches
   .slice(0, 4)
 
 function compactTitle(value: string): string {
-  if (value.length <= 42) return value
-  return `${value.slice(0, 39).trim()}...`
+  if (value.length <= 36) return value
+  return `${value.slice(0, 33).trim()}...`
 }
 
 const displayTitle = compactTitle(breach.Title)
-const caseTitle = `${displayTitle} Data Breach Case File | TRACED Public Archive`
+const caseTitle = `${displayTitle} Breach | TRACED`
 const exposedData = breach.DataClasses.slice(0, 4).join(', ')
 const allExposedData = breach.DataClasses.join(', ')
 const verifiedCopy = breach.IsVerified
