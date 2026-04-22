@@ -1,0 +1,5 @@
+Contact: https://jonathanrreed.com/contact/
+Expires: 2027-04-21T00:00:00Z
+Preferred-Languages: en
+Canonical: https://traced.jonathanrreed.com/.well-known/security.txt
+Policy: https://traced.jonathanrreed.com/privacy/

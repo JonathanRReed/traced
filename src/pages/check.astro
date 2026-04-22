@@ -63,7 +63,7 @@ const passwordBreaches = allBreaches
             <span class="fn-title">K-ANONYMITY MODEL</span>
             <p class="fn-body">
               This uses Troy Hunt&apos;s Pwned Passwords k-anonymity API.
-              Your full password hash is never sent — only a 5-character prefix.
+              Your full password hash is never sent, only a 5-character prefix.
               Possible matches come back and the final check happens in your browser.
               <a href="https://haveibeenpwned.com/Passwords" target="_blank" rel="noopener">Learn more ↗</a>
             </p>
@@ -82,6 +82,16 @@ const passwordBreaches = allBreaches
         <p>
           TRACED does not connect the password check to an email address, account name, or browsing profile. The page exists to
           make the exposure workflow easier to understand without asking for more personal data than the check requires.
+        </p>
+        <p>
+          The safest way to use the result is simple: if the password appears in breach data, retire it everywhere. Start with
+          email, banking, cloud storage, school, work, shopping, and social accounts because those accounts can be used to reset
+          other services. Then replace weaker variants that share the same base phrase or pattern.
+        </p>
+        <p>
+          If the password does not appear, still treat it as one signal rather than a full security review. Long, unique passwords
+          are stronger than reused memorable passwords, and a password manager makes that habit easier to maintain. TRACED keeps
+          the check narrow so the page can explain risk without becoming an account-monitoring service.
         </p>
       </section>
 
