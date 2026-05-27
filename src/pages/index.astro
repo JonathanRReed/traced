@@ -29,7 +29,7 @@ function formatBigNumber(n: number): string {
 
   <main id="main-content" tabindex="-1">
     <section class="hero">
-      <div class="hero-inner">
+      <header class="hero-inner">
         <div class="hero-eyebrow">Public Breach Archive</div>
         <h1 class="hero-title">
           <span class="sr-only">TRACED public data breach archive</span>
@@ -37,38 +37,40 @@ function formatBigNumber(n: number): string {
         </h1>
         <p class="hero-tagline">KNOWN BREACHES. ON THE RECORD.</p>
 
-        <div class="hero-stats">
+        <dl class="hero-stats" aria-label="Breach archive summary">
           <div class="stat">
-            <span class="stat-value" data-count={breaches.length}>{breaches.length}</span>
-            <span class="stat-label">CASE FILES</span>
+            <dt class="stat-label">CASE FILES</dt>
+            <dd class="stat-value" data-count={breaches.length}>{breaches.length}</dd>
           </div>
           <div class="stat-divider">·</div>
           <div class="stat">
-            <span class="stat-value" data-count={totalPwned} data-count-format="big">{formatBigNumber(totalPwned)}</span>
-            <span class="stat-label">EXPOSED ACCOUNTS</span>
+            <dt class="stat-label">EXPOSED ACCOUNTS</dt>
+            <dd class="stat-value" data-count={totalPwned} data-count-format="big">{formatBigNumber(totalPwned)}</dd>
           </div>
           <div class="stat-divider">·</div>
           <div class="stat">
-            <span class="stat-value" data-count={totalDataClasses}>{totalDataClasses}</span>
-            <span class="stat-label">DATA TYPES EXPOSED</span>
+            <dt class="stat-label">DATA TYPES EXPOSED</dt>
+            <dd class="stat-value" data-count={totalDataClasses}>{totalDataClasses}</dd>
           </div>
           <div class="stat-divider">·</div>
           <div class="stat">
-            <span class="stat-value critical-val" data-count={criticalCount}>{criticalCount}</span>
-            <span class="stat-label">CRITICAL</span>
+            <dt class="stat-label">CRITICAL</dt>
+            <dd class="stat-value critical-val" data-count={criticalCount}>{criticalCount}</dd>
           </div>
-        </div>
+        </dl>
 
-        <div class="hero-cta-row">
+        <nav class="hero-cta-row" aria-label="Primary breach archive actions">
           <a href="#archive" class="hero-cta">BROWSE THE ARCHIVE ↓</a>
           <a href="/check/" class="hero-cta hero-cta-ghost">CHECK A PASSWORD →</a>
-        </div>
+        </nav>
 
         <p class="hero-note">
           TRACED turns public Have I Been Pwned breach records into readable case files. It is built for quick research,
           password hygiene, and privacy-aware review, with no accounts, analytics, or server-side password collection.
+          Use it to compare breach dates, exposed data classes, incident severity, and password exposure risk before
+          deciding which accounts need rotation, passkeys, or closer monitoring.
         </p>
-      </div>
+      </header>
 
       <div class="hero-grid-bg" aria-hidden="true">
         {Array.from({ length: 80 }).map((_, i) => (
@@ -216,6 +218,7 @@ function formatBigNumber(n: number): string {
     color: var(--color-text);
     letter-spacing: 0.05em;
     line-height: 1;
+    margin: 0;
   }
 
   .critical-val { color: var(--color-danger); }

@@ -5,3 +5,9 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=()
   Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://img.jonathanrreed.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://api.pwnedpasswords.com https://haveibeenpwned.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'
+
+https://traced-4rs.pages.dev/*
+  X-Robots-Tag: noindex
+
+https://:version.traced-4rs.pages.dev/*
+  X-Robots-Tag: noindex
