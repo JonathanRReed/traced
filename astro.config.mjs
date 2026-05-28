@@ -8,6 +8,9 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig({
   output: 'static',
   adapter: cloudflare(),
+  build: {
+    inlineStylesheets: 'never',
+  },
   integrations: [react()],
   vite: {
     plugins: [tailwindcss()],
