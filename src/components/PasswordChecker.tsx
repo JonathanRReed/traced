@@ -111,7 +111,7 @@ export function PasswordChecker({ passwordBreaches = [] }: Props) {
   const isChecking = state === 'hashing' || state === 'querying'
 
   return (
-    <div className="checker-root">
+    <section className="checker-root" aria-label="Password exposure checker">
       <form onSubmit={handleCheck} className="checker-form">
         <div className="checker-input-wrap">
           <label htmlFor="pwd-input" className="checker-input-label">
@@ -278,6 +278,6 @@ export function PasswordChecker({ passwordBreaches = [] }: Props) {
       </AnimatePresence>
 
 
-    </div>
+    </section>
   )
 }

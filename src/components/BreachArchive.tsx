@@ -68,7 +68,7 @@ export function BreachArchive() {
 
   if (loading) {
     return (
-      <div className="archive-root">
+      <section className="archive-root" aria-label="Breach archive loading state">
         <div className="archive-grid">
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="skeleton-card">
@@ -79,13 +79,13 @@ export function BreachArchive() {
             </div>
           ))}
         </div>
-      </div>
+      </section>
     )
   }
 
   if (error && breaches.length === 0) {
     return (
-      <div className="archive-root">
+      <section className="archive-root" aria-label="Breach archive error state">
         <div className="shared-error" role="status" aria-live="polite">
           <span className="shared-error-kicker">ARCHIVE OFFLINE</span>
           <p className="shared-error-message">
@@ -100,13 +100,13 @@ export function BreachArchive() {
             RETRY LOAD
           </button>
         </div>
-      </div>
+      </section>
     )
   }
 
   return (
-    <div className="archive-root">
-      <div className="archive-controls">
+    <section className="archive-root" aria-label="Searchable breach archive">
+      <header className="archive-controls">
         <div className="search-wrap">
           <span className="search-icon">⌕</span>
           <input
@@ -176,7 +176,7 @@ export function BreachArchive() {
             </select>
           </div>
         </div>
-      </div>
+      </header>
 
       <div className="archive-count">
         <span>{filtered.length} CASE{filtered.length !== 1 ? 'S' : ''} ON FILE</span>
@@ -198,11 +198,11 @@ export function BreachArchive() {
         </div>
       ) : (
         <>
-          <div className="archive-grid">
+          <section className="archive-grid" aria-label="Breach case files">
             {visible.map((b) => (
               <BreachCard key={b.Name} breach={b} />
             ))}
-          </div>
+          </section>
 
           {showCount < filtered.length && (
             <div className="load-more-wrap">
@@ -222,6 +222,6 @@ export function BreachArchive() {
       )}
 
 
-    </div>
+    </section>
   )
 }

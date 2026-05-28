@@ -1008,6 +1008,7 @@ p a:hover, li a:hover, .about-section-body a:hover, .fn-body a:hover, .source-de
   display: flex;
   flex-direction: column;
   gap: 4px;
+  margin: 0;
   border-top: 1px solid var(--color-border);
   padding-top: 0.75rem;
 }
@@ -1022,7 +1023,7 @@ p a:hover, li a:hover, .about-section-body a:hover, .fn-body a:hover, .source-de
 }
 
 .meta-label { color: var(--color-muted); }
-.meta-value { color: var(--color-text); }
+.meta-value { color: var(--color-text); margin: 0; }
 
 .breach-card-classes {
   display: flex;

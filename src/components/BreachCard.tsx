@@ -38,10 +38,10 @@ export function BreachCard({ breach }: Props) {
       onMouseLeave={() => setHovered(false)}
     >
       <article className="breach-card scanlines">
-        <div className="breach-card-header">
+        <header className="breach-card-header">
           <span className="breach-case-num">{caseNum}</span>
           <span className={STATUS_CLASSES[status]}>{STATUS_LABELS[status]}</span>
-        </div>
+        </header>
 
         <div className="breach-card-body">
           {breach.LogoPath ? (
@@ -58,16 +58,16 @@ export function BreachCard({ breach }: Props) {
           <h3 className="breach-title">{scrambledTitle}</h3>
         </div>
 
-        <div className="breach-card-meta">
+        <dl className="breach-card-meta">
           <div className="breach-meta-row">
-            <span className="meta-label">DATE</span>
-            <span className="meta-value">{formatBreachDate(breach.BreachDate)}</span>
+            <dt className="meta-label">DATE</dt>
+            <dd className="meta-value">{formatBreachDate(breach.BreachDate)}</dd>
           </div>
           <div className="breach-meta-row">
-            <span className="meta-label">ACCOUNTS</span>
-            <span className="meta-value">{formatPwnCount(breach.PwnCount)}</span>
+            <dt className="meta-label">ACCOUNTS</dt>
+            <dd className="meta-value">{formatPwnCount(breach.PwnCount)}</dd>
           </div>
-        </div>
+        </dl>
 
         <div className="breach-card-classes">
           {topClasses.map((dc) => (

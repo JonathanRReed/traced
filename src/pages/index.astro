@@ -33,6 +33,7 @@ function formatBigNumber(n: number): string {
         <div class="hero-eyebrow">Public Breach Archive</div>
         <h1 class="hero-title">
           <span class="sr-only">TRACED public data breach archive</span>
+          <span class="sr-only">Research breach records, exposed account counts, and password risk signals.</span>
           <span aria-hidden="true"><HeroTitle client:load /></span>
         </h1>
         <p class="hero-tagline">KNOWN BREACHES. ON THE RECORD.</p>
@@ -73,9 +74,6 @@ function formatBigNumber(n: number): string {
       </header>
 
       <div class="hero-grid-bg" aria-hidden="true">
-        {Array.from({ length: 80 }).map((_, i) => (
-          <div class="grid-cell" style={`--i: ${i % 10 + Math.floor(i / 10) * 0.5}`} />
-        ))}
       </div>
 
       <div class="hero-glow" aria-hidden="true"></div>
@@ -83,59 +81,18 @@ function formatBigNumber(n: number): string {
 
     <FieldBriefing breachCount={breaches.length} criticalCount={criticalCount} />
 
-    <TimelineScrubber client:visible />
+    <TimelineScrubber client:only="react" />
 
     <section id="archive" aria-labelledby="archive-heading">
       <h2 id="archive-heading" class="sr-only">Breach Archive</h2>
-      <BreachArchive client:visible />
+      <BreachArchive client:only="react" />
     </section>
   </main>
 
   <Footer stats={{ cases: breaches.length, accounts: formatBigNumber(totalPwned), critical: criticalCount }} />
 </BaseLayout>
 
-<script>
-  (function () {
-    function formatBig(n: number): string {
-      if (n >= 1_000_000_000) return (n / 1_000_000_000).toFixed(1) + 'B'
-      if (n >= 1_000_000) return (n / 1_000_000).toFixed(0) + 'M'
-      return n.toLocaleString()
-    }
-
-    function easeOut(t: number): number {
-      return 1 - Math.pow(1 - t, 3)
-    }
-
-    const DURATION = 1800
-    const els = document.querySelectorAll<HTMLElement>('[data-count]')
-    if (!els.length) return
-
-    let started = false
-
-    const observer = new IntersectionObserver((entries) => {
-      if (started) return
-      if (!entries.some((e) => e.isIntersecting)) return
-      started = true
-      observer.disconnect()
-
-      const start = performance.now()
-      function tick(now: number) {
-        const t = Math.min((now - start) / DURATION, 1)
-        const p = easeOut(t)
-        els.forEach((el) => {
-          const target = Number(el.dataset.count)
-          const isBig = el.dataset.countFormat === 'big'
-          const val = Math.floor(target * p)
-          el.textContent = isBig ? formatBig(val) : val.toLocaleString()
-        })
-        if (t < 1) requestAnimationFrame(tick)
-      }
-      requestAnimationFrame(tick)
-    }, { threshold: 0.1 })
-
-    observer.observe(els[0])
-  })()
-</script>
+<script type="module" src="/count-up.js"></script>
 
 <style>
   main {
@@ -280,17 +237,14 @@ function formatBigNumber(n: number): string {
   .hero-grid-bg {
     position: absolute;
     inset: 0;
-    display: grid;
-    grid-template-columns: repeat(10, 1fr);
     opacity: 0.04;
     pointer-events: none;
     z-index: 0;
-  }
-
-  .grid-cell {
-    border: 1px solid var(--color-text);
+    background-image:
+      linear-gradient(var(--color-text) 1px, transparent 1px),
+      linear-gradient(90deg, var(--color-text) 1px, transparent 1px);
+    background-size: 10% 12.5%;
     animation: grid-pulse 4s ease-in-out infinite;
-    animation-delay: calc(var(--i, 0) * 0.08s);
   }
 
   @keyframes grid-pulse {
@@ -313,6 +267,6 @@ function formatBigNumber(n: number): string {
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .grid-cell { animation: none; }
+    .hero-grid-bg { animation: none; }
   }
 </style>
