@@ -59,11 +59,39 @@ const passwordCopy = hasPasswords
   ? 'Because this breach includes password data, reused passwords should be replaced anywhere they appear. A unique password manager entry and multi-factor authentication are the safest follow-up steps.'
   : 'This public record does not list passwords among the exposed data classes. It can still support phishing, account recovery abuse, or identity profiling when combined with other breach records.'
 const caseDescription = `${displayTitle} TRACED case file covering ${formatPwnCount(breach.PwnCount)} exposed accounts, breach timing, affected data classes, HIBP verification, and source context.`
+
+const siteUrl = 'https://traced.jonathanrreed.com'
+const caseUrl = `${siteUrl}/case/${slugify(breach.Name)}/`
+const caseSchema = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Article',
+      headline: `${breach.Title} data breach`,
+      description: caseDescription,
+      datePublished: breach.AddedDate || undefined,
+      dateModified: breach.ModifiedDate || breach.AddedDate || undefined,
+      url: caseUrl,
+      mainEntityOfPage: caseUrl,
+      isAccessibleForFree: true,
+      author: { '@type': 'Person', name: 'Jonathan R. Reed', url: 'https://jonathanrreed.com/' },
+      about: { '@type': 'Thing', name: `${breach.Title} data breach` },
+    },
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Archive', item: `${siteUrl}/` },
+        { '@type': 'ListItem', position: 2, name: breach.Title, item: caseUrl },
+      ],
+    },
+  ],
+}
 ---
 
 <BaseLayout
   title={caseTitle}
   description={caseDescription}
+  extraSchema={caseSchema}
 >
   <Nav />
 
