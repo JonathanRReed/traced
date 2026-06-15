@@ -1,5 +1,5 @@
 import { useRef, useState, useMemo, useEffect, useCallback } from 'react'
-import { motion } from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
 import type { BreachSummary } from '../lib/types'
 import { getBreachStatus, slugify } from '../lib/utils'
 import { fetchBreachesClient } from '../lib/breaches-client'
@@ -26,6 +26,7 @@ export function TimelineScrubber() {
   const [error, setError] = useState<string | null>(null)
   const [tooltip, setTooltip] = useState<TooltipState | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+  const reduceMotion = useReducedMotion()
 
   const loadBreaches = useCallback(async (force = false) => {
     setLoading(true)
@@ -85,15 +86,18 @@ export function TimelineScrubber() {
   const maxCount = useMemo(() => Math.max(...yearData.map((d) => d.total), 1), [yearData])
 
   function barColor(d: YearData): string {
-    if (d.critical > 0) return '#ef4444' // --color-danger
-    if (d.unsolved > 0) return '#3b82f6' // --color-accent
-    return '#4b5563' // --color-dim
+    if (d.critical > 0) return 'var(--color-danger)'
+    if (d.unsolved > 0) return 'var(--color-accent)'
+    return 'var(--color-dim)'
   }
 
-  function handleEnter(e: React.MouseEvent, d: YearData) {
+  // Anchor the tooltip to the bar itself so it works for both hover and
+  // keyboard focus (a FocusEvent has no clientX).
+  function showTooltip(el: HTMLElement, d: YearData) {
     const rect = containerRef.current?.getBoundingClientRect()
     if (!rect) return
-    setTooltip({ data: d, x: e.clientX - rect.left })
+    const bar = el.getBoundingClientRect()
+    setTooltip({ data: d, x: bar.left - rect.left + bar.width / 2 })
   }
 
   const labelYears = yearData.filter((_, i) => i % 5 === 0 || i === yearData.length - 1)
@@ -170,21 +174,27 @@ export function TimelineScrubber() {
                   height: h,
                   background: d.total === 0 ? 'var(--color-border)' : color,
                   opacity: d.total === 0 ? 0.2 : 0.75,
-                  boxShadow: d.total > 0 ? `0 0 6px ${color}40` : 'none',
+                  boxShadow: d.total > 0 ? `0 0 6px color-mix(in srgb, ${color} 25%, transparent)` : 'none',
                   transformOrigin: 'bottom',
                 }}
-                initial={{ scaleY: 0 }}
+                initial={reduceMotion ? false : { scaleY: 0 }}
                 whileInView={{ scaleY: 1 }}
                 viewport={{ once: true, margin: '-40px' }}
-                transition={{ duration: 0.4, delay: i * 0.025, ease: 'easeOut' }}
-                onMouseEnter={(e) => d.total > 0 && handleEnter(e, d)}
+                transition={reduceMotion ? { duration: 0 } : { duration: 0.4, delay: i * 0.025, ease: 'easeOut' }}
+                onMouseEnter={(e) => d.total > 0 && showTooltip(e.currentTarget, d)}
                 onMouseLeave={() => setTooltip(null)}
+                onFocus={(e) => d.total > 0 && showTooltip(e.currentTarget, d)}
+                onBlur={() => setTooltip(null)}
                 onClick={() => {
                   if (d.total > 0 && d.topBreach) {
                     window.location.href = `/case/${slugify(d.topBreach.Name)}/`
                   }
                 }}
-                aria-label={d.total > 0 ? `${d.year}: ${d.total} incidents` : `${d.year}: no recorded incidents`}
+                aria-label={
+                  d.total > 0
+                    ? `${d.year}: ${d.total} incident${d.total !== 1 ? 's' : ''} — open ${d.topBreach.Title} case file`
+                    : `${d.year}: no recorded incidents`
+                }
                 disabled={d.total === 0}
               />
             )

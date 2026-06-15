@@ -13,7 +13,11 @@ export function useScramble(target: string, active: boolean): string {
       frameRef.current = null
     }
 
-    if (!active) {
+    const prefersReduced =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+    if (!active || prefersReduced) {
       setDisplay(target)
       return
     }

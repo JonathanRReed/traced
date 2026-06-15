@@ -57,10 +57,15 @@ export function CommandPalette() {
   }, [loadBreaches])
 
   useEffect(() => {
-    if (open) {
-      setQuery('')
-      setActiveIdx(0)
-      setTimeout(() => inputRef.current?.focus(), 30)
+    if (!open) return
+    // Remember what was focused (the ⌘K trigger) so we can restore it on close.
+    const trigger = document.activeElement as HTMLElement | null
+    setQuery('')
+    setActiveIdx(0)
+    const t = setTimeout(() => inputRef.current?.focus(), 30)
+    return () => {
+      clearTimeout(t)
+      trigger?.focus?.()
     }
   }, [open])
 
@@ -91,6 +96,21 @@ export function CommandPalette() {
       setActiveIdx((i) => Math.max(i - 1, 0))
     } else if (e.key === 'Enter' && filtered[activeIdx]) {
       navigate(filtered[activeIdx])
+    } else if (e.key === 'Tab') {
+      // Trap focus inside the modal (ARIA modal-dialog contract).
+      const focusables = e.currentTarget.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), input, [tabindex]:not([tabindex="-1"])',
+      )
+      if (focusables.length === 0) return
+      const first = focusables[0]
+      const last = focusables[focusables.length - 1]
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault()
+        last.focus()
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault()
+        first.focus()
+      }
     }
   }
 
@@ -117,13 +137,18 @@ export function CommandPalette() {
             autoComplete="off"
             spellCheck={false}
             aria-label="Search breach case files"
+            role="combobox"
+            aria-expanded={true}
+            aria-controls="cp-listbox"
+            aria-autocomplete="list"
+            aria-activedescendant={filtered[activeIdx] ? `cp-opt-${activeIdx}` : undefined}
           />
           <kbd className="cp-esc" onClick={() => setOpen(false)}>ESC</kbd>
         </div>
 
         <div className="cp-divider" />
 
-        <div className="cp-results" ref={listRef} role="listbox" aria-label="Breach results">
+        <div className="cp-results" id="cp-listbox" ref={listRef} role="listbox" aria-label="Breach results">
           {error && breaches.length === 0 ? (
             <div className="cp-empty cp-error" role="status" aria-live="polite">
               <div className="cp-error-copy">
@@ -153,6 +178,7 @@ export function CommandPalette() {
               return (
                 <div
                   key={b.Name}
+                  id={`cp-opt-${i}`}
                   className={`cp-item${i === activeIdx ? ' cp-item-active' : ''}`}
                   role="option"
                   aria-selected={i === activeIdx}
