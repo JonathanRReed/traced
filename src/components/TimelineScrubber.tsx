@@ -181,7 +181,7 @@ export function TimelineScrubber() {
                 onMouseLeave={() => setTooltip(null)}
                 onClick={() => {
                   if (d.total > 0 && d.topBreach) {
-                    window.location.href = `/case/${slugify(d.topBreach.Name)}`
+                    window.location.href = `/case/${slugify(d.topBreach.Name)}/`
                   }
                 }}
                 aria-label={d.total > 0 ? `${d.year}: ${d.total} incidents` : `${d.year}: no recorded incidents`}
