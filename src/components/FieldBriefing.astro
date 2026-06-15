@@ -269,10 +269,12 @@ const { breachCount, criticalCount } = Astro.props
 
   .concept-desc a {
     color: var(--color-accent);
-    text-decoration: none;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    transition: opacity 0.15s;
   }
 
-  .concept-desc a:hover { text-decoration: underline; }
+  .concept-desc a:hover { opacity: 0.8; }
 
   .concept-desc em {
     font-style: normal;

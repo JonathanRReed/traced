@@ -1,15 +1,16 @@
 import { useState, useMemo, useEffect, useCallback } from 'react'
-import type { HibpBreach } from '../lib/types'
+import type { BreachSummary } from '../lib/types'
 import { getBreachStatus, getAllDataClasses } from '../lib/utils'
 import { fetchBreachesClient } from '../lib/breaches-client'
 import { BreachCard } from './BreachCard'
 
 type StatusFilter = 'ALL' | 'CRITICAL' | 'UNSOLVED' | 'COLD CASE'
 
-const DECADES = ['ALL', '1990s', '2000s', '2010s', '2020s']
+const DECADE_ORDER = ['1990s', '2000s', '2010s', '2020s']
 
 function getDecade(dateStr: string): string {
   const year = new Date(dateStr).getFullYear()
+  if (Number.isNaN(year)) return 'UNKNOWN'
   if (year < 2000) return '1990s'
   if (year < 2010) return '2000s'
   if (year < 2020) return '2010s'
@@ -17,7 +18,7 @@ function getDecade(dateStr: string): string {
 }
 
 export function BreachArchive() {
-  const [breaches, setBreaches] = useState<HibpBreach[]>([])
+  const [breaches, setBreaches] = useState<BreachSummary[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [search, setSearch] = useState('')
@@ -46,6 +47,11 @@ export function BreachArchive() {
   const [showCount, setShowCount] = useState(48)
 
   const allDataClasses = useMemo(() => getAllDataClasses(breaches), [breaches])
+
+  const decades = useMemo(() => {
+    const present = new Set(breaches.map((b) => getDecade(b.BreachDate)))
+    return ['ALL', ...DECADE_ORDER.filter((d) => present.has(d))]
+  }, [breaches])
 
   const filtered = useMemo(() => {
     return breaches.filter((b) => {
@@ -148,7 +154,7 @@ export function BreachArchive() {
 
           <div className="filter-group" role="group" aria-label="Filter by era">
             <span className="filter-label" aria-hidden="true">ERA</span>
-            {DECADES.map((d) => (
+            {decades.map((d) => (
               <button
                 key={d}
                 type="button"
@@ -161,7 +167,7 @@ export function BreachArchive() {
             ))}
           </div>
 
-          <div className="filter-group">
+          <div className="filter-group" role="group" aria-label="Filter by data type">
             <span className="filter-label" aria-hidden="true">DATA</span>
             <select
               value={dataClassFilter}

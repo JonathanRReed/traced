@@ -1,5 +1,10 @@
 import type { HibpBreach, BreachStatus, DiscoveryGap } from './types'
 
+// Functions below accept structural subsets of HibpBreach so they work with
+// both full build-time records and the slim BreachSummary used on the client.
+type StatusFields = Pick<HibpBreach, 'IsSensitive' | 'DataClasses' | 'BreachDate'>
+type CaseNumberFields = Pick<HibpBreach, 'BreachDate' | 'Name'>
+
 const SENSITIVE_DATA_CLASSES = [
   'Passwords',
   'Credit cards',
@@ -12,7 +17,7 @@ const SENSITIVE_DATA_CLASSES = [
   'Private messages',
 ]
 
-export function getBreachStatus(breach: HibpBreach): BreachStatus {
+export function getBreachStatus(breach: StatusFields): BreachStatus {
   if (breach.IsSensitive) return 'CRITICAL'
 
   const hasSensitiveData = breach.DataClasses.some((dc) =>
@@ -49,7 +54,7 @@ export function formatPwnCount(n: number): string {
   return n.toLocaleString('en-US')
 }
 
-export function getCaseNumber(breach: HibpBreach): string {
+export function getCaseNumber(breach: CaseNumberFields): string {
   const date = new Date(breach.BreachDate)
   const year = isNaN(date.getTime()) ? '0000' : String(date.getFullYear())
   const month = isNaN(date.getTime())
@@ -95,11 +100,11 @@ export function getDiscoveryGap(breach: HibpBreach): DiscoveryGap | null {
   }
 }
 
-export function getTotalPwnCount(breaches: HibpBreach[]): number {
+export function getTotalPwnCount(breaches: Pick<HibpBreach, 'PwnCount'>[]): number {
   return breaches.reduce((sum, b) => sum + b.PwnCount, 0)
 }
 
-export function getAllDataClasses(breaches: HibpBreach[]): string[] {
+export function getAllDataClasses(breaches: Pick<HibpBreach, 'DataClasses'>[]): string[] {
   const set = new Set<string>()
   breaches.forEach((b) => b.DataClasses.forEach((dc) => set.add(dc)))
   return Array.from(set).sort()

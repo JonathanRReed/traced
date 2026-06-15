@@ -1,9 +1,9 @@
-import type { HibpBreach } from './types'
+import type { BreachSummary } from './types'
 
-let breachesCache: HibpBreach[] | null = null
-let breachesPromise: Promise<HibpBreach[]> | null = null
+let breachesCache: BreachSummary[] | null = null
+let breachesPromise: Promise<BreachSummary[]> | null = null
 
-export async function fetchBreachesClient(force = false): Promise<HibpBreach[]> {
+export async function fetchBreachesClient(force = false): Promise<BreachSummary[]> {
   if (breachesCache && !force) return breachesCache
   if (breachesPromise && !force) return breachesPromise
 
@@ -13,7 +13,7 @@ export async function fetchBreachesClient(force = false): Promise<HibpBreach[]> 
         throw new Error(`Could not load case files (${response.status}).`)
       }
 
-      const data = (await response.json()) as HibpBreach[]
+      const data = (await response.json()) as BreachSummary[]
       breachesCache = data
       return data
     })

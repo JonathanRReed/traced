@@ -13,6 +13,7 @@
   --color-green: #22c55e;
   --color-amber: #f59e0b;
   --color-accent-hover: #2563eb;
+  --color-accent-press: #1d4ed8;
   --color-terminal: #a3e635;
   --color-dim: #4b5563;
 
@@ -152,7 +153,7 @@ body::after {
   transform: translateY(-220%);
   z-index: 10000;
   padding: 0.65rem 0.85rem;
-  background: var(--color-accent);
+  background: var(--color-accent-hover);
   color: #fff;
   text-decoration: none;
   font-family: var(--font-mono);
@@ -299,20 +300,6 @@ p a:hover, li a:hover, .about-section-body a:hover, .fn-body a:hover, .source-de
   transform: rotate(-3deg);
   animation: stamp-in 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards,
               stamp-fade 4s 1s infinite;
-}
-
-/* ═══════════════════════════════════════════════
-   SCROLL REVEAL SYSTEM
-   ═══════════════════════════════════════════════ */
-.reveal {
-  opacity: 0;
-  transform: translateY(16px);
-  transition: opacity 0.6s ease, transform 0.6s ease;
-}
-
-.reveal.revealed {
-  opacity: 1;
-  transform: translateY(0);
 }
 
 /* ═══════════════════════════════════════════════
@@ -505,7 +492,7 @@ p a:hover, li a:hover, .about-section-body a:hover, .fn-body a:hover, .source-de
 }
 
 .cp-input::placeholder {
-  color: var(--color-dim);
+  color: var(--color-muted);
   letter-spacing: 0.18em;
 }
 
@@ -513,7 +500,7 @@ p a:hover, li a:hover, .about-section-body a:hover, .fn-body a:hover, .source-de
   font-family: var(--font-mono);
   font-size: 0.55rem;
   letter-spacing: 0.1em;
-  color: var(--color-dim);
+  color: var(--color-muted);
   border: 1px solid var(--color-border);
   border-radius: 2px;
   padding: 2px 6px;
@@ -544,7 +531,7 @@ p a:hover, li a:hover, .about-section-body a:hover, .fn-body a:hover, .source-de
   font-family: var(--font-mono);
   font-size: 0.6rem;
   letter-spacing: 0.2em;
-  color: var(--color-dim);
+  color: var(--color-muted);
 }
 
 .cp-error {
@@ -640,7 +627,7 @@ p a:hover, li a:hover, .about-section-body a:hover, .fn-body a:hover, .source-de
 .cp-domain {
   font-family: var(--font-mono);
   font-size: 0.55rem;
-  color: var(--color-dim);
+  color: var(--color-muted);
   letter-spacing: 0.06em;
   white-space: nowrap;
   flex-shrink: 0;
@@ -656,7 +643,7 @@ p a:hover, li a:hover, .about-section-body a:hover, .fn-body a:hover, .source-de
 .cp-year {
   font-family: var(--font-mono);
   font-size: 0.55rem;
-  color: var(--color-dim);
+  color: var(--color-muted);
   letter-spacing: 0.06em;
 }
 
@@ -669,7 +656,7 @@ p a:hover, li a:hover, .about-section-body a:hover, .fn-body a:hover, .source-de
 
 .cp-status {
   font-family: var(--font-mono);
-  font-size: 0.5rem;
+  font-size: 0.6rem;
   letter-spacing: 0.12em;
   min-width: 5.5rem;
   text-align: right;
@@ -689,14 +676,14 @@ p a:hover, li a:hover, .about-section-body a:hover, .fn-body a:hover, .source-de
   align-items: center;
   gap: 0.35rem;
   font-family: var(--font-mono);
-  font-size: 0.5rem;
-  color: var(--color-dim);
+  font-size: 0.6rem;
+  color: var(--color-muted);
   letter-spacing: 0.08em;
 }
 
 .cp-hint kbd {
   font-family: var(--font-mono);
-  font-size: 0.5rem;
+  font-size: 0.6rem;
   color: var(--color-muted);
   border: 1px solid var(--color-border);
   border-radius: 2px;
@@ -706,13 +693,18 @@ p a:hover, li a:hover, .about-section-body a:hover, .fn-body a:hover, .source-de
 .cp-count-label {
   margin-left: auto;
   font-family: var(--font-mono);
-  font-size: 0.5rem;
-  color: var(--color-dim);
+  font-size: 0.6rem;
+  color: var(--color-muted);
   letter-spacing: 0.12em;
 }
 
 @media (max-width: 640px) {
-  .cp-item-right { display: none; }
+  /* Keep the status signal (the whole point of the noir palette); drop only
+     the secondary year/count to save room. */
+  .cp-item-right { gap: 0.5rem; }
+  .cp-year,
+  .cp-count { display: none; }
+  .cp-status { min-width: auto; }
   .cp-domain { display: none; }
   .cp-footer { gap: 0.75rem; }
 }
@@ -1107,7 +1099,8 @@ p a:hover, li a:hover, .about-section-body a:hover, .fn-body a:hover, .source-de
   transform-origin: bottom center;
 }
 
-.tl-bar:hover:not(:disabled) {
+.tl-bar:hover:not(:disabled),
+.tl-bar:focus-visible:not(:disabled) {
   opacity: 1 !important;
   transform: scaleY(1.06);
 }
@@ -1127,11 +1120,10 @@ p a:hover, li a:hover, .about-section-body a:hover, .fn-body a:hover, .source-de
   position: absolute;
   transform: translateX(-50%);
   font-family: var(--font-mono);
-  font-size: 0.48rem;
+  font-size: 0.6rem;
   color: var(--color-muted);
   letter-spacing: 0.06em;
   top: 4px;
-  opacity: 0.65;
   white-space: nowrap;
 }
 
@@ -1147,6 +1139,8 @@ p a:hover, li a:hover, .about-section-body a:hover, .fn-body a:hover, .source-de
   flex-direction: column;
   gap: 3px;
   min-width: 140px;
+  max-width: min(220px, calc(100vw - 1rem));
+  box-sizing: border-box;
   box-shadow: 0 8px 32px rgba(0,0,0,0.6);
 }
 
@@ -1271,9 +1265,9 @@ p a:hover, li a:hover, .about-section-body a:hover, .fn-body a:hover, .source-de
   font-size: 0.7rem;
   letter-spacing: 0.2em;
   font-weight: 600;
-  background: var(--color-accent);
+  background: var(--color-accent-hover);
   color: #fff;
-  border: 1px solid var(--color-accent);
+  border: 1px solid var(--color-accent-hover);
   border-radius: 0 2px 2px 0;
   padding: 12px 24px;
   cursor: pointer;
@@ -1281,7 +1275,7 @@ p a:hover, li a:hover, .about-section-body a:hover, .fn-body a:hover, .source-de
   white-space: nowrap;
 }
 
-.checker-btn:hover:not(:disabled) { background: var(--color-accent-hover); }
+.checker-btn:hover:not(:disabled) { background: var(--color-accent-press); border-color: var(--color-accent-press); }
 .checker-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .checker-privacy {
@@ -1487,7 +1481,6 @@ p a:hover, li a:hover, .about-section-body a:hover, .fn-body a:hover, .source-de
   font-family: var(--font-mono);
   font-size: 0.6rem;
   color: var(--color-muted);
-  opacity: 0.6;
 }
 
 .result-cases-grid {
@@ -1697,7 +1690,6 @@ p a:hover, li a:hover, .about-section-body a:hover, .fn-body a:hover, .source-de
   font-family: var(--font-mono);
   font-size: 0.6rem;
   color: var(--color-muted);
-  opacity: 0.6;
 }
 
 .gap-timeline {
@@ -1730,7 +1722,7 @@ p a:hover, li a:hover, .about-section-body a:hover, .fn-body a:hover, .source-de
 
 .gap-endpoint-label {
   font-family: var(--font-mono);
-  font-size: 0.5rem;
+  font-size: 0.6rem;
   letter-spacing: 0.12em;
   color: var(--color-muted);
   text-align: center;

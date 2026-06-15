@@ -32,12 +32,7 @@ function formatBigNumber(n: number): string {
       <header class="hero-inner">
         <div class="hero-eyebrow">Public Breach Archive</div>
         <h1 class="hero-title">
-          <span class="sr-only">TRACED public data breach archive</span>
-          <span class="sr-only">Research breach records, exposed account counts, and password risk signals.</span>
-          <span class="sr-only">
-            Browse public breach case files, incident dates, exposed data classes, severity signals, affected account
-            totals, password exposure context, and privacy-aware research notes from Have I Been Pwned records.
-          </span>
+          <span class="sr-only">TRACED — public data breach archive and password exposure checker</span>
           <span aria-hidden="true"><HeroTitle client:load /></span>
         </h1>
         <p class="hero-tagline">KNOWN BREACHES. ON THE RECORD.</p>
@@ -186,7 +181,7 @@ function formatBigNumber(n: number): string {
 
   .stat-label {
     font-family: var(--font-mono);
-    font-size: 0.5rem;
+    font-size: 0.6rem;
     letter-spacing: 0.2em;
     color: var(--color-muted);
   }
@@ -212,14 +207,14 @@ function formatBigNumber(n: number): string {
     font-weight: 600;
     text-decoration: none;
     padding: 10px 24px;
-    border: 1px solid var(--color-accent);
+    border: 1px solid var(--color-accent-hover);
     color: #fff;
-    background: var(--color-accent);
+    background: var(--color-accent-hover);
     transition: all 0.15s;
     border-radius: 2px;
   }
 
-  .hero-cta:hover { background: var(--color-accent-hover); border-color: var(--color-accent-hover); }
+  .hero-cta:hover { background: var(--color-accent-press); border-color: var(--color-accent-press); }
 
   .hero-cta-ghost {
     background: transparent;

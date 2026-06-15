@@ -9,6 +9,8 @@ interface Props {
   robots?: string
   imageWidth?: number
   imageHeight?: number
+  /** Optional page-specific JSON-LD (e.g. a case page's Article + breadcrumb). */
+  extraSchema?: unknown
 }
 
 const {
@@ -17,10 +19,11 @@ const {
   robots = 'index,follow',
   imageWidth = 1200,
   imageHeight = 630,
+  extraSchema,
 } = Astro.props
 
 const siteUrl = 'https://traced.jonathanrreed.com'
-const ogImage = `${siteUrl}/og-image.svg`
+const ogImage = `${siteUrl}/og-image.png`
 const canonicalUrl = new URL(Astro.url.pathname, siteUrl).toString()
 const schema = {
   '@context': 'https://schema.org',
@@ -34,22 +37,6 @@ const schema = {
     '@type': 'Offer',
     price: 0,
     priceCurrency: 'USD',
-  },
-  review: {
-    '@type': 'Review',
-    author: {
-      '@type': 'Person',
-      name: 'Jonathan R. Reed',
-      url: 'https://jonathanrreed.com/',
-    },
-    reviewRating: {
-      '@type': 'Rating',
-      ratingValue: 5,
-      bestRating: 5,
-      worstRating: 1,
-    },
-    reviewBody:
-      'A free public breach research and password exposure checking tool built around readable case files, client-side password hashing, and privacy-first lookup behavior.',
   },
   author: {
     '@type': 'Person',
@@ -78,6 +65,7 @@ const schema = {
     <meta property="og:type" content="website" />
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:image" content={ogImage} />
+    <meta property="og:image:type" content="image/png" />
     <meta property="og:image:width" content={String(imageWidth)} />
     <meta property="og:image:height" content={String(imageHeight)} />
     <meta property="og:image:alt" content="TRACED data breach case files" />
@@ -94,6 +82,8 @@ const schema = {
     <link rel="apple-touch-icon" href="/TracedLogo.webp" />
     <link rel="sitemap" href="/sitemap.xml" />
 
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="preload"
       as="style"
@@ -113,6 +103,7 @@ const schema = {
     </noscript>
     <title>{title}</title>
     <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+    {extraSchema && <script type="application/ld+json" set:html={JSON.stringify(extraSchema)} />}
     <ClientRouter />
   </head>
   <body>
