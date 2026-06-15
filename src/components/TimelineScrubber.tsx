@@ -221,7 +221,10 @@ export function TimelineScrubber() {
           <div
             className="tl-tooltip"
             style={{
-              left: Math.min(Math.max(tooltip.x - 70, 0), (containerRef.current?.offsetWidth ?? 400) - 160),
+              left: Math.min(
+                Math.max(tooltip.x - 70, 4),
+                Math.max((containerRef.current?.offsetWidth ?? 400) - 224, 4),
+              ),
               bottom: BAR_H + 28,
             }}
           >
