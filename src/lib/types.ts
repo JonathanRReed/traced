@@ -18,6 +18,25 @@ export interface HibpBreach {
   IsSubscriptionFree: boolean
 }
 
+/**
+ * The subset of HibpBreach fields the client actually reads (archive grid,
+ * timeline, command palette). The /breaches.json endpoint ships only these to
+ * keep the client payload small — full records (incl. Description, IsVerified)
+ * are only needed at build time for case pages.
+ */
+export type BreachSummary = Pick<
+  HibpBreach,
+  | 'Name'
+  | 'Title'
+  | 'Domain'
+  | 'BreachDate'
+  | 'AddedDate'
+  | 'PwnCount'
+  | 'DataClasses'
+  | 'IsSensitive'
+  | 'LogoPath'
+>
+
 export type BreachStatus = 'CRITICAL' | 'UNSOLVED' | 'COLD CASE'
 
 export interface DiscoveryGap {

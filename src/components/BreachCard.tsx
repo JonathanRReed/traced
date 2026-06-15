@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import type { HibpBreach, BreachStatus } from '../lib/types'
+import type { BreachSummary, BreachStatus } from '../lib/types'
 import { getBreachStatus, getCaseNumber, formatBreachDate, formatPwnCount, slugify } from '../lib/utils'
 import { useScramble } from '../hooks/useScramble'
 
 interface Props {
-  breach: HibpBreach
+  breach: BreachSummary
 }
 
 const STATUS_LABELS: Record<BreachStatus, string> = {
