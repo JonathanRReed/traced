@@ -1,1 +1,48 @@
-!function(){const t=document.querySelectorAll("[data-count]");if(!t.length)return;let e=!1;const n=new IntersectionObserver(o=>{if(e||!o.some(t=>t.isIntersecting))return;e=!0,n.disconnect();const r=performance.now();requestAnimationFrame(function e(n){const o=Math.min((n-r)/1800,1),c=function(t){return 1-Math.pow(1-t,3)}(o);t.forEach(t=>{const e=Number(t.dataset.count),n="big"===t.dataset.countFormat,o=Math.floor(e*c);var r;t.textContent=n?(r=o)>=1e9?(r/1e9).toFixed(1)+"B":r>=1e6?(r/1e6).toFixed(0)+"M":r.toLocaleString():o.toLocaleString()}),o<1&&requestAnimationFrame(e)})},{threshold:.1});n.observe(t[0])}();
+// Animates [data-count] numbers from 0 to their value when scrolled into view.
+// The server renders the real value, so no-JS visitors see the final number.
+;(function () {
+  const els = document.querySelectorAll('[data-count]')
+  if (!els.length) return
+
+  // Respect the user's motion preference: leave the server-rendered values alone.
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+
+  const format = (value, big) => {
+    const n = Math.floor(value)
+    if (!big) return n.toLocaleString()
+    if (n >= 1e9) return (n / 1e9).toFixed(1) + 'B'
+    if (n >= 1e6) return (n / 1e6).toFixed(0) + 'M'
+    return n.toLocaleString()
+  }
+
+  // Reset to 0 up front so the final value never flashes before the animation.
+  els.forEach((el) => {
+    el.textContent = format(0, el.dataset.countFormat === 'big')
+  })
+
+  const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3)
+  let started = false
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      if (started || !entries.some((e) => e.isIntersecting)) return
+      started = true
+      observer.disconnect()
+
+      const start = performance.now()
+      const tick = (now) => {
+        const progress = Math.min((now - start) / 1800, 1)
+        const eased = easeOutCubic(progress)
+        els.forEach((el) => {
+          const target = Number(el.dataset.count)
+          el.textContent = format(target * eased, el.dataset.countFormat === 'big')
+        })
+        if (progress < 1) requestAnimationFrame(tick)
+      }
+      requestAnimationFrame(tick)
+    },
+    { threshold: 0.1 },
+  )
+
+  observer.observe(els[0])
+})()

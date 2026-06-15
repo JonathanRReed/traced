@@ -699,7 +699,12 @@ p a:hover, li a:hover, .about-section-body a:hover, .fn-body a:hover, .source-de
 }
 
 @media (max-width: 640px) {
-  .cp-item-right { display: none; }
+  /* Keep the status signal (the whole point of the noir palette); drop only
+     the secondary year/count to save room. */
+  .cp-item-right { gap: 0.5rem; }
+  .cp-year,
+  .cp-count { display: none; }
+  .cp-status { min-width: auto; }
   .cp-domain { display: none; }
   .cp-footer { gap: 0.75rem; }
 }
@@ -1134,6 +1139,8 @@ p a:hover, li a:hover, .about-section-body a:hover, .fn-body a:hover, .source-de
   flex-direction: column;
   gap: 3px;
   min-width: 140px;
+  max-width: min(220px, calc(100vw - 1rem));
+  box-sizing: border-box;
   box-shadow: 0 8px 32px rgba(0,0,0,0.6);
 }
 
