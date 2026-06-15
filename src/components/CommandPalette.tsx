@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
-import type { HibpBreach } from '../lib/types'
+import type { BreachSummary } from '../lib/types'
 import { getBreachStatus, formatPwnCount, slugify } from '../lib/utils'
 import { fetchBreachesClient } from '../lib/breaches-client'
 
@@ -13,7 +13,7 @@ const STATUS_COLOR: Record<string, string> = {
 export function CommandPalette() {
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
-  const [breaches, setBreaches] = useState<HibpBreach[]>([])
+  const [breaches, setBreaches] = useState<BreachSummary[]>([])
   const [error, setError] = useState<string | null>(null)
   const [activeIdx, setActiveIdx] = useState(0)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -78,7 +78,7 @@ export function CommandPalette() {
       .slice(0, 50)
   }, [breaches, query])
 
-  function navigate(breach: HibpBreach) {
+  function navigate(breach: BreachSummary) {
     window.location.href = `/case/${slugify(breach.Name)}/`
   }
 

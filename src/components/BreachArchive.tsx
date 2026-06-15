@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useCallback } from 'react'
-import type { HibpBreach } from '../lib/types'
+import type { BreachSummary } from '../lib/types'
 import { getBreachStatus, getAllDataClasses } from '../lib/utils'
 import { fetchBreachesClient } from '../lib/breaches-client'
 import { BreachCard } from './BreachCard'
@@ -18,7 +18,7 @@ function getDecade(dateStr: string): string {
 }
 
 export function BreachArchive() {
-  const [breaches, setBreaches] = useState<HibpBreach[]>([])
+  const [breaches, setBreaches] = useState<BreachSummary[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [search, setSearch] = useState('')

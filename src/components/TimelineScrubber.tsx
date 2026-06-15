@@ -1,6 +1,6 @@
 import { useRef, useState, useMemo, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
-import type { HibpBreach } from '../lib/types'
+import type { BreachSummary } from '../lib/types'
 import { getBreachStatus, slugify } from '../lib/utils'
 import { fetchBreachesClient } from '../lib/breaches-client'
 
@@ -10,7 +10,7 @@ interface YearData {
   critical: number
   unsolved: number
   cold: number
-  topBreach: HibpBreach
+  topBreach: BreachSummary
 }
 
 interface TooltipState {
@@ -21,7 +21,7 @@ interface TooltipState {
 const BAR_H = 80
 
 export function TimelineScrubber() {
-  const [breaches, setBreaches] = useState<HibpBreach[]>([])
+  const [breaches, setBreaches] = useState<BreachSummary[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [tooltip, setTooltip] = useState<TooltipState | null>(null)
@@ -46,7 +46,7 @@ export function TimelineScrubber() {
   }, [loadBreaches])
 
   const yearMap = useMemo(() => {
-    const map = new Map<number, HibpBreach[]>()
+    const map = new Map<number, BreachSummary[]>()
     breaches.forEach((b) => {
       const y = new Date(b.BreachDate).getFullYear()
       if (isNaN(y)) return
