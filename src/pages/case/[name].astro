@@ -47,7 +47,6 @@ function compactTitle(value: string): string {
 
 const displayTitle = compactTitle(breach.Title)
 const caseTitle = `${displayTitle} Breach | TRACED`
-const exposedData = breach.DataClasses.slice(0, 4).join(', ')
 const allExposedData = breach.DataClasses.join(', ')
 const verifiedCopy = breach.IsVerified
   ? 'Have I Been Pwned currently marks this breach as verified, which means the service has reviewed the incident record against its source standards.'
@@ -172,40 +171,25 @@ const caseSchema = {
       <section class="case-section case-context reveal" style="transition-delay: 0.18s">
         <h2 class="section-title">CASE CONTEXT</h2>
         <p>
-          This TRACED record summarizes the public breach profile for {breach.Title}. The file tracks the known incident date,
-          the date the breach surfaced publicly, the estimated account exposure, and whether Have I Been Pwned currently marks
-          the case as verified. It is written for quick risk review, source attribution, and follow-up checks by people who need
-          a plain-English view of what was exposed.
-        </p>
-        <p>
-          The reported data classes include {exposedData || 'publicly disclosed account data'}. If the case includes passwords,
-          reused credentials should be treated as compromised and replaced anywhere they were used. The password checker on TRACED
-          uses the Have I Been Pwned k-anonymity range API so the full password is never sent off the device.
-        </p>
-        <p>
-          Each case page is intentionally narrow: it separates the public incident record from account recovery advice, keeps the
-          source data visible, and avoids collecting visitor identifiers. Use it as a starting point for reviewing exposure, then
-          confirm account-specific impact with the affected service and your password manager.
+          This record summarizes the public breach profile for {breach.Title}: when it happened, when it surfaced
+          publicly, the estimated exposure, and whether Have I Been Pwned currently marks it as verified. It is a
+          plain-English view for quick risk review and source attribution — it keeps the source data visible, separates
+          the public incident record from recovery advice, and collects nothing about you.
         </p>
       </section>
 
       <section class="case-section case-context reveal" style="transition-delay: 0.2s">
         <h2 class="section-title">RISK REVIEW</h2>
         <p>
-          The affected data classes for {breach.Title} are listed as {allExposedData || 'publicly disclosed account data'}.
-          TRACED repeats those fields in plain language because the practical response depends on the type of information
-          exposed. Email addresses and usernames can support phishing or account enumeration, profile data can help with
-          impersonation, and financial or government identifiers require a more careful fraud review.
+          The right response depends on what was exposed. The reported data classes here are
+          {allExposedData || 'publicly disclosed account data'}: email addresses and usernames can fuel phishing or
+          account enumeration, profile data helps with impersonation, and financial or government identifiers warrant a
+          closer fraud review. {verifiedCopy}
         </p>
         <p>
-          {verifiedCopy} The breach date is recorded as {formatBreachDate(breach.BreachDate)}, and the exposure estimate is
-          {formatPwnCount(breach.PwnCount)} accounts. Those numbers describe the public incident record, not a guarantee that a
-          specific visitor had an account in the service or that every exposed record contained the same fields.
-        </p>
-        <p>
-          {passwordCopy} {sensitiveCopy} For personal cleanup, start with password reuse, two-factor settings, recovery email
-          security, and alerts from the affected service. For research, use the case file as a source pointer and compare it
-          with the original HIBP entry before citing exact impact.
+          {passwordCopy} {sensitiveCopy} For personal cleanup, start with password reuse, two-factor settings, and
+          recovery-email security on the affected service. For research, treat this file as a source pointer and confirm
+          exact impact against the original HIBP entry — the counts here describe the public record, not any one account.
         </p>
       </section>
 
