@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 
 type CheckState = 'idle' | 'hashing' | 'querying' | 'done' | 'error'
 
@@ -28,6 +28,7 @@ export function PasswordChecker({ passwordBreaches = [] }: Props) {
   const [logs, setLogs] = useState<string[]>([])
   const [count, setCount] = useState<number | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const reduceMotion = useReducedMotion()
 
   function addLog(line: string) {
     setLogs((prev) => [...prev, line])
@@ -150,9 +151,9 @@ export function PasswordChecker({ passwordBreaches = [] }: Props) {
         {logs.length > 0 && (
           <motion.div
             className="checker-terminal scanlines"
-            initial={{ opacity: 0, height: 0 }}
+            initial={reduceMotion ? false : { opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
-            transition={{ duration: 0.3 }}
+            transition={reduceMotion ? { duration: 0 } : { duration: 0.3 }}
             aria-live="polite"
           >
             <div className="terminal-header">
@@ -166,9 +167,9 @@ export function PasswordChecker({ passwordBreaches = [] }: Props) {
                 <motion.div
                   key={i}
                   className="terminal-line"
-                  initial={{ opacity: 0, x: -4 }}
+                  initial={reduceMotion ? false : { opacity: 0, x: -4 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.2, delay: i * 0.05 }}
+                  transition={reduceMotion ? { duration: 0 } : { duration: 0.2, delay: i * 0.05 }}
                 >
                   {log}
                 </motion.div>
@@ -185,9 +186,9 @@ export function PasswordChecker({ passwordBreaches = [] }: Props) {
         {state === 'done' && count !== null && (
           <motion.div
             className={`checker-result ${count > 0 ? 'result-danger' : 'result-safe'}`}
-            initial={{ opacity: 0, y: 16 }}
+            initial={reduceMotion ? false : { opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.2 }}
+            transition={reduceMotion ? { duration: 0 } : { duration: 0.4, delay: 0.2 }}
             aria-live="polite"
           >
             <div className="result-main">
@@ -266,8 +267,9 @@ export function PasswordChecker({ passwordBreaches = [] }: Props) {
         {state === 'error' && (
           <motion.div
             className="checker-result result-error"
-            initial={{ opacity: 0, y: 16 }}
+            initial={reduceMotion ? false : { opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
+            transition={reduceMotion ? { duration: 0 } : undefined}
             aria-live="polite"
           >
             <span className="result-headline result-headline-danger">REQUEST FAILED</span>

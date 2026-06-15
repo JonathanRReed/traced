@@ -65,16 +65,14 @@ const { stats } = Astro.props
     font-size: 1.1rem;
     letter-spacing: 0.25em;
     color: var(--color-muted);
-    opacity: 0.5;
     line-height: 1;
   }
 
   .footer-tagline {
     font-family: var(--font-mono);
-    font-size: 0.48rem;
+    font-size: 0.6rem;
     letter-spacing: 0.25em;
     color: var(--color-muted);
-    opacity: 0.35;
   }
 
   .footer-center {
@@ -90,14 +88,12 @@ const { stats } = Astro.props
     font-size: 0.9rem;
     letter-spacing: 0.06em;
     color: var(--color-muted);
-    opacity: 0.5;
   }
 
   .footer-stat-label {
     font-family: var(--font-mono);
-    font-size: 0.48rem;
+    font-size: 0.6rem;
     letter-spacing: 0.15em;
-    opacity: 0.7;
   }
 
   .footer-dot {
@@ -119,31 +115,29 @@ const { stats } = Astro.props
 
   .footer-links a {
     font-family: var(--font-mono);
-    font-size: 0.58rem;
+    font-size: 0.62rem;
     letter-spacing: 0.1em;
     color: var(--color-muted);
     text-decoration: none;
-    transition: color 0.15s, opacity 0.15s;
-    opacity: 0.6;
+    transition: color 0.15s;
   }
 
-  .footer-links a:hover { color: var(--color-text); opacity: 1; }
+  .footer-links a:hover { color: var(--color-text); }
 
   .footer-data {
     font-family: var(--font-mono);
-    font-size: 0.52rem;
+    font-size: 0.6rem;
     color: var(--color-muted);
     letter-spacing: 0.05em;
-    opacity: 0.4;
   }
 
   .footer-data a {
     color: var(--color-muted);
     text-decoration: none;
-    transition: color 0.15s, opacity 0.15s;
+    transition: color 0.15s;
   }
 
-  .footer-data a:hover { color: var(--color-accent); opacity: 1; }
+  .footer-data a:hover { color: var(--color-accent); }
 
   @media (max-width: 640px) {
     .site-footer { padding: 1.75rem 1rem; }
