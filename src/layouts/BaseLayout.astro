@@ -27,22 +27,21 @@ const ogImage = `${siteUrl}/og-image.png`
 const canonicalUrl = new URL(Astro.url.pathname, siteUrl).toString()
 const schema = {
   '@context': 'https://schema.org',
-  '@type': 'WebApplication',
+  '@type': 'WebSite',
   name: 'TRACED',
   url: siteUrl,
   description,
-  applicationCategory: 'SecurityApplication',
-  operatingSystem: 'Web',
-  offers: {
-    '@type': 'Offer',
-    price: 0,
-    priceCurrency: 'USD',
-  },
   author: {
     '@type': 'Person',
     name: 'Jonathan R. Reed',
     url: 'https://jonathanrreed.com/',
   },
+  publisher: {
+    '@type': 'Person',
+    name: 'Jonathan R. Reed',
+    url: 'https://jonathanrreed.com/',
+  },
+  inLanguage: 'en-US',
   isAccessibleForFree: true,
 }
 ---
