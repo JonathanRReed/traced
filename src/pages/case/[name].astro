@@ -41,12 +41,12 @@ const related = allBreaches
   .slice(0, 4)
 
 function compactTitle(value: string): string {
-  if (value.length <= 36) return value
-  return `${value.slice(0, 33).trim()}...`
+  if (value.length <= 28) return value
+  return `${value.slice(0, 25).trim()}...`
 }
 
 const displayTitle = compactTitle(breach.Title)
-const caseTitle = `${displayTitle} Breach | TRACED`
+const caseTitle = `${displayTitle} Data Breach Case File | TRACED`
 const allExposedData = breach.DataClasses.join(', ')
 const verifiedCopy = breach.IsVerified
   ? 'Have I Been Pwned currently marks this breach as verified, which means the service has reviewed the incident record against its source standards.'
@@ -57,10 +57,11 @@ const sensitiveCopy = breach.IsSensitive
 const passwordCopy = hasPasswords
   ? 'Because this breach includes password data, reused passwords should be replaced anywhere they appear. A unique password manager entry and multi-factor authentication are the safest follow-up steps.'
   : 'This public record does not list passwords among the exposed data classes. It can still support phishing, account recovery abuse, or identity profiling when combined with other breach records.'
-const caseDescription = `${displayTitle} TRACED case file covering ${formatPwnCount(breach.PwnCount)} exposed accounts, breach timing, affected data classes, HIBP verification, and source context.`
+const caseDescription = `${displayTitle} TRACED case file with ${formatPwnCount(breach.PwnCount)} exposed accounts, breach date, affected data classes, HIBP status, and source context.`
 
 const siteUrl = 'https://traced.jonathanrreed.com'
 const caseUrl = `${siteUrl}/case/${slugify(breach.Name)}/`
+const caseImage = breach.LogoPath ? new URL(breach.LogoPath, siteUrl).toString() : `${siteUrl}/og-image.png`
 const caseSchema = {
   '@context': 'https://schema.org',
   '@graph': [
@@ -74,6 +75,15 @@ const caseSchema = {
       mainEntityOfPage: caseUrl,
       isAccessibleForFree: true,
       author: { '@type': 'Person', name: 'Jonathan R. Reed', url: 'https://jonathanrreed.com/' },
+      publisher: {
+        '@type': 'Person',
+        name: 'Jonathan R. Reed',
+        url: 'https://jonathanrreed.com/',
+      },
+      image: {
+        '@type': 'ImageObject',
+        url: caseImage,
+      },
       about: { '@type': 'Thing', name: `${breach.Title} data breach` },
     },
     {
