@@ -40,13 +40,7 @@ const related = allBreaches
   })
   .slice(0, 4)
 
-function compactTitle(value: string): string {
-  if (value.length <= 28) return value
-  return `${value.slice(0, 25).trim()}...`
-}
-
-const displayTitle = compactTitle(breach.Title)
-const caseTitle = `${displayTitle} Data Breach Case File | TRACED`
+const caseTitle = `${breach.Title} Data Breach Case File | TRACED`
 const allExposedData = breach.DataClasses.join(', ')
 const verifiedCopy = breach.IsVerified
   ? 'Have I Been Pwned currently marks this breach as verified, which means the service has reviewed the incident record against its source standards.'
@@ -57,7 +51,7 @@ const sensitiveCopy = breach.IsSensitive
 const passwordCopy = hasPasswords
   ? 'Because this breach includes password data, reused passwords should be replaced anywhere they appear. A unique password manager entry and multi-factor authentication are the safest follow-up steps.'
   : 'This public record does not list passwords among the exposed data classes. It can still support phishing, account recovery abuse, or identity profiling when combined with other breach records.'
-const caseDescription = `${displayTitle} TRACED case file with ${formatPwnCount(breach.PwnCount)} exposed accounts, breach date, affected data classes, HIBP status, and source context.`
+const caseDescription = `${breach.Title} TRACED case file with ${formatPwnCount(breach.PwnCount)} exposed accounts, breach date, affected data classes, HIBP status, and source context.`
 
 const siteUrl = 'https://traced.jonathanrreed.com'
 const caseUrl = `${siteUrl}/case/${slugify(breach.Name)}/`
