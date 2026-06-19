@@ -47,7 +47,7 @@ export function BreachCard({ breach }: Props) {
           {breach.LogoPath ? (
             <img
               src={breach.LogoPath}
-              alt={breach.Title}
+              alt={`Logo for ${breach.Title}`}
               width={64}
               height={64}
               className="breach-logo"
