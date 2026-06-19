@@ -76,14 +76,15 @@ const caseSchema = {
       isAccessibleForFree: true,
       author: { '@type': 'Person', name: 'Jonathan R. Reed', url: 'https://jonathanrreed.com/' },
       publisher: {
-        '@type': 'Person',
-        name: 'Jonathan R. Reed',
-        url: 'https://jonathanrreed.com/',
+        '@type': 'Organization',
+        name: 'TRACED',
+        url: siteUrl,
+        logo: {
+          '@type': 'ImageObject',
+          url: `${siteUrl}/og-image.png`,
+        },
       },
-      image: {
-        '@type': 'ImageObject',
-        url: caseImage,
-      },
+      image: [caseImage],
       about: { '@type': 'Thing', name: `${breach.Title} data breach` },
     },
     {
