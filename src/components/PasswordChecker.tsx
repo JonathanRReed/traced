@@ -91,7 +91,7 @@ export function PasswordChecker({ passwordBreaches = [] }: Props) {
       setState('done')
 
       if (found > 0) {
-        addLog(`> ⚠ match found — seen ${found.toLocaleString()} times`)
+        addLog(`> ! match found: seen ${found.toLocaleString()} times`)
       } else {
         addLog('> ✓ no match found in known breaches')
       }
@@ -160,7 +160,7 @@ export function PasswordChecker({ passwordBreaches = [] }: Props) {
               <span className="terminal-dot terminal-dot-red" />
               <span className="terminal-dot terminal-dot-amber" />
               <span className="terminal-dot terminal-dot-green" />
-              <span className="terminal-title">traced — password check</span>
+              <span className="terminal-title">traced: password check</span>
             </div>
             <div className="terminal-body">
               {logs.map((log, i) => (

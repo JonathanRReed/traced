@@ -153,7 +153,7 @@ export function TimelineScrubber() {
   return (
     <div className="tl-wrap">
       <div className="tl-header">
-        <span className="tl-label">INCIDENT FREQUENCY — {breaches.length} RECORDED EVENTS</span>
+        <span className="tl-label">INCIDENT FREQUENCY: {breaches.length} RECORDED EVENTS</span>
         <span className="tl-legend">
           <span className="tl-swatch tl-swatch-critical" />CRITICAL
           <span className="tl-swatch tl-swatch-unsolved" />UNSOLVED
@@ -192,7 +192,7 @@ export function TimelineScrubber() {
                 }}
                 aria-label={
                   d.total > 0
-                    ? `${d.year}: ${d.total} incident${d.total !== 1 ? 's' : ''} — open ${d.topBreach.Title} case file`
+                    ? `${d.year}: ${d.total} incident${d.total !== 1 ? 's' : ''}: open ${d.topBreach.Title} case file`
                     : `${d.year}: no recorded incidents`
                 }
                 disabled={d.total === 0}

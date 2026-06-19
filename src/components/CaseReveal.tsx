@@ -131,7 +131,7 @@ export function CaseReveal({ breach }: Props) {
           animate={{ opacity: 1 }}
           transition={reduceMotion ? { duration: 0 } : { delay: 0.3 }}
         >
-          <span>▸ END OF FILE — {getCaseNumber(breach)}</span>
+          <span>▸ END OF FILE: {getCaseNumber(breach)}</span>
         </motion.div>
       )}
 
