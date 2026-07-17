@@ -47,11 +47,10 @@ import Footer from '../components/Footer.astro'
         <h2>Network Requests</h2>
         <p>
           Normal page visits request static assets, breach metadata, and security headers from
-          Cloudflare Pages, plus web fonts from Google Fonts (fonts.googleapis.com and
-          fonts.gstatic.com), which receives your IP address as part of serving those files. Password
-          checks also call the Pwned Passwords range endpoint with a short hash prefix. TRACED does
-          not add marketing pixels, session replay tools, advertising tags, or custom analytics
-          scripts to those requests.
+          Cloudflare Pages. Web fonts are delivered from this site's own domain through Cloudflare
+          Fonts, so normal font requests are not sent to Google. Password checks also call the Pwned
+          Passwords range endpoint with a short hash prefix. TRACED does not add marketing pixels,
+          session replay tools, advertising tags, or custom analytics scripts to those requests.
         </p>
       </section>
 
