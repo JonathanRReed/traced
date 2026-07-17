@@ -4,7 +4,7 @@ import Nav from '../../components/Nav.astro'
 import Footer from '../../components/Footer.astro'
 import { getAllBreaches } from '../../lib/hibp'
 import { getBreachStatus, getCaseNumber, getDiscoveryGap, formatBreachDate, formatPwnCount, slugify } from '../../lib/utils'
-import { CaseReveal } from '../../components/CaseReveal'
+import CaseReveal from '../../components/CaseReveal.astro'
 import { DiscoveryGap } from '../../components/DiscoveryGap'
 import type { HibpBreach } from '../../lib/types'
 
@@ -108,7 +108,7 @@ const caseSchema = {
         <span class="breadcrumb-current">{caseNumber}</span>
       </div>
 
-      <header class="case-header reveal">
+      <header class="case-header">
         <div class="case-header-left">
           <div class="case-classification">
             <span class="case-label">CASE FILE</span>
@@ -142,7 +142,7 @@ const caseSchema = {
         </div>
       </header>
 
-      <div class="case-quick-stats reveal" style="transition-delay: 0.1s">
+      <div class="case-quick-stats">
         <div class="quick-stat">
           <span class="qs-value">{formatPwnCount(breach.PwnCount)}</span>
           <span class="qs-label">ACCOUNTS</span>
@@ -168,9 +168,9 @@ const caseSchema = {
         )}
       </div>
 
-      <section class="case-section reveal" style="transition-delay: 0.15s">
+      <section class="case-section">
         <h2 class="section-title">EVIDENCE FILE</h2>
-        <CaseReveal breach={breach} client:load />
+        <CaseReveal breach={breach} />
       </section>
 
       <section class="case-section case-context reveal" style="transition-delay: 0.18s">

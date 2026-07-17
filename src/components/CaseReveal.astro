@@ -1,0 +1,82 @@
+---
+import type { HibpBreach } from '../lib/types'
+import { formatFullDate, formatPwnCount, getCaseNumber } from '../lib/utils'
+
+interface Props {
+  breach: HibpBreach
+}
+
+const { breach } = Astro.props
+const sensitiveClasses = new Set([
+  'Passwords',
+  'Credit cards',
+  'Social security numbers',
+  'Bank account numbers',
+  'Payment histories',
+])
+const description = (breach.Description || 'No description available.')
+  .replace(/<[^>]*>/g, ' ')
+  .replace(/\s+/g, ' ')
+  .trim()
+---
+
+<div class="case-reveal scanlines">
+  <div class="evidence-row">
+    <span class="evidence-label">INCIDENT DATE</span>
+    <div class="evidence-value">
+      <span class="field-value">{formatFullDate(breach.BreachDate)}</span>
+    </div>
+  </div>
+  <div class="evidence-row">
+    <span class="evidence-label">SURFACED</span>
+    <div class="evidence-value">
+      <span class="field-value">{formatFullDate(breach.AddedDate)}</span>
+    </div>
+  </div>
+  <div class="evidence-row">
+    <span class="evidence-label">ACCOUNTS AFFECTED</span>
+    <div class="evidence-value">
+      <span class="field-value field-count">
+        {formatPwnCount(breach.PwnCount)}
+        <span class="field-sublabel"> records compromised</span>
+      </span>
+    </div>
+  </div>
+  <div class="evidence-row">
+    <span class="evidence-label">DATA COMPROMISED</span>
+    <div class="evidence-value">
+      <div class="field-tags">
+        {breach.DataClasses.map((dataClass) => (
+          <span class:list={['evidence-tag', { sensitive: sensitiveClasses.has(dataClass) }]}>
+            {dataClass}
+          </span>
+        ))}
+      </div>
+    </div>
+  </div>
+  <div class="evidence-row">
+    <span class="evidence-label">VERIFICATION</span>
+    <div class="evidence-value">
+      <span class:list={['field-badge', breach.IsVerified ? 'badge-verified' : 'badge-unverified']}>
+        {breach.IsVerified ? '✓ VERIFIED' : '? UNVERIFIED'}
+      </span>
+    </div>
+  </div>
+  <div class="evidence-row">
+    <span class="evidence-label">DOMAIN</span>
+    <div class="evidence-value">
+      <span class:list={['field-value', { 'field-muted': !breach.Domain }]}>
+        {breach.Domain || 'UNKNOWN'}
+      </span>
+    </div>
+  </div>
+  <div class="evidence-row">
+    <span class="evidence-label">INCIDENT REPORT</span>
+    <div class="evidence-value">
+      <p class="field-description">{description}</p>
+    </div>
+  </div>
+  <div class="evidence-complete">
+    <span>▸ END OF FILE: {getCaseNumber(breach)}</span>
+  </div>
+</div>
