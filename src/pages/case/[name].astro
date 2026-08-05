@@ -3,7 +3,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro'
 import Nav from '../../components/Nav.astro'
 import Footer from '../../components/Footer.astro'
 import { getAllBreaches } from '../../lib/hibp'
-import { caseRobots } from '../../lib/index-policy'
+import { caseRobots, caseCaveat } from '../../lib/index-policy'
 import { getBreachStatus, getCaseNumber, getDiscoveryGap, formatBreachDate, formatPwnCount, slugify } from '../../lib/utils'
 import CaseReveal from '../../components/CaseReveal.astro'
 import { DiscoveryGap } from '../../components/DiscoveryGap'
@@ -26,6 +26,7 @@ const { breach, allBreaches } = Astro.props
 const status = getBreachStatus(breach)
 const caseNumber = getCaseNumber(breach)
 const gap = getDiscoveryGap(breach)
+const caveat = caseCaveat(breach)
 
 const hasPasswords = breach.DataClasses.includes('Passwords')
 
@@ -143,6 +144,16 @@ const caseSchema = {
           )}
         </div>
       </header>
+
+      {caveat && (
+        <aside class="case-caveat" role="note" aria-label="Source caveat">
+          <span class="caveat-icon" aria-hidden="true">⚠</span>
+          <div class="caveat-body">
+            <p class="caveat-label">{caveat.label}</p>
+            <p class="caveat-detail">{caveat.detail}</p>
+          </div>
+        </aside>
+      )}
 
       <div class="case-quick-stats">
         <div class="quick-stat">
@@ -392,6 +403,48 @@ const caseSchema = {
     border: 1px solid var(--color-danger);
     padding: 2px 6px;
     opacity: 0.7;
+  }
+
+  .case-caveat {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.85rem;
+    padding: 1rem 1.25rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-amber);
+    border-left: 3px solid var(--color-amber);
+  }
+
+  .caveat-icon {
+    color: var(--color-amber);
+    font-size: 1rem;
+    line-height: 1.2;
+    flex-shrink: 0;
+  }
+
+  .caveat-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    min-width: 0;
+  }
+
+  .caveat-label {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-amber);
+    margin: 0;
+  }
+
+  .caveat-detail {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    line-height: 1.7;
+    color: var(--color-text);
+    opacity: 0.85;
+    margin: 0;
   }
 
   .case-quick-stats {
