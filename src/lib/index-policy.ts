@@ -107,9 +107,9 @@ export function caseCaveat(breach: HibpBreach): CaseCaveat | null {
   }
   if (!breach.IsVerified) {
     return {
-      label: 'Unverified breach — reported but not confirmed',
+      label: 'Unverified breach: reported but not confirmed',
       detail:
-        'Have I Been Pwned has not been able to confirm this data against the named service. The incident is reported and the data exists, but the source attribution is unproven — treat everything below as a public claim rather than a confirmed breach of this company.',
+        'Have I Been Pwned has not been able to confirm this data against the named service. The incident is reported and the data exists, but the source attribution is unproven. Treat everything below as a public claim rather than a confirmed breach of this company.',
     }
   }
   return null

@@ -45,14 +45,14 @@ const related = allBreaches
 const caseTitle = `${breach.Title} Data Breach Case File | TRACED`
 const allExposedData = breach.DataClasses.join(', ')
 const verifiedCopy = breach.IsVerified
-  ? 'Have I Been Pwned currently marks this breach as verified, which means the service has reviewed the incident record against its source standards.'
-  : 'Have I Been Pwned does not currently mark this breach as verified, so the file should be treated as a public archive record rather than an account-specific confirmation.'
+  ? 'Have I Been Pwned currently marks this breach as verified, meaning the data was checked against the service it is attributed to.'
+  : 'Have I Been Pwned does not currently mark this breach as verified, so read this page as an archive record of a public claim. It confirms nothing about any individual account.'
 const sensitiveCopy = breach.IsSensitive
-  ? 'HIBP marks this breach as sensitive. TRACED keeps the public facts readable while avoiding collection of visitor identifiers, passwords, or account lookups tied to a person.'
-  : 'HIBP does not mark this breach as sensitive, but the exposed data can still matter if it helps attackers identify, profile, or credential-stuff affected users.'
+  ? 'HIBP marks this breach as sensitive. The public facts stay on the page, but TRACED collects no visitor identifiers, passwords, or account lookups tied to a person.'
+  : 'HIBP does not mark this breach as sensitive. The exposed data still matters, though, since it can be used to identify people, build profiles on them, or feed credential-stuffing attacks.'
 const passwordCopy = hasPasswords
-  ? 'Because this breach includes password data, reused passwords should be replaced anywhere they appear. A unique password manager entry and multi-factor authentication are the safest follow-up steps.'
-  : 'This public record does not list passwords among the exposed data classes. It can still support phishing, account recovery abuse, or identity profiling when combined with other breach records.'
+  ? 'This breach includes password data, so replace that password anywhere you reused it. A unique entry in a password manager and multi-factor authentication on the account are the follow-up worth doing.'
+  : 'The public record does not list passwords among the exposed data classes. What is here can still be used for phishing, account-recovery abuse, or identity profiling once it is combined with other breach records.'
 const caseDescription = `${breach.Title} TRACED case file with ${formatPwnCount(breach.PwnCount)} exposed accounts, breach date, affected data classes, HIBP status, and source context.`
 
 const siteUrl = 'https://traced.jonathanrreed.com'
@@ -189,25 +189,26 @@ const caseSchema = {
       <section class="case-section case-context reveal" style="transition-delay: 0.18s">
         <h2 class="section-title">CASE CONTEXT</h2>
         <p>
-          This record summarizes the public breach profile for {breach.Title}: when it happened, when it surfaced
-          publicly, the estimated exposure, and whether Have I Been Pwned currently marks it as verified. It is a
-          plain-English view for quick risk review and source attribution. It keeps the source data visible, separates
-          the public incident record from recovery advice, and collects nothing about you.
+          This is the public breach record for {breach.Title}: when it happened, when it surfaced, roughly how many
+          accounts were exposed, and whether Have I Been Pwned currently marks it as verified. The point is to make that
+          readable in about a minute without you handing over anything. The incident facts stay separate from the advice
+          further down, and the page collects nothing about you.
         </p>
       </section>
 
       <section class="case-section case-context reveal" style="transition-delay: 0.2s">
         <h2 class="section-title">RISK REVIEW</h2>
         <p>
-          The right response depends on what was exposed. The reported data classes here are
-          {allExposedData || 'publicly disclosed account data'}: email addresses and usernames can fuel phishing or
-          account enumeration, profile data helps with impersonation, and financial or government identifiers warrant a
-          closer fraud review. {verifiedCopy}
+          What you should do depends on what got out. The reported data classes here are
+          {allExposedData || 'publicly disclosed account data'}: email addresses and usernames feed phishing and account
+          enumeration, profile data makes impersonation easier, and financial or government identifiers are the ones
+          worth a real fraud review. {verifiedCopy}
         </p>
         <p>
-          {passwordCopy} {sensitiveCopy} For personal cleanup, start with password reuse, two-factor settings, and
-          recovery-email security on the affected service. For research, treat this file as a source pointer and confirm
-          exact impact against the original HIBP entry. The counts here describe the public record, not any one account.
+          {passwordCopy} {sensitiveCopy} If you are cleaning up your own accounts, start with password reuse, two-factor
+          settings, and the recovery email on the affected service. If you are researching, treat this file as a pointer
+          and confirm the exact impact against the original HIBP entry. The counts on this page describe the public
+          record. They say nothing about whether you personally were in it.
         </p>
       </section>
 
