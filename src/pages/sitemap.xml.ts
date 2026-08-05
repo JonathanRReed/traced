@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro'
 import { getAllBreaches } from '../lib/hibp'
+import { isIndexableCase } from '../lib/index-policy'
 import { slugify } from '../lib/utils'
 
 const siteUrl = 'https://traced.jonathanrreed.com'
@@ -29,11 +30,14 @@ function urlEntry(path: string, lastmod?: string): string {
 export const GET: APIRoute = async () => {
   const breaches = await getAllBreaches()
   const buildDate = new Date().toISOString().slice(0, 10)
-  const staticPaths = ['/', '/check/', '/about/', '/contact/', '/privacy/']
+  // Only pages that are meant to rank. /privacy/ renders noindex,follow.
+  const staticPaths = ['/', '/check/', '/about/', '/contact/']
 
   const entries = [
     ...staticPaths.map((path) => urlEntry(path, buildDate)),
-    ...breaches.map((breach) =>
+    // Must stay in step with caseRobots() in case/[name].astro: a submitted URL
+    // that renders noindex is a wasted crawl.
+    ...breaches.filter(isIndexableCase).map((breach) =>
       urlEntry(
         `/case/${slugify(breach.Name)}/`,
         toIsoDate(breach.ModifiedDate) ?? toIsoDate(breach.AddedDate),

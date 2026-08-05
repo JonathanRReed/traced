@@ -3,6 +3,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro'
 import Nav from '../../components/Nav.astro'
 import Footer from '../../components/Footer.astro'
 import { getAllBreaches } from '../../lib/hibp'
+import { caseRobots } from '../../lib/index-policy'
 import { getBreachStatus, getCaseNumber, getDiscoveryGap, formatBreachDate, formatPwnCount, slugify } from '../../lib/utils'
 import CaseReveal from '../../components/CaseReveal.astro'
 import { DiscoveryGap } from '../../components/DiscoveryGap'
@@ -95,6 +96,7 @@ const caseSchema = {
 <BaseLayout
   title={caseTitle}
   description={caseDescription}
+  robots={caseRobots(breach)}
   extraSchema={caseSchema}
 >
   <Nav />
