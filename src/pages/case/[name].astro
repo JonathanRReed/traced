@@ -4,6 +4,7 @@ import Nav from '../../components/Nav.astro'
 import Footer from '../../components/Footer.astro'
 import { getAllBreaches } from '../../lib/hibp'
 import { caseRobots, caseCaveat } from '../../lib/index-policy'
+import { relatedCases } from '../../lib/related-cases'
 import { getBreachStatus, getCaseNumber, getDiscoveryGap, formatBreachDate, formatPwnCount, slugify } from '../../lib/utils'
 import CaseReveal from '../../components/CaseReveal.astro'
 import { DiscoveryGap } from '../../components/DiscoveryGap'
@@ -34,13 +35,7 @@ const statusLabel = status === 'CRITICAL' ? 'CRITICAL' : status === 'UNSOLVED' ?
 const statusClass = status === 'CRITICAL' ? 'stamp-critical' : status === 'UNSOLVED' ? 'stamp-unsolved' : 'stamp-cold'
 
 const breachYear = new Date(breach.BreachDate).getFullYear()
-const related = allBreaches
-  .filter((b) => {
-    if (b.Name === breach.Name) return false
-    const y = new Date(b.BreachDate).getFullYear()
-    return Math.abs(y - breachYear) <= 1
-  })
-  .slice(0, 4)
+const related = relatedCases(breach, allBreaches)
 
 const caseTitle = `${breach.Title} Data Breach Case File | TRACED`
 const allExposedData = breach.DataClasses.join(', ')
