@@ -36,8 +36,7 @@ import Footer from '../components/Footer.astro'
           <p>
             Traced is a weekend project. I wanted a better way to browse the
             <a href="https://haveibeenpwned.com" target="_blank" rel="noopener">Have I Been Pwned</a> dataset
-            and the case-file format felt like a good fit. It also includes a password
-            checker so you can see whether yours has appeared in known breach data.
+            and the case-file format felt like a good fit.
           </p>
         </div>
       </header>
@@ -123,9 +122,6 @@ import Footer from '../components/Footer.astro'
               <li>Passwords never transmitted</li>
               <li>Client-side hashing only</li>
             </ul>
-            <div class="pc-footer">
-              This is a static site: no backend, no database, no accounts, and no analytics.
-            </div>
           </div>
 
           <div class="stack-callout reveal" style="transition-delay: 0.25s">
@@ -162,7 +158,7 @@ import Footer from '../components/Footer.astro'
         <h2 class="sources-title">DATA SOURCES</h2>
         <p class="sources-intro">
           Everything here comes from Troy Hunt&apos;s Have I Been Pwned, a public breach database
-          he&apos;s been running since 2013. This site uses that public data directly.
+          he&apos;s been running since 2013.
         </p>
 
         <div class="sources-grid">
@@ -174,7 +170,6 @@ import Footer from '../components/Footer.astro'
             <p class="source-description">
               The main breach database. Every publicly known breach with dates, how many accounts
               were affected, what data was taken, and whether it's been verified.
-              Troy Hunt has been maintaining this since 2013.
             </p>
             <div class="source-endpoints">
               <div class="endpoint">
@@ -198,8 +193,7 @@ import Footer from '../components/Footer.astro'
             </div>
             <p class="source-description">
               Hundreds of millions of real passwords exposed in past breaches. The password checker
-              on this site uses this API. Your password is hashed locally and only 5 characters are
-              sent, so it never actually knows what you typed.
+              on this site uses this API.
             </p>
             <div class="source-endpoints">
               <div class="endpoint">
@@ -216,10 +210,9 @@ import Footer from '../components/Footer.astro'
         <div class="attribution-note">
           <span class="attr-icon">◈</span>
           <p>
-            All the data here belongs to <strong>Troy Hunt</strong> and Have I Been Pwned.
+            All the data here belongs to <strong>Troy Hunt</strong> and
+            <a href="https://haveibeenpwned.com" target="_blank" rel="noopener">Have I Been Pwned</a>.
             TRACED is an independent frontend, not affiliated with or endorsed by HIBP.
-            If you find this useful, the real credit goes to Troy.
-            Check out his work at <a href="https://haveibeenpwned.com" target="_blank" rel="noopener">haveibeenpwned.com</a>.
           </p>
         </div>
       </section>

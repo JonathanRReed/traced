@@ -46,7 +46,7 @@ const caseTitle = `${breach.Title} Data Breach Case File | TRACED`
 const allExposedData = breach.DataClasses.join(', ')
 const verifiedCopy = breach.IsVerified
   ? 'Have I Been Pwned currently marks this breach as verified, meaning the data was checked against the service it is attributed to.'
-  : 'Have I Been Pwned does not currently mark this breach as verified, so read this page as an archive record of a public claim. It confirms nothing about any individual account.'
+  : 'Have I Been Pwned does not currently mark this breach as verified, so read this page as an archive record of a public claim.'
 const sensitiveCopy = breach.IsSensitive
   ? 'HIBP marks this breach as sensitive. The public facts stay on the page, but TRACED collects no visitor identifiers, passwords, or account lookups tied to a person.'
   : 'HIBP does not mark this breach as sensitive. The exposed data still matters, though, since it can be used to identify people, build profiles on them, or feed credential-stuffing attacks.'
@@ -186,16 +186,6 @@ const caseSchema = {
         <CaseReveal breach={breach} />
       </section>
 
-      <section class="case-section case-context reveal" style="transition-delay: 0.18s">
-        <h2 class="section-title">CASE CONTEXT</h2>
-        <p>
-          This is the public breach record for {breach.Title}: when it happened, when it surfaced, roughly how many
-          accounts were exposed, and whether Have I Been Pwned currently marks it as verified. The point is to make that
-          readable in about a minute without you handing over anything. The incident facts stay separate from the advice
-          further down, and the page collects nothing about you.
-        </p>
-      </section>
-
       <section class="case-section case-context reveal" style="transition-delay: 0.2s">
         <h2 class="section-title">RISK REVIEW</h2>
         <p>
@@ -238,10 +228,6 @@ const caseSchema = {
                 <span class="redacted">████████████</span>
                 <span class="redacted">████████</span>
               </div>
-            </div>
-            <div class="redacted-note">
-              <span class="redacted-note-icon">⚠</span>
-              <p>If this breach included passwords, treat them as compromised. If they were reused anywhere else, change them there too.</p>
             </div>
           </div>
         </section>
@@ -547,31 +533,6 @@ const caseSchema = {
     display: flex;
     gap: 0.75rem;
     flex-wrap: wrap;
-  }
-
-  .redacted-note {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
-    padding: 0.75rem 1rem;
-    background: rgba(239, 68, 68, 0.05);
-    border: 1px solid rgba(239, 68, 68, 0.2);
-  }
-
-  .redacted-note-icon {
-    color: var(--color-danger);
-    font-size: 0.9rem;
-    flex-shrink: 0;
-    margin-top: 1px;
-  }
-
-  .redacted-note p {
-    font-family: var(--font-mono);
-    font-size: 0.67rem;
-    line-height: 1.65;
-    color: var(--color-text);
-    opacity: 0.8;
-    margin: 0;
   }
 
   .related-grid {
