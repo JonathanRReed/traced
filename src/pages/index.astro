@@ -5,6 +5,7 @@ import Footer from '../components/Footer.astro'
 import { HeroTitle } from '../components/HeroTitle'
 import { getAllBreaches } from '../lib/hibp'
 import { getTotalPwnCount, getAllDataClasses, getBreachStatus } from '../lib/utils'
+import { isIndexableCase } from '../lib/index-policy'
 import { TimelineScrubber } from '../components/TimelineScrubber'
 import { BreachArchive } from '../components/BreachArchive'
 import FieldBriefing from '../components/FieldBriefing.astro'
@@ -13,6 +14,17 @@ const breaches = await getAllBreaches()
 const totalPwned = getTotalPwnCount(breaches)
 const totalDataClasses = getAllDataClasses(breaches).length
 const criticalCount = breaches.filter((b) => getBreachStatus(b) === 'CRITICAL').length
+
+// Hard facts for the definition block. Every number below is counted from the
+// same HIBP payload the pages are built from, so the copy cannot drift from
+// the archive it describes.
+const fullRecordCount = breaches.filter(isIndexableCase).length
+const breachYears = breaches
+  .map((b) => b.BreachDate?.slice(0, 4))
+  .filter((year): year is string => !!year)
+  .sort()
+const earliestYear = breachYears[0]
+const latestYear = breachYears[breachYears.length - 1]
 
 function formatBigNumber(n: number): string {
   if (n >= 1_000_000_000) return (n / 1_000_000_000).toFixed(1) + 'B'
@@ -37,10 +49,21 @@ function formatBigNumber(n: number): string {
         </h1>
         <p class="hero-tagline">KNOWN BREACHES. ON THE RECORD.</p>
 
+        <p class="hero-definition">
+          TRACED is a public archive of known data breaches. It reads the Have I Been Pwned breach records and gives
+          every incident its own case file: the date it happened, the data that got out, and how long it stayed quiet.
+          Enough to work out which of your own accounts need a new password or a passkey.
+        </p>
+
         <dl class="hero-stats" aria-label="Breach archive summary">
           <div class="stat">
             <dt class="stat-label">CASE FILES</dt>
             <dd class="stat-value" data-count={breaches.length}>{breaches.length}</dd>
+          </div>
+          <div class="stat-divider">·</div>
+          <div class="stat">
+            <dt class="stat-label">FULL RECORDS</dt>
+            <dd class="stat-value" data-count={fullRecordCount}>{fullRecordCount}</dd>
           </div>
           <div class="stat-divider">·</div>
           <div class="stat">
@@ -65,9 +88,12 @@ function formatBigNumber(n: number): string {
         </nav>
 
         <p class="hero-note">
-          TRACED reads the public Have I Been Pwned breach records and lays each one out as a case file. Every page shows
-          the breach date, what data got out, and how bad it was, so you can work out which of your accounts actually
-          need a new password or a passkey. No accounts, no analytics, and no password ever reaches a server here.
+          The archive covers breaches dated {earliestYear} to {latestYear}, all of it from Troy Hunt's public
+          <a href="https://haveibeenpwned.com" target="_blank" rel="noopener">Have I Been Pwned</a> database, re-read
+          from the HIBP API every time the site is rebuilt. {fullRecordCount} of the {breaches.length.toLocaleString('en-US')} case files carry
+          a full sourced record (real dates, a real exposure figure, and named data types) and those are the ones listed
+          in <a href="/archive/">the case index</a>; the rest stay readable but are kept out of search. No accounts, no
+          analytics, and no password ever reaches a server here.
         </p>
       </header>
 
@@ -149,6 +175,16 @@ function formatBigNumber(n: number): string {
     color: var(--color-muted);
     margin: 0;
     animation: fade-up 0.8s ease 0.3s both;
+  }
+
+  .hero-definition {
+    max-width: 640px;
+    margin: 0 auto;
+    color: var(--color-text);
+    opacity: 0.85;
+    line-height: 1.7;
+    font-size: 1.05rem;
+    animation: fade-up 0.8s ease 0.45s both;
   }
 
   .hero-stats {
@@ -235,6 +271,15 @@ function formatBigNumber(n: number): string {
     font-size: 0.95rem;
     animation: fade-up 0.8s ease 1s both;
   }
+
+  .hero-note a {
+    color: var(--color-accent);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.15s;
+  }
+
+  .hero-note a:hover { border-bottom-color: var(--color-accent); }
 
   .archive-index-line {
     max-width: 1400px;
