@@ -83,6 +83,10 @@ function formatBigNumber(n: number): string {
 
     <section id="archive" aria-labelledby="archive-heading">
       <h2 id="archive-heading" class="sr-only">Breach Archive</h2>
+      <p class="archive-index-line">
+        The grid below needs JavaScript to search and filter. If you just want the list,
+        <a href="/archive/">the case index</a> has every file in date order.
+      </p>
       <BreachArchive client:only="react" />
     </section>
   </main>
@@ -232,6 +236,26 @@ function formatBigNumber(n: number): string {
     animation: fade-up 0.8s ease 1s both;
   }
 
+  .archive-index-line {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1.5rem 2rem 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    line-height: 1.8;
+    letter-spacing: 0.04em;
+    color: var(--color-muted);
+  }
+
+  .archive-index-line a {
+    color: var(--color-accent);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.15s;
+  }
+
+  .archive-index-line a:hover { border-bottom-color: var(--color-accent); }
+
   .hero-grid-bg {
     position: absolute;
     inset: 0;
@@ -262,6 +286,7 @@ function formatBigNumber(n: number): string {
     .hero { padding: 4rem 1rem 3rem; }
     .hero-stats { gap: 1rem; padding: 0.75rem 1rem; }
     .stat-divider { display: none; }
+    .archive-index-line { padding: 1.25rem 1rem 0.75rem; }
   }
 
   @media (prefers-reduced-motion: reduce) {

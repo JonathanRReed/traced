@@ -28,7 +28,8 @@ This mirrors the content signals in https://traced.jonathanrreed.com/robots.txt 
 - Homepage: https://traced.jonathanrreed.com/
 - About: https://traced.jonathanrreed.com/about/
 - Password check: https://traced.jonathanrreed.com/check/
-- Cases: https://traced.jonathanrreed.com/case/
+- Case index (paginated list of every case file): https://traced.jonathanrreed.com/archive/
+- Individual case files: https://traced.jonathanrreed.com/case/{slug}/ (every one of them is linked from the case index above)
 - Contact: https://traced.jonathanrreed.com/contact/
 
 ## Contact

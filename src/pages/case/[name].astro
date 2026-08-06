@@ -82,7 +82,8 @@ const caseSchema = {
       '@type': 'BreadcrumbList',
       itemListElement: [
         { '@type': 'ListItem', position: 1, name: 'Archive', item: `${siteUrl}/` },
-        { '@type': 'ListItem', position: 2, name: breach.Title, item: caseUrl },
+        { '@type': 'ListItem', position: 2, name: 'Case index', item: `${siteUrl}/archive/` },
+        { '@type': 'ListItem', position: 3, name: breach.Title, item: caseUrl },
       ],
     },
   ],
@@ -102,6 +103,8 @@ const caseSchema = {
 
       <div class="case-breadcrumb">
         <a href="/" class="breadcrumb-link">← ARCHIVE</a>
+        <span class="breadcrumb-sep">/</span>
+        <a href="/archive/" class="breadcrumb-link">CASE INDEX</a>
         <span class="breadcrumb-sep">/</span>
         <span class="breadcrumb-current">{caseNumber}</span>
       </div>
@@ -248,7 +251,7 @@ const caseSchema = {
       )}
 
       <div class="case-footer">
-        <a href="/" class="back-link">← RETURN TO ARCHIVE</a>
+        <a href="/archive/" class="back-link">← BROWSE THE CASE INDEX</a>
         <span class="case-footer-num">{caseNumber}</span>
       </div>
 
