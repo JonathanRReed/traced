@@ -1,69 +1,30 @@
 # TRACED
 
-A noir-styled browser for the [Have I Been Pwned](https://haveibeenpwned.com) public breach database. Browse known data breaches as case files, scrub a breach timeline, and check whether a password has appeared in real breach data — all without sending your actual password anywhere.
+Browse the public [Have I Been Pwned](https://haveibeenpwned.com) breach database as case files, explore its timeline, and check a password against Pwned Passwords.
 
-## What it does
+## Password checks
 
-- **Breach archive** — Every publicly known breach from HIBP, formatted as case files with severity labels (`CRITICAL`, `UNSOLVED`, `COLD CASE`), exposed data types, and affected account counts.
-- **Timeline scrubber** — Navigate breach history year by year.
-- **Password check** — Uses k-anonymity: your password is hashed in-browser and only the first 5 characters of the SHA-1 hash are sent to the Pwned Passwords API. Possible matches are returned and the final comparison happens on your device. Your password never leaves it.
+The browser hashes the password and sends only the first five SHA-1 hash characters to the Pwned Passwords API. It compares the returned candidates locally. Neither the password nor its complete hash is transmitted.
 
-## Stack
+The site has no application backend, database, analytics, or tracking cookies. It still makes hosting and API requests; static hosting does not establish that those providers keep no request logs.
 
-| Layer | Tech |
-| --- | --- |
-| Framework | [Astro 5](https://astro.build) (static output) |
-| UI Islands | [React 19](https://react.dev) |
-| Styling | [Tailwind CSS v4](https://tailwindcss.com) |
-| Animations | [Framer Motion](https://www.framer.com/motion/) |
-| Hosting | [Cloudflare Pages](https://pages.cloudflare.com) |
-| Data | [HIBP public API](https://haveibeenpwned.com/API/v3) — no key required |
-
-## Project structure
-
-```
-/
-├── public/               Static assets
-└── src/
-    ├── components/       React islands + Astro components
-    │   ├── BreachArchive.tsx
-    │   ├── BreachCard.tsx
-    │   ├── PasswordChecker.tsx
-    │   ├── TimelineScrubber.tsx
-    │   ├── CommandPalette.tsx
-    │   ├── FieldBriefing.astro
-    │   ├── Nav.astro
-    │   └── Footer.astro
-    ├── layouts/          BaseLayout.astro
-    ├── lib/              HIBP API helpers + utilities
-    ├── pages/
-    │   ├── index.astro   Home — hero + archive
-    │   ├── check.astro   Password checker
-    │   ├── about.astro   Project info + data sources
-    │   └── case/         Dynamic breach case-file pages
-    └── styles/
-```
-
-## Getting started
+## Develop
 
 ```sh
 bun install
-bun run dev        # http://localhost:4321
+bun run dev
 ```
 
-| Command | Action |
-| --- | --- |
-| `bun install` | Install dependencies |
-| `bun run dev` | Start local dev server at `localhost:4321` |
-| `bun run build` | Build static site to `./dist/` |
-| `bun run preview` | Preview the production build locally |
+Open `http://localhost:4321`. `bun run build` writes the static site to `dist/`; `bun run preview` serves that build locally.
 
-## Privacy
+The app uses Astro 5, React 19 islands, Tailwind CSS 4, and Framer Motion. Cloudflare Pages hosts it. The public breach and password data paths used here require no API key.
 
-- No analytics, no cookies, no tracking
-- Password checker uses k-anonymity — full hash is never transmitted
-- Entirely static — no backend, no database, nothing logged
+## Repository guide
 
-## Data & attribution
+`src/components/` contains the archive, case cards, password checker, timeline, command palette, and page sections. API helpers live in `src/lib/`.
 
-All breach data is from [Troy Hunt's Have I Been Pwned](https://haveibeenpwned.com). Traced is an unofficial fan-made frontend, not affiliated with or endorsed by HIBP.
+Routes in `src/pages/` include the archive home, `check.astro`, `about.astro`, and breach pages under `case/`. Shared layout is in `src/layouts/BaseLayout.astro`; static assets are in `public/`.
+
+## Attribution
+
+Breach data comes from Troy Hunt's Have I Been Pwned. TRACED is an unofficial frontend, not affiliated with or endorsed by HIBP.
