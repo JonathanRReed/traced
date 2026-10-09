@@ -4,9 +4,8 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { readFileSync } from 'node:fs'
 import { DiscoveryGap } from './DiscoveryGap'
 import { getDiscoveryGap } from '../lib/utils'
-import type { HibpBreach } from '../lib/types'
 
-const record = (added: string): HibpBreach => ({
+const record = (added) => ({
   Name: 'Example', Title: 'Example', Domain: 'example.com',
   BreachDate: '2020-01-01', AddedDate: added, ModifiedDate: added,
   PwnCount: 10, Description: 'Source description.', LogoPath: '',
@@ -18,9 +17,9 @@ const record = (added: string): HibpBreach => ({
 describe('HIBP listing interval', () => {
   for (const [added, months] of [
     ['2020-03-01', 2], ['2021-02-01', 13], ['2024-02-01', 49],
-  ] as const) {
+  ]) {
     test(`${months}-month interval describes listing, not detection or circulation`, () => {
-      const gap = getDiscoveryGap(record(added))!
+      const gap = getDiscoveryGap(record(added))
       expect(gap.months).toBe(months)
       expect(gap.label).not.toContain('dark')
       const html = renderToStaticMarkup(createElement(DiscoveryGap, { gap }))
