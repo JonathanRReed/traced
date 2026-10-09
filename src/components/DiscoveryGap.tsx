@@ -22,8 +22,8 @@ export function DiscoveryGap({ gap }: Props) {
   return (
     <div className="gap-wrap" ref={ref}>
       <div className="gap-header">
-        <span className="gap-label">DISCOVERY GAP</span>
-        <span className="gap-sublabel">Time between breach occurrence and public disclosure</span>
+        <span className="gap-label">HIBP LISTING INTERVAL</span>
+        <span className="gap-sublabel">Time between the recorded breach date and HIBP listing</span>
       </div>
 
       <div className="gap-timeline">
@@ -56,7 +56,7 @@ export function DiscoveryGap({ gap }: Props) {
 
         <div className="gap-endpoint gap-endpoint-right">
           <div className="gap-dot dot-discovered" style={{ background: severityColor }} />
-          <span className="gap-endpoint-label">DATA SURFACED</span>
+          <span className="gap-endpoint-label">ADDED TO HIBP</span>
           <span className="gap-endpoint-date">{gap.discoveredFormatted}</span>
         </div>
       </div>
@@ -64,11 +64,8 @@ export function DiscoveryGap({ gap }: Props) {
       <div className="gap-callout" style={{ borderColor: `color-mix(in srgb, ${severityColor} 25%, transparent)`, background: `color-mix(in srgb, ${severityColor} 3%, transparent)` }}>
         <span className="gap-callout-icon" style={{ color: severityColor }}>◈</span>
         <p className="gap-callout-text">
-          {gap.months >= 36
-            ? `This breach went undetected for over ${Math.floor(gap.months / 12)} years. Data was actively in circulation during this window.`
-            : gap.months >= 12
-            ? `Over ${Math.floor(gap.months / 12)} year${Math.floor(gap.months / 12) > 1 ? 's' : ''} passed before this breach surfaced publicly.`
-            : `${gap.label.replace(' dark', '')} passed before this incident was disclosed.`}
+          About {gap.label} elapsed between the recorded breach date and its addition to Have I Been Pwned.
+          This interval does not establish when the breach was discovered or publicly disclosed, or whether data circulated during that time.
         </p>
       </div>
 

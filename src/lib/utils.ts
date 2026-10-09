@@ -66,6 +66,8 @@ export function getCaseNumber(breach: CaseNumberFields): string {
   return `CASE-${year}${month}${day}-${breach.Name.toUpperCase().slice(0, 8)}`
 }
 
+// AddedDate is when HIBP added the record, not its discovery or disclosure date.
+// Source: https://haveibeenpwned.com/api/v3#BreachModel
 export function getDiscoveryGap(breach: HibpBreach): DiscoveryGap | null {
   if (!breach.BreachDate || !breach.AddedDate) return null
 
@@ -85,11 +87,11 @@ export function getDiscoveryGap(breach: HibpBreach): DiscoveryGap | null {
 
   let label = ''
   if (years > 0 && remainingMonths > 0) {
-    label = `${years} year${years > 1 ? 's' : ''}, ${remainingMonths} month${remainingMonths > 1 ? 's' : ''} dark`
+    label = `${years} year${years > 1 ? 's' : ''}, ${remainingMonths} month${remainingMonths > 1 ? 's' : ''}`
   } else if (years > 0) {
-    label = `${years} year${years > 1 ? 's' : ''} dark`
+    label = `${years} year${years > 1 ? 's' : ''}`
   } else {
-    label = `${months} month${months > 1 ? 's' : ''} dark`
+    label = `${months} month${months > 1 ? 's' : ''}`
   }
 
   return {
