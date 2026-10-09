@@ -173,7 +173,7 @@ const caseSchema = {
             <div class="qs-divider" />
             <div class="quick-stat">
               <span class="qs-value qs-gap">{gap.months}mo</span>
-              <span class="qs-label">DARK PERIOD</span>
+              <span class="qs-label">HIBP LISTING GAP</span>
             </div>
           </>
         )}
@@ -202,7 +202,7 @@ const caseSchema = {
 
       {gap && (
         <section class="case-section reveal" style="transition-delay: 0.2s">
-          <h2 class="section-title">DISCOVERY GAP</h2>
+          <h2 class="section-title">HIBP LISTING INTERVAL</h2>
           <DiscoveryGap gap={gap} client:visible />
         </section>
       )}
