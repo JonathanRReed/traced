@@ -17,7 +17,9 @@ bun run dev
 
 Open `http://localhost:4321`. `bun run build` writes the static site to `dist/`; `bun run preview` serves that build locally.
 
-The app uses Astro 5, React 19 islands, Tailwind CSS 4, and Framer Motion. Cloudflare Pages hosts it. The public breach and password data paths used here require no API key.
+The app uses Astro 5, React 19 islands, Tailwind CSS 4, [Starwind UI](https://starwind.dev) components, and Framer Motion. Fonts are self-hosted through Fontsource. Cloudflare Pages hosts it. The public breach and password data paths used here require no API key.
+
+The site has light and dark themes and three font choices (TRACED, Readable, OpenDyslexic). The choices live in the Aa menu and are saved in `localStorage`. Design tokens are in `src/styles/global.css`; styles for the React islands are in `src/styles/components.css`.
 
 ## Repository guide
 

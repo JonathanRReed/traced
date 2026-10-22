@@ -26,14 +26,14 @@ const siteUrl = 'https://traced.jonathanrreed.com'
  * When you change what one of these pages says, change its date here too.
  */
 const STATIC_PAGE_DATES: Record<string, string> = {
-  '/': '2026-08-06',
-  '/check/': '2026-08-04',
-  '/about/': '2026-08-04',
-  '/contact/': '2026-08-04',
+  '/': '2026-10-21',
+  '/check/': '2026-10-21',
+  '/about/': '2026-10-21',
+  '/contact/': '2026-10-21',
 }
 
 /** Last edit to the /archive/ template itself. Its pages are at least this old. */
-const ARCHIVE_TEMPLATE_DATE = '2026-08-06'
+const ARCHIVE_TEMPLATE_DATE = '2026-10-21'
 
 function escapeXml(value: string): string {
   return value

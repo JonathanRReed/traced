@@ -10,669 +10,193 @@ import Footer from '../components/Footer.astro'
 >
   <Nav currentPath="/about/" />
 
-  <main id="main-content" tabindex="-1" class="about-page">
-    <div class="about-container">
-
-      <!-- Author block -->
-      <header class="author-block reveal">
-        <div class="author-identity">
+  <main id="main-content" tabindex="-1" class="page">
+    <div class="wrap about">
+      <header class="page-head">
+        <h1>About TRACED</h1>
+        <p class="lede">
+          TRACED is a weekend project. I wanted a better way to browse the
+          <a href="https://haveibeenpwned.com" target="_blank" rel="noopener">Have I Been Pwned<span class="sr-only"> (opens in a new tab)</span></a>
+          dataset, and the case-file format felt like a good fit.
+        </p>
+        <p class="byline">
           <img
             src="https://img.jonathanrreed.com/personal/jonathan.avif"
-            alt="Jonathan R. Reed"
-            width="72"
-            height="72"
-            class="author-photo"
+            alt=""
+            width="48"
+            height="48"
+            class="byline-photo"
             onerror="this.style.display='none'"
           />
-          <div class="author-text">
-            <span class="author-byline">BY</span>
-            <h1 class="author-name">JONATHAN R. REED</h1>
-            <a href="https://jonathanrreed.com" target="_blank" rel="noopener" class="author-link">
-              jonathanrreed.com ↗
-            </a>
-          </div>
-        </div>
-        <div class="author-intro">
-          <p>
-            Traced is a weekend project. I wanted a better way to browse the
-            <a href="https://haveibeenpwned.com" target="_blank" rel="noopener">Have I Been Pwned</a> dataset
-            and the case-file format felt like a good fit.
-          </p>
-        </div>
+          <span>
+            By <a href="https://jonathanrreed.com" target="_blank" rel="noopener">Jonathan R. Reed<span class="sr-only"> (opens in a new tab)</span></a>
+          </span>
+        </p>
       </header>
 
-      <!-- Two-column body -->
-      <div class="about-body">
-        <div class="about-left">
-
-          <section class="about-section reveal" style="transition-delay: 0.1s">
-            <h2 class="about-section-title">WHAT IS THIS</h2>
-            <div class="about-section-body">
-              <p>
-                It&apos;s a browser for the Have I Been Pwned breach database, framed like a noir case-file
-                archive. Each breach gets its own page with dates, affected account counts, exposed data,
-                and how long it took for the breach to become public.
-              </p>
-              <p>
-                It&apos;s not meant to replace HIBP. It&apos;s just a different way to browse public breach
-                history, plus a reminder that old accounts tend to stick around longer than you think.
-              </p>
-            </div>
-          </section>
-
-          <section class="about-section reveal" style="transition-delay: 0.2s">
-            <h2 class="about-section-title">HOW IT WORKS</h2>
-            <div class="about-section-body">
-              <div class="how-step">
-                <span class="how-num">01</span>
-                <div>
-                  <strong>Pre-built pages</strong>: all breach pages are generated at build time
-                  from HIBP&apos;s public breach feed. There&apos;s no app server or database behind it.
-                </div>
-              </div>
-              <div class="how-step">
-                <span class="how-num">02</span>
-                <div>
-                  <strong>No tracking</strong>: no analytics, no cookies, no behavioral tracking.
-                  The site adds no logging or profiling of its own.
-                </div>
-              </div>
-              <div class="how-step">
-                <span class="how-num">03</span>
-                <div>
-                  <strong>Password check</strong>: your password is hashed in your browser and
-                  only the first 5 characters of the hash are ever sent. Your actual
-                  password never leaves your device.
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section class="about-section reveal" style="transition-delay: 0.3s">
-            <h2 class="about-section-title">THE STATUS LABELS</h2>
-            <div class="about-section-body">
-              <div class="status-row">
-                <span class="stamp stamp-critical stamp-inline">CRITICAL</span>
-                <span class="status-desc">Passwords, financial data, or government IDs were exposed. Start here if you&apos;re checking your own risk.</span>
-              </div>
-              <div class="status-row">
-                <span class="stamp stamp-unsolved stamp-inline">UNSOLVED</span>
-                <span class="status-desc">Happened in the last 5 years. Recent enough to treat the affected account as compromised.</span>
-              </div>
-              <div class="status-row">
-                <span class="stamp stamp-cold stamp-inline">COLD CASE</span>
-                <span class="status-desc">Older breach, usually lower-risk data. Still useful context, just less urgent.</span>
-              </div>
-            </div>
-          </section>
-
-        </div>
-
-        <div class="about-right">
-
-          <div class="privacy-callout reveal" style="transition-delay: 0.15s">
-            <div class="pc-header">
-              <span class="pc-icon">◈</span>
-              <span class="pc-title">PRIVACY FIRST</span>
-            </div>
-            <ul class="pc-list">
-              <li>No tracking · No analytics</li>
-              <li>No cookies · No logs</li>
-              <li>Open data only</li>
-              <li>Passwords never transmitted</li>
-              <li>Client-side hashing only</li>
-            </ul>
-          </div>
-
-          <div class="stack-callout reveal" style="transition-delay: 0.25s">
-            <div class="sc-title">BUILT WITH</div>
-            <div class="sc-list">
-              <div class="sc-item">
-                <span class="sc-name">Astro 5</span>
-                <span class="sc-desc">Static-first framework</span>
-              </div>
-              <div class="sc-item">
-                <span class="sc-name">React 19</span>
-                <span class="sc-desc">Interactive islands only</span>
-              </div>
-              <div class="sc-item">
-                <span class="sc-name">Tailwind CSS v4</span>
-                <span class="sc-desc">CSS-first design system</span>
-              </div>
-              <div class="sc-item">
-                <span class="sc-name">Framer Motion</span>
-                <span class="sc-desc">Animations & reveals</span>
-              </div>
-              <div class="sc-item">
-                <span class="sc-name">Cloudflare Pages</span>
-                <span class="sc-desc">Global static hosting</span>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-      <!-- Sources -->
-      <section class="sources-section reveal" style="transition-delay: 0.1s">
-        <h2 class="sources-title">DATA SOURCES</h2>
-        <p class="sources-intro">
-          Everything here comes from Troy Hunt&apos;s Have I Been Pwned, a public breach database
-          he&apos;s been running since 2013.
-        </p>
-
-        <div class="sources-grid">
-          <div class="source-card">
-            <div class="source-header">
-              <span class="source-name">HAVE I BEEN PWNED</span>
-              <span class="source-badge">FREE · NO KEY</span>
-            </div>
-            <p class="source-description">
-              The main breach database. Every publicly known breach with dates, how many accounts
-              were affected, what data was taken, and whether it's been verified.
-            </p>
-            <div class="source-endpoints">
-              <div class="endpoint">
-                <span class="endpoint-method">GET</span>
-                <span class="endpoint-path">haveibeenpwned.com/api/v3/breaches</span>
-              </div>
-              <div class="endpoint">
-                <span class="endpoint-method">GET</span>
-                <span class="endpoint-path">haveibeenpwned.com/api/v3/breach/{'{name}'}</span>
-              </div>
-            </div>
-            <a href="https://haveibeenpwned.com" target="_blank" rel="noopener" class="source-link">
-              haveibeenpwned.com ↗
-            </a>
-          </div>
-
-          <div class="source-card">
-            <div class="source-header">
-              <span class="source-name">PWNED PASSWORDS</span>
-              <span class="source-badge">FREE · K-ANONYMITY</span>
-            </div>
-            <p class="source-description">
-              Hundreds of millions of real passwords exposed in past breaches. The password checker
-              on this site uses this API.
-            </p>
-            <div class="source-endpoints">
-              <div class="endpoint">
-                <span class="endpoint-method">GET</span>
-                <span class="endpoint-path">api.pwnedpasswords.com/range/{'{prefix}'}</span>
-              </div>
-            </div>
-            <a href="https://haveibeenpwned.com/Passwords" target="_blank" rel="noopener" class="source-link">
-              haveibeenpwned.com/Passwords ↗
-            </a>
-          </div>
-        </div>
-
-        <div class="attribution-note">
-          <span class="attr-icon">◈</span>
+      <div class="prose">
+        <section>
+          <h2>What this is</h2>
           <p>
-            All the data here belongs to <strong>Troy Hunt</strong> and
-            <a href="https://haveibeenpwned.com" target="_blank" rel="noopener">Have I Been Pwned</a>.
-            TRACED is an independent frontend, not affiliated with or endorsed by HIBP.
+            A browser for the Have I Been Pwned breach database, set up like a case-file archive. Each breach gets its
+            own page with dates, the number of affected accounts, the data that was exposed, and how long HIBP took to
+            list it.
           </p>
-        </div>
-      </section>
+          <p>
+            It doesn't replace HIBP. It's another way to read public breach history, and a reminder that old accounts
+            tend to outlive the services they were made for.
+          </p>
+        </section>
 
+        <section>
+          <h2>How it works</h2>
+          <dl class="how">
+            <div>
+              <dt>Pre-built pages</dt>
+              <dd>
+                Every breach page is generated at build time from HIBP's public breach feed. No app server or database
+                sits behind it.
+              </dd>
+            </div>
+            <div>
+              <dt>No tracking</dt>
+              <dd>
+                No analytics, no cookies and no behavioral tracking. TRACED adds no logging or profiling of its own.
+                Hosting providers may keep standard request logs.
+              </dd>
+            </div>
+            <div>
+              <dt>Password check</dt>
+              <dd>
+                Your browser hashes the password and sends only the first 5 characters of the hash. The password itself
+                never leaves your device.
+              </dd>
+            </div>
+          </dl>
+        </section>
+
+        <section>
+          <h2>Data sources</h2>
+          <p>
+            Everything here comes from Troy Hunt's Have I Been Pwned, a public breach database he has run since 2013.
+          </p>
+
+          <div class="sources">
+            <article class="source">
+              <h3>Have I Been Pwned</h3>
+              <p>
+                The main breach database. Every publicly known breach, with dates, the number of affected accounts,
+                the data taken and whether the breach is verified. Free, no API key.
+              </p>
+              <ul class="endpoints data">
+                <li>GET haveibeenpwned.com/api/v3/breaches</li>
+                <li>GET haveibeenpwned.com/api/v3/breach/{'{name}'}</li>
+              </ul>
+              <a href="https://haveibeenpwned.com" target="_blank" rel="noopener">haveibeenpwned.com<span class="sr-only"> (opens in a new tab)</span></a>
+            </article>
+
+            <article class="source">
+              <h3>Pwned Passwords</h3>
+              <p>
+                Hundreds of millions of real passwords exposed in past breaches. The password checker uses this API
+                with k-anonymity, so the full password or hash is never sent.
+              </p>
+              <ul class="endpoints data">
+                <li>GET api.pwnedpasswords.com/range/{'{prefix}'}</li>
+              </ul>
+              <a href="https://haveibeenpwned.com/Passwords" target="_blank" rel="noopener">haveibeenpwned.com/Passwords<span class="sr-only"> (opens in a new tab)</span></a>
+            </article>
+          </div>
+
+          <p class="muted">
+            All the data belongs to Troy Hunt and Have I Been Pwned. TRACED is an independent front end, not affiliated
+            with or endorsed by HIBP.
+          </p>
+        </section>
+
+        <section>
+          <h2>Built with</h2>
+          <p>
+            Astro 5 for the static pages, React 19 for the interactive parts, Tailwind CSS v4 and
+            <a href="https://starwind.dev" target="_blank" rel="noopener">Starwind UI<span class="sr-only"> (opens in a new tab)</span></a>
+            for styling and components, and Cloudflare Pages for hosting.
+          </p>
+        </section>
+      </div>
     </div>
   </main>
   <Footer />
 </BaseLayout>
 
 <style>
-  .about-page {
-    min-height: 100vh;
-    padding-bottom: 6rem;
-  }
-
-  .about-container {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 3rem 2rem;
-    display: flex;
-    flex-direction: column;
-    gap: 4rem;
-  }
-
-  /* Author block */
-  .author-block {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    border-bottom: 1px solid var(--color-border);
-    padding-bottom: 3rem;
-  }
-
-  .author-identity {
+  .byline {
     display: flex;
     align-items: center;
-    gap: 1.25rem;
+    gap: 0.75rem;
+    color: var(--muted-foreground);
   }
 
-  .author-photo {
-    width: 72px;
-    height: 72px;
+  .byline-photo {
+    width: 3rem;
+    height: 3rem;
     border-radius: 50%;
     object-fit: cover;
-    border: 2px solid var(--color-border);
-    filter: grayscale(20%);
-    flex-shrink: 0;
+    border: 1px solid var(--border);
   }
 
-  .author-text {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .author-byline {
-    font-family: var(--font-mono);
-    font-size: 0.55rem;
-    letter-spacing: 0.3em;
-    color: var(--color-muted);
-  }
-
-  .author-name {
-    font-family: var(--font-display);
-    font-weight: 900;
-    font-size: 1.6rem;
-    letter-spacing: 0.08em;
-    color: var(--color-text);
-    line-height: 1;
-    margin: 0;
-  }
-
-  .author-link {
-    font-family: var(--font-mono);
-    font-size: 0.62rem;
-    color: var(--color-accent);
-    text-decoration: none;
-    letter-spacing: 0.06em;
-    transition: opacity 0.15s;
-  }
-
-  .author-link:hover { opacity: 0.8; }
-
-  .author-intro p {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    line-height: 1.8;
-    color: var(--color-text);
-    opacity: 0.75;
-    margin: 0;
-    max-width: 720px;
-  }
-
-  /* Two-column */
-  .about-body {
+  .how {
     display: grid;
-    grid-template-columns: 1fr 320px;
-    gap: 3rem;
-    align-items: start;
-  }
-
-  .about-left {
-    display: flex;
-    flex-direction: column;
-    gap: 2.5rem;
-  }
-
-  .about-section {}
-
-  .about-section-title {
-    font-family: var(--font-mono);
-    font-size: 0.58rem;
-    letter-spacing: 0.3em;
-    color: var(--color-muted);
-    margin: 0 0 1rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid var(--color-border);
-  }
-
-  .about-section-body {
-    display: flex;
-    flex-direction: column;
-    gap: 0.875rem;
-  }
-
-  .about-section-body p {
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
-    line-height: 1.8;
-    color: var(--color-text);
-    opacity: 0.75;
+    gap: 1.25rem;
     margin: 0;
   }
 
-  .how-step {
-    display: flex;
-    gap: 1rem;
-    align-items: flex-start;
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
-    line-height: 1.7;
-    color: var(--color-text);
-    opacity: 0.75;
-  }
-
-  .how-num {
+  .how dt {
     font-family: var(--font-display);
-    font-weight: 900;
-    font-size: 1rem;
-    color: var(--color-accent);
-    opacity: 0.5;
-    flex-shrink: 0;
-    line-height: 1.4;
+    font-weight: 800;
+    font-size: 1.3rem;
+    letter-spacing: var(--display-tracking);
   }
 
-  .how-step strong {
-    color: var(--color-text);
-    opacity: 1;
-    font-family: var(--font-mono);
-    font-weight: 600;
+  .how dd {
+    margin: 0.15rem 0 0;
+    color: var(--muted-foreground);
   }
 
-  .status-row {
-    display: flex;
-    align-items: center;
+  .sources {
+    display: grid;
     gap: 1rem;
-    padding: 0.625rem 0;
-    border-bottom: 1px solid var(--color-border);
   }
 
-  .status-row:last-child { border-bottom: none; }
-
-  .stamp-inline {
-    flex-shrink: 0;
-    font-size: 0.6rem !important;
-    padding: 2px 8px !important;
+  .source {
+    display: grid;
+    gap: 0.75rem;
+    padding: 1.25rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--card);
   }
 
-  .status-desc {
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
-    color: var(--color-muted);
-    line-height: 1.5;
+  .source h3 {
+    font-size: 1.4rem;
   }
 
-  /* Right column */
-  .about-right {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    position: sticky;
-    top: 72px;
+  .source p {
+    color: var(--muted-foreground);
   }
 
-  .privacy-callout {
-    border: 1px solid var(--color-accent);
-    background: rgba(59, 130, 246, 0.04);
-    padding: 1.25rem 1.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.875rem;
-  }
-
-  .pc-header {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .pc-icon {
-    color: var(--color-accent);
-    font-size: 0.9rem;
-  }
-
-  .pc-title {
-    font-family: var(--font-mono);
-    font-size: 0.6rem;
-    letter-spacing: 0.25em;
-    color: var(--color-accent);
-    font-weight: 600;
-  }
-
-  .pc-list {
-    list-style: none;
+  .endpoints {
+    display: grid;
+    gap: 0.35rem;
     margin: 0;
     padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-  }
-
-  .pc-list li {
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
-    color: var(--color-text);
-    letter-spacing: 0.05em;
-    padding-left: 0.75rem;
-    position: relative;
-  }
-
-  .pc-list li::before {
-    content: '·';
-    position: absolute;
-    left: 0;
-    color: var(--color-accent);
-  }
-
-  .pc-footer {
-    font-family: var(--font-mono);
-    font-size: 0.6rem;
-    color: var(--color-muted);
-    line-height: 1.6;
-    border-top: 1px solid rgba(59, 130, 246, 0.2);
-    padding-top: 0.75rem;
-  }
-
-  .stack-callout {
-    border: 1px solid var(--color-border);
-    background: var(--color-surface);
-    padding: 1.25rem 1.5rem;
-  }
-
-  .sc-title {
-    font-family: var(--font-mono);
-    font-size: 0.58rem;
-    letter-spacing: 0.25em;
-    color: var(--color-muted);
-    margin-bottom: 0.875rem;
-  }
-
-  .sc-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-  }
-
-  .sc-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.5rem 0;
-    border-bottom: 1px solid var(--color-border);
-  }
-
-  .sc-item:last-child { border-bottom: none; }
-
-  .sc-name {
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
-    color: var(--color-text);
-    letter-spacing: 0.04em;
-  }
-
-  .sc-desc {
-    font-family: var(--font-mono);
-    font-size: 0.58rem;
-    color: var(--color-muted);
-  }
-
-  /* Sources */
-  .sources-section {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    border-top: 1px solid var(--color-border);
-    padding-top: 3rem;
-  }
-
-  .sources-title {
-    font-family: var(--font-mono);
-    font-size: 0.6rem;
-    letter-spacing: 0.3em;
-    color: var(--color-muted);
-    margin: 0;
-  }
-
-  .sources-intro {
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
-    line-height: 1.8;
-    color: var(--color-text);
-    opacity: 0.7;
-    margin: 0;
-    max-width: 680px;
-  }
-
-  .sources-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 1px;
-    background: var(--color-border);
-    border: 1px solid var(--color-border);
-  }
-
-  .source-card {
-    background: var(--color-surface);
-    padding: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.875rem;
-  }
-
-  .source-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.75rem;
-  }
-
-  .source-name {
-    font-family: var(--font-display);
-    font-weight: 700;
-    font-size: 1rem;
-    letter-spacing: 0.08em;
-    color: var(--color-text);
-  }
-
-  .source-badge {
-    font-family: var(--font-mono);
-    font-size: 0.55rem;
-    letter-spacing: 0.12em;
-    color: var(--color-accent);
-    border: 1px solid var(--color-accent);
-    padding: 2px 7px;
-    white-space: nowrap;
-  }
-
-  .source-description {
-    font-family: var(--font-mono);
-    font-size: 0.67rem;
-    line-height: 1.75;
-    color: var(--color-text);
-    opacity: 0.7;
-    margin: 0;
-  }
-
-  .source-endpoints {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .endpoint {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    background: var(--color-surface-2);
-    padding: 4px 8px;
-    border-radius: 2px;
-  }
-
-  .endpoint-method {
-    font-family: var(--font-mono);
-    font-size: 0.55rem;
-    letter-spacing: 0.1em;
-    color: var(--color-accent);
-    font-weight: 600;
-    flex-shrink: 0;
-  }
-
-  .endpoint-path {
-    font-family: var(--font-mono);
-    font-size: 0.6rem;
-    color: var(--color-muted);
+    list-style: none;
+    font-size: 0.875rem;
     word-break: break-all;
   }
 
-  .source-link {
-    font-family: var(--font-mono);
-    font-size: 0.62rem;
-    color: var(--color-accent);
-    text-decoration: none;
-    letter-spacing: 0.06em;
-    align-self: flex-start;
-    margin-top: auto;
-  }
-
-  .source-link:hover { text-decoration: underline; }
-
-  .attribution-note {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
-    padding: 1rem 1.25rem;
-    border: 1px solid var(--color-border);
-    background: var(--color-surface);
-  }
-
-  .attr-icon {
-    color: var(--color-muted);
-    font-size: 0.9rem;
-    flex-shrink: 0;
-    margin-top: 2px;
-  }
-
-  .attribution-note p {
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
-    line-height: 1.7;
-    color: var(--color-muted);
-    margin: 0;
-  }
-
-  .attribution-note strong { color: var(--color-text); }
-
-  .attribution-note a {
-    color: var(--color-accent);
-    text-decoration: none;
-  }
-
-  .attribution-note a:hover { text-decoration: underline; }
-
-  @media (max-width: 900px) {
-    .about-body { grid-template-columns: 1fr; }
-    .about-right { position: static; }
-  }
-
-  @media (max-width: 600px) {
-    .about-container { padding: 2rem 1rem; gap: 2.5rem; }
-    .author-intro p { font-size: 0.68rem; }
-    .sources-grid { grid-template-columns: 1fr; }
+  .endpoints li {
+    padding: 0.35rem 0.6rem;
+    background: var(--muted);
+    border-radius: 0.375rem;
   }
 </style>

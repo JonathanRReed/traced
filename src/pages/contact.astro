@@ -9,114 +9,50 @@ import Footer from '../components/Footer.astro'
   description="Contact TRACED for breach archive corrections, source questions, privacy questions, or responsible notes about public breach data."
 >
   <Nav currentPath="/contact/" />
-  <main id="main-content" tabindex="-1" class="contact-page">
-    <section class="contact-panel reveal">
-      <span class="contact-kicker">TRACED CONTACT</span>
-      <h1>Corrections, source questions, and privacy notes</h1>
-      <p>
-        Jonathan R. Reed runs TRACED: a public breach archive with a password exposure checker attached. If a case file
-        needs a correction, a source needs clarifying, or you have a privacy concern, send the note through his main
-        site.
-      </p>
-      <div class="contact-actions">
-        <a href="https://jonathanrreed.com/" target="_blank" rel="noopener">JonathanRReed.com</a>
-      </div>
-      <p class="contact-note">
-        Do not send passwords, private keys, personal documents, or breach samples through a contact form. TRACED does not
-        need sensitive material to answer archive corrections or source questions.
-      </p>
-      <div class="contact-details">
-        <p>
-          Useful correction notes include the case name, the public source that should be checked, and a short description of
-          what looks inaccurate. A case title, date, data-class label, or source reference can all be fixed when the public
-          record backs the change. For bug reports, include the page URL, your browser, your device, and what you saw happen.
+
+  <main id="main-content" tabindex="-1" class="page">
+    <div class="wrap">
+      <header class="page-head">
+        <h1>Contact</h1>
+        <p class="lede">
+          Jonathan R. Reed runs TRACED. If a case file needs a correction, a source needs clarifying, or you have a
+          privacy concern, send a note through his main site.
         </p>
         <p>
-          TRACED does not investigate private account ownership, confirm whether a specific person was in a breach, remove
-          records from Have I Been Pwned, or accept raw breached data. All it does is put the public record somewhere readable
-          and point you toward better credential habits.
+          <a class="btn" href="https://jonathanrreed.com/" target="_blank" rel="noopener">
+            Go to jonathanrreed.com<span class="sr-only"> (opens in a new tab)</span>
+          </a>
         </p>
+      </header>
+
+      <div class="prose">
+        <section>
+          <h2>Before you write</h2>
+          <p>
+            Don't send passwords, private keys, personal documents or breach samples. TRACED doesn't need sensitive
+            material to answer a correction or a source question.
+          </p>
+        </section>
+
+        <section>
+          <h2>What helps</h2>
+          <p>
+            For a correction, include the case name, the public source to check and a short description of what looks
+            wrong. A title, date, data type or source reference can be fixed when the public record supports the
+            change. For a bug, include the page URL, your browser, your device and what you saw.
+          </p>
+        </section>
+
+        <section>
+          <h2>What TRACED can't do</h2>
+          <p>
+            TRACED doesn't look into who owns an account, confirm whether a specific person was in a breach, remove
+            records from Have I Been Pwned or accept raw breach data. It makes the public record readable and points to
+            better password habits.
+          </p>
+        </section>
       </div>
-    </section>
+    </div>
   </main>
   <Footer />
 </BaseLayout>
-
-<style>
-  .contact-page {
-    min-height: 72vh;
-    display: grid;
-    place-items: center;
-    padding: 7rem 2rem 5rem;
-  }
-
-  .contact-panel {
-    max-width: 720px;
-    border: 1px solid var(--color-border);
-    background: var(--color-surface);
-    padding: 2rem;
-  }
-
-  .contact-kicker {
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
-    letter-spacing: 0.24em;
-    color: var(--color-accent);
-  }
-
-  h1 {
-    margin: 0.75rem 0 1rem;
-    font-family: var(--font-display);
-    font-size: clamp(2.2rem, 6vw, 4.5rem);
-    line-height: 0.9;
-    letter-spacing: 0;
-    text-transform: uppercase;
-  }
-
-  p {
-    color: var(--color-muted);
-    line-height: 1.75;
-    margin: 0;
-  }
-
-  .contact-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    margin: 1.5rem 0;
-  }
-
-  .contact-actions a {
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
-    letter-spacing: 0.12em;
-    color: var(--color-text);
-    border: 1px solid var(--color-border);
-    padding: 0.75rem 0.9rem;
-    text-decoration: none;
-    text-transform: uppercase;
-  }
-
-  .contact-actions a:hover {
-    border-color: var(--color-accent);
-    color: var(--color-accent);
-  }
-
-  .contact-note {
-    font-size: 0.9rem;
-    color: var(--color-muted);
-  }
-
-  .contact-details {
-    display: grid;
-    gap: 0.9rem;
-    margin-top: 1.25rem;
-    padding-top: 1.25rem;
-    border-top: 1px solid var(--color-border);
-  }
-
-  @media (max-width: 640px) {
-    .contact-page { padding: 6rem 1rem 4rem; }
-    .contact-panel { padding: 1.25rem; }
-  }
-</style>
