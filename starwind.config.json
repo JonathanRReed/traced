@@ -1,0 +1,45 @@
+{
+  "$schema": "https://starwind.dev/config-schema.v2.json",
+  "version": 2,
+  "framework": "astro",
+  "registry": {
+    "source": "bundled",
+    "version": "2.2.0"
+  },
+  "components": [
+    {
+      "name": "button",
+      "version": "3.0.2",
+      "framework": "react",
+      "registry": "default"
+    },
+    {
+      "name": "input",
+      "version": "2.0.2",
+      "framework": "react",
+      "registry": "default"
+    },
+    {
+      "name": "dropdown",
+      "version": "3.3.0",
+      "framework": "react",
+      "registry": "default"
+    },
+    {
+      "name": "toggle-group",
+      "version": "2.0.2",
+      "framework": "react",
+      "registry": "default"
+    }
+  ],
+  "tailwind": {
+    "css": "src/styles/starwind.css",
+    "baseColor": "neutral",
+    "cssVariables": true
+  },
+  "componentDir": "src/components/starwind",
+  "componentDirs": {
+    "react": "src/components/starwind-react"
+  },
+  "utilsDir": "src/lib/utils"
+}
