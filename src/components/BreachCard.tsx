@@ -1,89 +1,72 @@
-import { useState } from 'react'
-import type { BreachSummary, BreachStatus } from '../lib/types'
-import { getBreachStatus, getCaseNumber, formatBreachDate, formatPwnCount, slugify } from '../lib/utils'
-import { useScramble } from '../hooks/useScramble'
+import type { BreachSummary } from '../lib/types'
+import {
+  getBreachStatus,
+  getCaseNumber,
+  formatBreachDate,
+  formatPwnCount,
+  isSensitiveDataClass,
+  slugify,
+} from '../lib/utils'
+import { StatusBadge } from './StatusBadge'
 
-interface Props {
-  breach: BreachSummary
-}
+const VISIBLE_CLASSES = 3
 
-const STATUS_LABELS: Record<BreachStatus, string> = {
-  'CRITICAL': 'CRITICAL',
-  'UNSOLVED': 'UNSOLVED',
-  'COLD CASE': 'COLD CASE',
-}
-
-const STATUS_CLASSES: Record<BreachStatus, string> = {
-  'CRITICAL': 'stamp stamp-critical',
-  'UNSOLVED': 'stamp stamp-unsolved',
-  'COLD CASE': 'stamp stamp-cold',
-}
-
-const SENSITIVE_CLASSES = ['Passwords', 'Credit cards', 'Social security numbers', 'Bank account numbers']
-
-export function BreachCard({ breach }: Props) {
-  const status = getBreachStatus(breach)
-  const caseNum = getCaseNumber(breach)
-  const caseSlug = slugify(breach.Name)
-  const topClasses = breach.DataClasses.slice(0, 3)
-  const hasMore = breach.DataClasses.length > 3
-  const [hovered, setHovered] = useState(false)
-  const scrambledTitle = useScramble(breach.Title, hovered)
+export function BreachCard({ breach }: { breach: BreachSummary }) {
+  const slug = slugify(breach.Name)
+  const extra = breach.DataClasses.length - VISIBLE_CLASSES
 
   return (
     <a
-      href={`/case/${caseSlug}/`}
-      style={{ textDecoration: 'none', display: 'block' }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      href={`/case/${slug}/`}
+      className="breach-card"
+      onPointerMove={(e) => {
+        const box = e.currentTarget.getBoundingClientRect()
+        e.currentTarget.style.setProperty('--mx', `${e.clientX - box.left}px`)
+        e.currentTarget.style.setProperty('--my', `${e.clientY - box.top}px`)
+      }}
     >
-      <article className="breach-card scanlines">
-        <header className="breach-card-header">
-          <span className="breach-case-num">{caseNum}</span>
-          <span className={STATUS_CLASSES[status]}>{STATUS_LABELS[status]}</span>
-        </header>
+      <header className="breach-card-top">
+        <span className="case-id data">{getCaseNumber(breach)}</span>
+        <StatusBadge status={getBreachStatus(breach)} />
+      </header>
 
-        <div className="breach-card-body">
-          {breach.LogoPath ? (
-            <img
-              src={breach.LogoPath}
-              alt={`Logo for ${breach.Title}`}
-              width={64}
-              height={64}
-              className="breach-logo"
-              loading="lazy"
-              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
-            />
-          ) : null}
-          <h3 className="breach-title">{scrambledTitle}</h3>
+      <div className="breach-card-title">
+        {breach.LogoPath ? (
+          <img
+            src={breach.LogoPath}
+            alt=""
+            width={32}
+            height={32}
+            className="breach-logo"
+            loading="lazy"
+            onError={(e) => { e.currentTarget.style.display = 'none' }}
+          />
+        ) : null}
+        <h3 style={{ viewTransitionName: `case-${slug}` }}>{breach.Title}</h3>
+        <svg className="breach-card-arrow" viewBox="0 0 20 20" width="20" height="20" aria-hidden="true">
+          <path d="M4 10h11M10.5 5l5 5-5 5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </div>
+
+      <dl className="breach-card-meta">
+        <div>
+          <dt>Date</dt>
+          <dd className="data">{formatBreachDate(breach.BreachDate)}</dd>
         </div>
-
-        <dl className="breach-card-meta">
-          <div className="breach-meta-row">
-            <dt className="meta-label">DATE</dt>
-            <dd className="meta-value">{formatBreachDate(breach.BreachDate)}</dd>
-          </div>
-          <div className="breach-meta-row">
-            <dt className="meta-label">ACCOUNTS</dt>
-            <dd className="meta-value">{formatPwnCount(breach.PwnCount)}</dd>
-          </div>
-        </dl>
-
-        <div className="breach-card-classes">
-          {topClasses.map((dc) => (
-            <span
-              key={dc}
-              className={`evidence-tag${SENSITIVE_CLASSES.includes(dc) ? ' sensitive' : ''}`}
-            >
-              {dc}
-            </span>
-          ))}
-          {hasMore && (
-            <span className="evidence-tag">+{breach.DataClasses.length - 3} more</span>
-          )}
+        <div>
+          <dt>Accounts</dt>
+          <dd className="data">{formatPwnCount(breach.PwnCount)}</dd>
         </div>
-      </article>
+      </dl>
 
+      <ul className="chip-list" aria-label="Exposed data types">
+        {breach.DataClasses.slice(0, VISIBLE_CLASSES).map((dc) => (
+          <li key={dc} className="chip" data-sensitive={isSensitiveDataClass(dc)}>
+            {dc}
+          </li>
+        ))}
+        {extra > 0 && <li className="chip">+{extra} more</li>}
+      </ul>
     </a>
   )
 }

@@ -1,0 +1,191 @@
+---
+import type { HibpBreach } from '../lib/types'
+import { formatFullDate, formatPwnCount, isSensitiveDataClass } from '../lib/utils'
+
+interface Props {
+  breach: HibpBreach
+}
+
+const { breach } = Astro.props
+const sensitiveCount = breach.DataClasses.filter(isSensitiveDataClass).length
+const description = (breach.Description || 'No description available.')
+  .replace(/<[^>]*>/g, ' ')
+  .replace(/\s+/g, ' ')
+  .trim()
+---
+
+<div class="record">
+  <dl class="record-list">
+    <div>
+      <dt>Incident date</dt>
+      <dd class="data">{formatFullDate(breach.BreachDate)}</dd>
+    </div>
+    <div>
+      <dt>Added to HIBP</dt>
+      <dd class="data">{formatFullDate(breach.AddedDate)}</dd>
+    </div>
+    <div>
+      <dt>Accounts affected</dt>
+      <dd class="data">{formatPwnCount(breach.PwnCount)}</dd>
+    </div>
+    <div>
+      <dt>Verification</dt>
+      <dd>{breach.IsVerified ? 'Verified by HIBP' : 'Not verified by HIBP'}</dd>
+    </div>
+    <div>
+      <dt>Domain</dt>
+      <dd class:list={['data', { muted: !breach.Domain }]}>{breach.Domain || 'Unknown'}</dd>
+    </div>
+  </dl>
+
+  <div class="record-exposed">
+    <div class="record-exposed-head">
+      <h3>Exposed data</h3>
+      {sensitiveCount > 0 && (
+        <button type="button" class="btn btn-ghost reveal-all" data-reveal-all aria-pressed="false">
+          Reveal sensitive types
+        </button>
+      )}
+    </div>
+    <ul class="chip-list">
+      {breach.DataClasses.map((dataClass) =>
+        isSensitiveDataClass(dataClass) ? (
+          <li>
+            <button type="button" class="chip redact" data-sensitive="true" aria-pressed="false">
+              {dataClass}
+            </button>
+          </li>
+        ) : (
+          <li class="chip">{dataClass}</li>
+        ),
+      )}
+    </ul>
+    {sensitiveCount > 0 && (
+      <p class="muted record-hint">
+        Sensitive types are covered until you hover, focus or tap them.
+      </p>
+    )}
+  </div>
+
+  <div class="record-report">
+    <h3>HIBP's description</h3>
+    <p>{description}</p>
+  </div>
+</div>
+
+<script>
+  function init() {
+    const chips = document.querySelectorAll<HTMLButtonElement>('.redact')
+    const all = document.querySelector<HTMLButtonElement>('[data-reveal-all]')
+    if (!chips.length) return
+
+    const sync = () => {
+      if (!all) return
+      const revealed = [...chips].every((chip) => chip.getAttribute('aria-pressed') === 'true')
+      all.setAttribute('aria-pressed', String(revealed))
+      all.textContent = revealed ? 'Cover sensitive types' : 'Reveal sensitive types'
+    }
+
+    chips.forEach((chip) => {
+      chip.addEventListener('click', () => {
+        chip.setAttribute('aria-pressed', String(chip.getAttribute('aria-pressed') !== 'true'))
+        sync()
+      })
+    })
+
+    all?.addEventListener('click', () => {
+      const reveal = all.getAttribute('aria-pressed') !== 'true'
+      chips.forEach((chip) => chip.setAttribute('aria-pressed', String(reveal)))
+      sync()
+    })
+  }
+
+  document.addEventListener('astro:page-load', init)
+</script>
+
+<style>
+  .record {
+    display: grid;
+    gap: 2rem;
+    padding: clamp(1.25rem, 3vw, 2rem);
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+  }
+
+  dl,
+  dd {
+    margin: 0;
+  }
+
+  .record-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+    gap: 1.25rem 2rem;
+  }
+
+  .record-list dt,
+  .record-hint {
+    color: var(--muted-foreground);
+    font-size: 0.9375rem;
+  }
+
+  .record-list dd {
+    font-size: 1.0625rem;
+    font-weight: 500;
+  }
+
+  .record h3 {
+    font-size: 1.4rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .record-exposed-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .record-exposed-head h3 {
+    margin: 0;
+  }
+
+  .reveal-all {
+    min-height: 2.25rem;
+    padding-inline: 0.9rem;
+    font-size: 0.9375rem;
+  }
+
+  .record-hint {
+    margin-top: 0.75rem;
+  }
+
+  .record-report p {
+    max-width: 65ch;
+    color: var(--muted-foreground);
+  }
+
+  /* Sensitive data types are covered by a bar that wipes away on reveal. The
+     text stays in the DOM, so screen readers and search engines still get it. */
+  .redact {
+    font-family: inherit;
+    cursor: pointer;
+    color: transparent;
+    background:
+      linear-gradient(var(--foreground), var(--foreground)) right / 100% 100% no-repeat,
+      var(--muted);
+    border-color: transparent;
+    transition: background-size 0.28s cubic-bezier(0.6, 0, 0.2, 1), color 0.12s 0.1s;
+  }
+
+  .redact:hover,
+  .redact:focus-visible,
+  .redact[aria-pressed='true'] {
+    background-size: 0% 100%, 100% 100%;
+    color: var(--foreground);
+    border-color: color-mix(in srgb, var(--sev-critical) 45%, transparent);
+  }
+</style>

@@ -60,7 +60,8 @@ const schema = {
     <meta name="description" content={description} />
     <meta name="author" content="Jonathan R. Reed" />
     <meta name="generator" content={Astro.generator} />
-    <meta name="theme-color" content="#080b0f" />
+    <meta name="theme-color" content="#0b0f15" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f4f6fa" media="(prefers-color-scheme: light)" />
     <meta name="robots" content={robots} />
     <link rel="canonical" href={canonicalUrl} />
 
@@ -88,10 +89,28 @@ const schema = {
     <link rel="apple-touch-icon" href="/TracedLogo.webp" />
     <link rel="sitemap" href="/sitemap.xml" />
 
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;900&family=Geist+Mono:wght@400;500;600&display=swap"
-    />
+    <script is:inline>
+      (function () {
+        var root = document.documentElement
+        var query = window.matchMedia('(prefers-color-scheme: dark)')
+        function apply() {
+          var theme = 'system'
+          var font = 'default'
+          try {
+            theme = localStorage.getItem('colorTheme') || 'system'
+            font = localStorage.getItem('traced-font') || 'default'
+          } catch (e) {}
+          var dark = theme === 'dark' || (theme !== 'light' && query.matches)
+          root.classList.toggle('dark', dark)
+          if (font === 'default') root.removeAttribute('data-font')
+          else root.setAttribute('data-font', font)
+        }
+        window.__applyAppearance = apply
+        apply()
+        document.addEventListener('astro:after-swap', apply)
+        query.addEventListener('change', apply)
+      })()
+    </script>
     <title>{title}</title>
     <script type="application/ld+json" set:html={JSON.stringify(schema)} />
     {extraSchema && <script type="application/ld+json" set:html={JSON.stringify(extraSchema)} />}
@@ -102,33 +121,5 @@ const schema = {
     <CommandPalette client:load />
     <slot />
 
-    <script>
-      function initReveals() {
-        const els = document.querySelectorAll('.reveal:not(.revealed)')
-        if (!els.length) return
-
-        const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
-        if (mq.matches) {
-          els.forEach((el) => el.classList.add('revealed'))
-          return
-        }
-
-        const observer = new IntersectionObserver(
-          (entries) => {
-            entries.forEach((entry) => {
-              if (entry.isIntersecting) {
-                entry.target.classList.add('revealed')
-                observer.unobserve(entry.target)
-              }
-            })
-          },
-          { threshold: 0.1 }
-        )
-        els.forEach((el) => observer.observe(el))
-      }
-
-      initReveals()
-      document.addEventListener('astro:page-load', initReveals)
-    </script>
   </body>
 </html>

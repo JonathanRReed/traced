@@ -16,6 +16,7 @@ import {
   getBreachStatus,
   slugify,
 } from '../../lib/utils'
+import { StatusBadge } from '../../components/StatusBadge'
 import type { HibpBreach } from '../../lib/types'
 
 export const getStaticPaths = (async ({ paginate }) => {
@@ -113,64 +114,55 @@ const archiveSchema = {
   <Nav currentPath="/archive/" />
 
   <main id="main-content" tabindex="-1" class="index-page">
-    <div class="index-container">
-
-      <div class="index-breadcrumb">
-        <a href="/" class="breadcrumb-link">← ARCHIVE</a>
-        <span class="breadcrumb-sep">/</span>
-        <span class="breadcrumb-current">CASE INDEX</span>
-      </div>
+    <div class="wrap index-container">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="/">Archive</a>
+        <span aria-hidden="true">/</span>
+        <span aria-current="page">Case index</span>
+      </nav>
 
       <header class="index-header">
-        <span class="index-eyebrow">CASE INDEX</span>
-        <h1 class="index-title">Breach Case Archive</h1>
-        <p class="index-meta">
-          PAGE {current} OF {lastPage} · CASES {firstIndex}-{lastIndex} OF {page.total}
+        <h1>Breach case archive</h1>
+        <p class="muted data">
+          Page {current} of {lastPage}, cases {firstIndex} to {lastIndex} of {page.total}
         </p>
-        <p class="index-intro">
+        <p>
           Every case file in the archive, newest breach first. {page.total} of them, {ARCHIVE_PAGE_SIZE} to a page.
         </p>
       </header>
 
-      <div class="index-table">
-        <div class="index-head" aria-hidden="true">
-          <span class="col-num">NO.</span>
-          <span class="col-case">CASE</span>
-          <span class="col-status">STATUS</span>
-          <span class="col-date">BREACH DATE</span>
-          <span class="col-count">ACCOUNTS</span>
-        </div>
-
-        <ol class="index-rows" aria-label={`Breach case files ${firstIndex} to ${lastIndex}`}>
-          {page.data.map((breach, i) => {
-            const status = getBreachStatus(breach)
-            const statusClass =
-              status === 'CRITICAL'
-                ? 'is-critical'
-                : status === 'UNSOLVED'
-                  ? 'is-unsolved'
-                  : 'is-cold'
-            return (
-              <li class="index-row">
-                <span class="col-num">{String(page.start + i + 1).padStart(3, '0')}</span>
-                <span class="col-case">
-                  <a href={`/case/${slugify(breach.Name)}/`} class="row-link">{breach.Title}</a>
-                  {breach.Domain && <span class="row-domain">{breach.Domain}</span>}
-                </span>
-                <span class={`col-status row-status ${statusClass}`}>{status}</span>
-                <span class="col-date">{formatBreachDate(breach.BreachDate)}</span>
-                <span class="col-count">{formatPwnCount(breach.PwnCount)}</span>
-              </li>
-            )
-          })}
-        </ol>
-      </div>
+      <table class="index-table">
+        <caption class="sr-only">Breach case files {firstIndex} to {lastIndex}</caption>
+        <thead>
+          <tr>
+            <th scope="col">No.</th>
+            <th scope="col">Case</th>
+            <th scope="col">Status</th>
+            <th scope="col">Breach date</th>
+            <th scope="col" class="num">Accounts</th>
+          </tr>
+        </thead>
+        <tbody>
+          {page.data.map((breach, i) => (
+            <tr>
+              <td class="data muted" data-label="No.">{String(page.start + i + 1).padStart(3, '0')}</td>
+              <td class="cell-case">
+                <a href={`/case/${slugify(breach.Name)}/`}>{breach.Title}</a>
+                {breach.Domain && <span class="data muted">{breach.Domain}</span>}
+              </td>
+              <td data-label="Status"><StatusBadge status={getBreachStatus(breach)} /></td>
+              <td class="data" data-label="Breach date">{formatBreachDate(breach.BreachDate)}</td>
+              <td class="data num" data-label="Accounts">{formatPwnCount(breach.PwnCount)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
 
       <nav class="pager" aria-label="Case index pages">
         {page.url.prev ? (
-          <a href={archivePagePath(current - 1)} rel="prev" class="pager-step">← PREV</a>
+          <a href={archivePagePath(current - 1)} rel="prev" class="btn btn-ghost">Previous</a>
         ) : (
-          <span class="pager-step is-off">← PREV</span>
+          <span class="btn btn-ghost is-off" aria-disabled="true">Previous</span>
         )}
 
         <ol class="pager-nums">
@@ -184,17 +176,11 @@ const archiveSchema = {
         </ol>
 
         {page.url.next ? (
-          <a href={archivePagePath(current + 1)} rel="next" class="pager-step">NEXT →</a>
+          <a href={archivePagePath(current + 1)} rel="next" class="btn btn-ghost">Next</a>
         ) : (
-          <span class="pager-step is-off">NEXT →</span>
+          <span class="btn btn-ghost is-off" aria-disabled="true">Next</span>
         )}
       </nav>
-
-      <div class="index-footer">
-        <a href="/" class="back-link">← RETURN TO ARCHIVE</a>
-        <a href="/check/" class="back-link">CHECK A PASSWORD →</a>
-      </div>
-
     </div>
   </main>
 
@@ -204,198 +190,88 @@ const archiveSchema = {
 <style>
   .index-page {
     min-height: 100vh;
-    padding-bottom: 6rem;
+    padding-bottom: 5rem;
   }
 
   .index-container {
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 2.5rem 2rem;
-    display: flex;
-    flex-direction: column;
+    display: grid;
     gap: 2rem;
+    padding-top: 2rem;
   }
 
-  .index-breadcrumb {
+  .breadcrumb {
     display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    font-family: var(--font-mono);
-    font-size: 0.6rem;
-    letter-spacing: 0.12em;
+    gap: 0.5rem;
+    color: var(--muted-foreground);
+    font-size: 0.9375rem;
   }
 
-  .breadcrumb-link {
-    color: var(--color-accent);
-    text-decoration: none;
-    transition: opacity 0.15s;
+  .breadcrumb a {
+    color: var(--signal);
   }
-
-  .breadcrumb-link:hover { opacity: 0.8; }
-  .breadcrumb-sep { color: var(--color-border); }
-  .breadcrumb-current { color: var(--color-muted); }
 
   .index-header {
-    display: flex;
-    flex-direction: column;
+    display: grid;
     gap: 0.6rem;
-    border-bottom: 1px solid var(--color-border);
-    padding-bottom: 1.75rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
   }
 
-  .index-eyebrow {
-    font-family: var(--font-mono);
-    font-size: 0.55rem;
-    letter-spacing: 0.3em;
-    color: var(--color-accent);
-    opacity: 0.9;
-  }
-
-  .index-title {
-    font-family: var(--font-display);
-    font-weight: 900;
-    font-size: clamp(2rem, 6vw, 3.25rem);
-    letter-spacing: 0.05em;
-    color: var(--color-text);
-    margin: 0;
-    line-height: 0.95;
-  }
-
-  .index-meta {
-    font-family: var(--font-mono);
-    font-size: 0.6rem;
-    letter-spacing: 0.18em;
-    color: var(--color-muted);
-    margin: 0;
-  }
-
-  .index-intro {
-    margin: 0.35rem 0 0;
-    color: var(--color-muted);
-    line-height: 1.7;
-    font-size: 0.95rem;
-    max-width: 60ch;
+  .index-header h1 {
+    font-size: clamp(2.5rem, 7vw, 4rem);
   }
 
   .index-table {
-    border: 1px solid var(--color-border);
-    background: var(--color-border);
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
+    width: 100%;
+    border-collapse: collapse;
   }
 
-  .index-head,
-  .index-row {
-    display: grid;
-    grid-template-columns: 3.5rem minmax(0, 1fr) 6.5rem 7rem 8rem;
-    align-items: center;
-    gap: 1rem;
-    padding: 0.7rem 1.1rem;
-    background: var(--color-surface);
+  .index-table th {
+    padding: 0.6rem 0.75rem;
+    text-align: left;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--muted-foreground);
+    border-bottom: 1px solid var(--border);
   }
 
-  .index-head {
-    background: var(--color-surface-2);
+  .index-table td {
+    padding: 0.8rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
   }
 
-  .index-head span {
-    font-family: var(--font-mono);
-    font-size: 0.5rem;
-    letter-spacing: 0.2em;
-    color: var(--color-muted);
+  .index-table tbody tr:hover {
+    background: var(--card);
   }
 
-  .index-rows {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-  }
-
-  .index-row {
-    border-left: 2px solid transparent;
-    padding-left: calc(1.1rem - 2px);
-    transition: background 0.15s, border-left-color 0.15s;
-  }
-
-  .index-row:hover {
-    background: var(--color-surface-2);
-    border-left-color: var(--color-accent);
-  }
-
-  .col-num {
-    font-family: var(--font-mono);
-    font-size: 0.6rem;
-    letter-spacing: 0.1em;
-    color: var(--color-dim);
-  }
-
-  .col-case {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    min-width: 0;
-  }
-
-  .row-link {
-    font-family: var(--font-display);
-    font-weight: 700;
-    font-size: 1.05rem;
-    letter-spacing: 0.03em;
-    line-height: 1.15;
-    color: var(--color-text);
-    text-decoration: none;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .index-row:hover .row-link,
-  .row-link:hover,
-  .row-link:focus-visible {
-    color: var(--color-accent);
-  }
-
-  .row-domain {
-    font-family: var(--font-mono);
-    font-size: 0.55rem;
-    letter-spacing: 0.06em;
-    color: var(--color-muted);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .row-status {
-    font-family: var(--font-mono);
-    font-size: 0.5rem;
-    letter-spacing: 0.16em;
-    border: 1px solid currentColor;
-    border-radius: 2px;
-    padding: 2px 5px;
-    justify-self: start;
-    white-space: nowrap;
-    opacity: 0.85;
-  }
-
-  .is-critical { color: var(--color-danger); }
-  .is-unsolved { color: var(--color-accent); }
-  .is-cold { color: var(--color-muted); }
-
-  .col-date,
-  .col-count {
-    font-family: var(--font-mono);
-    font-size: 0.62rem;
-    letter-spacing: 0.08em;
-    color: var(--color-muted);
-  }
-
-  .col-count {
+  .num {
     text-align: right;
-    color: var(--color-text);
+  }
+
+  .cell-case {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+  }
+
+  .cell-case a {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.3rem;
+    letter-spacing: var(--display-tracking);
+    color: var(--foreground);
+    text-decoration: none;
+  }
+
+  .cell-case a:hover {
+    color: var(--signal);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  .cell-case .data {
+    font-size: 0.8125rem;
   }
 
   .pager {
@@ -407,95 +283,82 @@ const archiveSchema = {
   }
 
   .pager-nums {
-    list-style: none;
-    margin: 0;
-    padding: 0;
     display: flex;
     flex-wrap: wrap;
-    gap: 4px;
     justify-content: center;
+    gap: 0.25rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
 
-  .pager-step,
   .pager-num {
-    font-family: var(--font-mono);
-    font-size: 0.62rem;
-    letter-spacing: 0.12em;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.5rem;
+    min-height: 2.5rem;
+    border-radius: 0.5rem;
+    color: var(--foreground);
     text-decoration: none;
-    color: var(--color-muted);
-    border: 1px solid var(--color-border);
-    border-radius: 2px;
-    padding: 6px 10px;
-    display: inline-block;
-    transition: color 0.15s, border-color 0.15s, background 0.15s;
+    font-variant-numeric: tabular-nums;
   }
 
-  .pager-step:hover,
-  .pager-num:hover {
-    color: var(--color-text);
-    border-color: var(--color-muted);
-  }
-
-  a.pager-step:hover,
   a.pager-num:hover {
-    background: var(--color-surface-2);
+    background: var(--muted);
   }
 
   .pager-num.is-current {
-    color: #fff;
-    background: var(--color-accent-hover);
-    border-color: var(--color-accent-hover);
+    background: var(--primary);
+    color: var(--primary-foreground);
+    font-weight: 600;
   }
 
-  .pager-step.is-off {
-    opacity: 0.35;
-    cursor: default;
+  .is-off {
+    opacity: 0.4;
+    pointer-events: none;
   }
 
-  .index-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    flex-wrap: wrap;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--color-border);
-  }
-
-  .back-link {
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
-    letter-spacing: 0.15em;
-    color: var(--color-accent);
-    text-decoration: none;
-    transition: opacity 0.15s;
-  }
-
-  .back-link:hover { opacity: 0.8; }
-
-  @media (max-width: 820px) {
-    .index-head { display: none; }
-
-    .index-row {
-      grid-template-columns: 2.75rem minmax(0, 1fr) auto;
-      grid-template-areas:
-        'num case status'
-        'num date count';
-      row-gap: 6px;
-      column-gap: 0.75rem;
-      align-items: start;
+  @media (max-width: 680px) {
+    .index-table thead {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
     }
 
-    .col-num { grid-area: num; padding-top: 3px; }
-    .col-case { grid-area: case; }
-    .row-status { grid-area: status; justify-self: end; }
-    .col-date { grid-area: date; }
-    .col-count { grid-area: count; }
-  }
+    .index-table,
+    .index-table tbody,
+    .index-table tr,
+    .index-table td {
+      display: block;
+    }
 
-  @media (max-width: 600px) {
-    .index-container { padding: 1.5rem 1rem; gap: 1.75rem; }
-    .index-row { padding: 0.7rem 0.85rem; padding-left: calc(0.85rem - 2px); }
-    .pager { justify-content: center; }
+    .index-table tr {
+      padding: 0.9rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .index-table td {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.2rem 0;
+      border: 0;
+    }
+
+    .index-table td[data-label]::before {
+      content: attr(data-label);
+      color: var(--muted-foreground);
+    }
+
+    .index-table td.cell-case {
+      flex-direction: column;
+    }
+
+    .num {
+      text-align: left;
+    }
   }
 </style>

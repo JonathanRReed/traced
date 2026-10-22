@@ -6,7 +6,8 @@ import { getAllBreaches } from '../../lib/hibp'
 import { caseRobots, caseCaveat } from '../../lib/index-policy'
 import { relatedCases } from '../../lib/related-cases'
 import { getBreachStatus, getCaseNumber, getDiscoveryGap, formatBreachDate, formatPwnCount, slugify } from '../../lib/utils'
-import CaseReveal from '../../components/CaseReveal.astro'
+import CaseRecord from '../../components/CaseRecord.astro'
+import { StatusBadge } from '../../components/StatusBadge'
 import { DiscoveryGap } from '../../components/DiscoveryGap'
 import type { HibpBreach } from '../../lib/types'
 
@@ -31,23 +32,31 @@ const caveat = caseCaveat(breach)
 
 const hasPasswords = breach.DataClasses.includes('Passwords')
 
-const statusLabel = status === 'CRITICAL' ? 'CRITICAL' : status === 'UNSOLVED' ? 'UNSOLVED' : 'COLD CASE'
-const statusClass = status === 'CRITICAL' ? 'stamp-critical' : status === 'UNSOLVED' ? 'stamp-unsolved' : 'stamp-cold'
-
 const breachYear = new Date(breach.BreachDate).getFullYear()
-const related = relatedCases(breach, allBreaches)
+const related = relatedCases(breach, allBreaches).map((b) => ({
+  breach: b,
+  shared: b.DataClasses.filter((dc) => breach.DataClasses.includes(dc)),
+}))
 
 const caseTitle = `${breach.Title} Data Breach Case File | TRACED`
-const allExposedData = breach.DataClasses.join(', ')
+const slug = slugify(breach.Name)
+const has = (...classes: string[]) => classes.some((c) => breach.DataClasses.includes(c))
 const verifiedCopy = breach.IsVerified
-  ? 'Have I Been Pwned currently marks this breach as verified, meaning the data was checked against the service it is attributed to.'
-  : 'Have I Been Pwned does not currently mark this breach as verified, so read this page as an archive record of a public claim.'
+  ? 'HIBP marks this breach as verified, which means it checked the data against the service it is attributed to.'
+  : 'HIBP does not mark this breach as verified. The details come from public claims and are less certain.'
 const sensitiveCopy = breach.IsSensitive
-  ? 'HIBP marks this breach as sensitive. The public facts stay on the page, but TRACED collects no visitor identifiers, passwords, or account lookups tied to a person.'
-  : 'HIBP does not mark this breach as sensitive. The exposed data still matters, though, since it can be used to identify people, build profiles on them, or feed credential-stuffing attacks.'
+  ? 'HIBP flags it as sensitive, which limits how it can be searched on their site.'
+  : 'HIBP does not flag it as sensitive.'
 const passwordCopy = hasPasswords
-  ? 'This breach includes password data, so replace that password anywhere you reused it. A unique entry in a password manager and multi-factor authentication on the account are the follow-up worth doing.'
-  : 'The public record does not list passwords among the exposed data classes. What is here can still be used for phishing, account-recovery abuse, or identity profiling once it is combined with other breach records.'
+  ? 'This breach includes passwords. If you had an account here, change that password and every place you reused it. A password manager makes unique ones easy to keep. Turn on two-factor authentication where it is offered.'
+  : "The public record doesn't list passwords. The data it does list can still feed phishing and account-recovery attacks once someone combines it with other breaches."
+const riskNotes = [
+  has('Email addresses', 'Usernames') && 'Email addresses and usernames are what phishers and account-lookup tools start from.',
+  has('Physical addresses', 'Phone numbers', 'Dates of birth', 'Names') &&
+    'Names, addresses, phone numbers and birth dates make impersonation easier.',
+  has('Credit cards', 'Bank account numbers', 'Social security numbers', 'Passport numbers', 'Government issued IDs') &&
+    'Financial and government identifiers are the ones worth a close look at your statements and credit reports.',
+].filter(Boolean) as string[]
 const caseDescription = `${breach.Title} TRACED case file with ${formatPwnCount(breach.PwnCount)} exposed accounts, breach date, affected data classes, HIBP status, and source context.`
 
 const siteUrl = 'https://traced.jonathanrreed.com'
@@ -98,237 +107,234 @@ const caseSchema = {
 >
   <Nav />
 
+  <div class="read-progress" aria-hidden="true"></div>
   <main id="main-content" tabindex="-1" class="case-page">
-    <div class="case-container">
-
-      <div class="case-breadcrumb">
-        <a href="/" class="breadcrumb-link">← ARCHIVE</a>
-        <span class="breadcrumb-sep">/</span>
-        <a href="/archive/" class="breadcrumb-link">CASE INDEX</a>
-        <span class="breadcrumb-sep">/</span>
-        <span class="breadcrumb-current">{caseNumber}</span>
-      </div>
+    <div class="wrap case-container">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="/">Archive</a>
+        <span aria-hidden="true">/</span>
+        <a href="/archive/">Case index</a>
+        <span aria-hidden="true">/</span>
+        <span aria-current="page">{breach.Title}</span>
+      </nav>
 
       <header class="case-header">
-        <div class="case-header-left">
-          <div class="case-classification">
-            <span class="case-label">CASE FILE</span>
-            <span class="case-number">{caseNumber}</span>
-          </div>
-
+        <div class="case-heading">
+          <p class="case-id data muted">{caseNumber}</p>
           <div class="case-title-row">
             {breach.LogoPath && (
               <img
                 src={breach.LogoPath}
-                alt={`Logo for ${breach.Title}`}
-                width="64"
-                height="64"
+                alt=""
+                width="56"
+                height="56"
                 class="case-logo"
                 onerror="this.style.display='none'"
               />
             )}
-            <h1 class="case-title">{breach.Title}</h1>
+            <h1 style={`view-transition-name: case-${slug}`}>{breach.Title}</h1>
           </div>
-
-          {breach.Domain && (
-            <span class="case-domain">{breach.Domain}</span>
-          )}
+          {breach.Domain && <p class="data muted">{breach.Domain}</p>}
         </div>
 
-        <div class="case-stamp-wrap">
-          <span class={`stamp ${statusClass}`}>{statusLabel}</span>
-          {breach.IsSensitive && (
-            <span class="sensitive-badge">SENSITIVE</span>
-          )}
+        <div class="case-stamp">
+          <StatusBadge status={status} />
+          {breach.IsSensitive && <span class="badge-status" data-status="critical">Sensitive</span>}
         </div>
       </header>
 
       {caveat && (
         <aside class="case-caveat" role="note" aria-label="Source caveat">
-          <span class="caveat-icon" aria-hidden="true">⚠</span>
-          <div class="caveat-body">
-            <p class="caveat-label">{caveat.label}</p>
-            <p class="caveat-detail">{caveat.detail}</p>
-          </div>
+          <strong>{caveat.label}</strong>
+          <p>{caveat.detail}</p>
         </aside>
       )}
 
-      <div class="case-quick-stats">
-        <div class="quick-stat">
-          <span class="qs-value">{formatPwnCount(breach.PwnCount)}</span>
-          <span class="qs-label">ACCOUNTS</span>
+      <dl class="key-facts">
+        <div>
+          <dt>Accounts</dt>
+          <dd>{formatPwnCount(breach.PwnCount)}</dd>
         </div>
-        <div class="qs-divider" />
-        <div class="quick-stat">
-          <span class="qs-value">{formatBreachDate(breach.BreachDate)}</span>
-          <span class="qs-label">BREACH DATE</span>
+        <div>
+          <dt>Breach date</dt>
+          <dd>{formatBreachDate(breach.BreachDate)}</dd>
         </div>
-        <div class="qs-divider" />
-        <div class="quick-stat">
-          <span class="qs-value">{breach.DataClasses.length}</span>
-          <span class="qs-label">DATA TYPES</span>
+        <div>
+          <dt>Data types</dt>
+          <dd>{breach.DataClasses.length}</dd>
         </div>
         {gap && (
-          <>
-            <div class="qs-divider" />
-            <div class="quick-stat">
-              <span class="qs-value qs-gap">{gap.months}mo</span>
-              <span class="qs-label">HIBP LISTING GAP</span>
-            </div>
-          </>
+          <div>
+            <dt>HIBP listing interval</dt>
+            <dd>{gap.label}</dd>
+          </div>
         )}
-      </div>
+      </dl>
 
-      <section class="case-section">
-        <h2 class="section-title">EVIDENCE FILE</h2>
-        <CaseReveal breach={breach} />
+      <section class="case-section" aria-labelledby="record-heading">
+        <h2 id="record-heading" class="section-title">The record</h2>
+        <CaseRecord breach={breach} />
       </section>
 
-      <section class="case-section case-context reveal" style="transition-delay: 0.2s">
-        <h2 class="section-title">RISK REVIEW</h2>
-        <p>
-          What you should do depends on what got out. The reported data classes here are
-          {allExposedData || 'publicly disclosed account data'}. As a general rule, email addresses and usernames feed
-          phishing and account enumeration, profile data makes impersonation easier, and financial or government
-          identifiers are the ones worth a real fraud review. {verifiedCopy}
-        </p>
-        <p>
-          {passwordCopy} {sensitiveCopy} If you are cleaning up your own accounts, start with password reuse, two-factor
-          settings, and the recovery email on the affected service. If you are researching, treat this file as a pointer
-          and confirm the exact impact against the original HIBP entry. The counts on this page describe the public
-          record. They say nothing about whether you personally were in it.
+      <section class="case-section prose" aria-labelledby="advice-heading">
+        <h2 id="advice-heading" class="section-title">What to do</h2>
+        <p>{passwordCopy}</p>
+        {riskNotes.length > 0 && <p>{riskNotes.join(' ')}</p>}
+        <p>{verifiedCopy} {sensitiveCopy}</p>
+        <p class="muted">
+          These counts describe the public record. They do not say whether you were in it. To find out, search your
+          email address on <a href="https://haveibeenpwned.com" target="_blank" rel="noopener">Have I Been Pwned<span class="sr-only"> (opens in a new tab)</span></a>.
         </p>
       </section>
 
       {gap && (
-        <section class="case-section reveal" style="transition-delay: 0.2s">
-          <h2 class="section-title">HIBP LISTING INTERVAL</h2>
+        <section class="case-section" aria-labelledby="gap-heading">
+          <h2 id="gap-heading" class="section-title">HIBP listing interval</h2>
           <DiscoveryGap gap={gap} client:visible />
         </section>
       )}
 
-      {hasPasswords && (
-        <section class="case-section reveal" style="transition-delay: 0.25s">
-          <h2 class="section-title">REDACTED EVIDENCE</h2>
-          <div class="redacted-panel scanlines">
-            <div class="redacted-header">
-              <span class="redacted-label">PASSWORD DATA</span>
-              <span class="redacted-status">CLASSIFIED</span>
-            </div>
-            <div class="redacted-content">
-              <div class="redacted-block">
-                <span class="redacted">████████████</span>
-                <span class="redacted">████████</span>
-                <span class="redacted">████████████████</span>
-              </div>
-              <div class="redacted-block">
-                <span class="redacted">████████████████████</span>
-                <span class="redacted">████████████</span>
-                <span class="redacted">████████</span>
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
-
       {related.length > 0 && (
-        <section class="case-section reveal" style="transition-delay: 0.3s">
-          <h2 class="section-title">RELATED CASES - {breachYear}</h2>
-          <div class="related-grid">
-            {related.map((b) => {
-              const s = getBreachStatus(b)
-              const sc = s === 'CRITICAL' ? 'stamp-critical' : s === 'UNSOLVED' ? 'stamp-unsolved' : 'stamp-cold'
-              return (
-                <a href={`/case/${slugify(b.Name)}/`} class="related-card">
-                  <span class={`stamp ${sc} stamp-sm`}>{s}</span>
-                  <span class="related-title">{b.Title}</span>
-                  <span class="related-meta">{formatBreachDate(b.BreachDate)} · {formatPwnCount(b.PwnCount)}</span>
-                </a>
-              )
-            })}
+        <section class="case-section" aria-labelledby="related-heading">
+          <h2 id="related-heading" class="section-title">Related cases</h2>
+          <p class="muted related-intro">
+            Breaches near {breachYear} that overlap most with this one in what leaked. The red string joins cases that
+            share data types.
+          </p>
+          <div class="board" data-board>
+            <svg class="board-strings" aria-hidden="true"></svg>
+            <span class="pin pin-anchor" data-anchor aria-hidden="true"></span>
+            <ul class="related-grid">
+              {related.map(({ breach: b, shared }) => (
+                <li>
+                  <a href={`/case/${slugify(b.Name)}/`} class="related-card" data-related>
+                    <span class="pin" data-pin aria-hidden="true"></span>
+                    <StatusBadge status={getBreachStatus(b)} />
+                    <span class="related-title">{b.Title}</span>
+                    <span class="related-meta data">{formatBreachDate(b.BreachDate)}, {formatPwnCount(b.PwnCount)}</span>
+                    <span class="related-shared">
+                      {shared.length > 0
+                        ? `Shares ${shared.length} data type${shared.length === 1 ? '' : 's'}: ${shared.slice(0, 3).join(', ')}${shared.length > 3 ? '...' : ''}`
+                        : 'Close in time, no shared data types'}
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
           </div>
         </section>
       )}
 
       <div class="case-footer">
-        <a href="/archive/" class="back-link">← BROWSE THE CASE INDEX</a>
-        <span class="case-footer-num">{caseNumber}</span>
+        <a href="/archive/" class="btn btn-ghost">Browse the case index</a>
       </div>
-
     </div>
   </main>
   <Footer />
 </BaseLayout>
 
+<script>
+  const SVG_NS = 'http://www.w3.org/2000/svg'
+
+  function center(el: Element, board: Element) {
+    const box = el.getBoundingClientRect()
+    const origin = board.getBoundingClientRect()
+    return { x: box.left - origin.left + box.width / 2, y: box.top - origin.top + box.height / 2 }
+  }
+
+  function initBoard() {
+    const board = document.querySelector<HTMLElement>('[data-board]')
+    const svg = board?.querySelector<SVGSVGElement>('.board-strings')
+    const anchor = board?.querySelector('[data-anchor]')
+    const cards = board ? [...board.querySelectorAll<HTMLElement>('[data-related]')] : []
+    if (!board || !svg || !anchor || !cards.length) return
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    let drawn = false
+
+    const draw = () => {
+      svg.replaceChildren()
+      const from = center(anchor, board)
+      cards.forEach((card) => {
+        const pin = card.querySelector('[data-pin]')
+        if (!pin) return
+        const to = center(pin, board)
+        const sag = 10 + Math.abs(to.x - from.x) * 0.03
+        const path = document.createElementNS(SVG_NS, 'path')
+        path.setAttribute('d', `M${from.x} ${from.y} Q${(from.x + to.x) / 2} ${(from.y + to.y) / 2 + sag} ${to.x} ${to.y}`)
+        path.setAttribute('pathLength', '1')
+        path.classList.add('string')
+        if (drawn || reduceMotion) path.classList.add('drawn')
+        card.addEventListener('mouseenter', () => path.classList.add('active'))
+        card.addEventListener('mouseleave', () => path.classList.remove('active'))
+        card.addEventListener('focus', () => path.classList.add('active'))
+        card.addEventListener('blur', () => path.classList.remove('active'))
+        svg.append(path)
+      })
+    }
+
+    draw()
+    new ResizeObserver(draw).observe(board)
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return
+        observer.disconnect()
+        drawn = true
+        svg.querySelectorAll('.string').forEach((path, i) => {
+          setTimeout(() => path.classList.add('drawn'), i * 140)
+        })
+      },
+      { threshold: 0.35 },
+    )
+    observer.observe(board)
+  }
+
+  document.addEventListener('astro:page-load', initBoard)
+</script>
+
 <style>
   .case-page {
     min-height: 100vh;
-    padding-bottom: 6rem;
+    padding-bottom: 5rem;
   }
 
   .case-container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 2.5rem 2rem;
-    display: flex;
-    flex-direction: column;
-    gap: 2.5rem;
+    max-width: 60rem;
+    display: grid;
+    gap: clamp(2rem, 5vw, 3rem);
+    padding-top: 2rem;
   }
 
-  .case-breadcrumb {
+  .breadcrumb {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 0.75rem;
-    font-family: var(--font-mono);
-    font-size: 0.6rem;
-    letter-spacing: 0.12em;
+    gap: 0.5rem;
+    font-size: 0.9375rem;
+    color: var(--muted-foreground);
   }
 
-  .breadcrumb-link {
-    color: var(--color-accent);
-    text-decoration: none;
-    transition: opacity 0.15s;
+  .breadcrumb a {
+    color: var(--signal);
   }
-
-  .breadcrumb-link:hover { opacity: 0.8; }
-  .breadcrumb-sep { color: var(--color-border); }
-  .breadcrumb-current { color: var(--color-muted); }
 
   .case-header {
     display: flex;
-    align-items: flex-start;
     justify-content: space-between;
+    align-items: flex-start;
     gap: 1.5rem;
-    border-bottom: 1px solid var(--color-border);
-    padding-bottom: 2rem;
+    flex-wrap: wrap;
   }
 
-  .case-header-left {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    flex: 1;
+  .case-heading {
+    display: grid;
+    gap: 0.5rem;
     min-width: 0;
   }
 
-  .case-classification {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .case-label {
-    font-family: var(--font-mono);
-    font-size: 0.55rem;
-    letter-spacing: 0.3em;
-    color: var(--color-muted);
-  }
-
-  .case-number {
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
-    letter-spacing: 0.12em;
-    color: var(--color-accent);
+  .case-id {
+    font-size: 0.875rem;
   }
 
   .case-title-row {
@@ -337,289 +343,215 @@ const caseSchema = {
     gap: 1rem;
   }
 
-  .case-logo {
-    width: 36px;
-    height: 36px;
-    object-fit: contain;
-    filter: grayscale(100%) brightness(0.6);
-    flex-shrink: 0;
-  }
-
-  .case-title {
-    font-family: var(--font-display);
-    font-weight: 900;
-    font-size: clamp(2rem, 6vw, 3.5rem);
-    letter-spacing: 0.05em;
-    color: var(--color-text);
-    margin: 0;
+  .case-title-row h1 {
+    font-size: clamp(2.75rem, 8vw, 5rem);
     line-height: 0.95;
+    overflow-wrap: anywhere;
   }
 
-  .case-domain {
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
-    color: var(--color-muted);
-    letter-spacing: 0.08em;
-  }
-
-  .case-context p {
-    margin: 0 0 1rem;
-    color: var(--color-muted);
-    line-height: 1.75;
-    font-size: 0.95rem;
-  }
-
-  .case-context p:last-child { margin-bottom: 0; }
-
-  .case-stamp-wrap {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 0.5rem;
+  .case-logo {
+    width: 3.5rem;
+    height: 3.5rem;
     flex-shrink: 0;
-    padding-top: 0.5rem;
+    object-fit: contain;
+    padding: 0.25rem;
+    background: #fff;
+    border-radius: 0.5rem;
   }
 
-  .sensitive-badge {
-    font-family: var(--font-mono);
-    font-size: 0.55rem;
-    letter-spacing: 0.2em;
-    color: var(--color-danger);
-    border: 1px solid var(--color-danger);
-    padding: 2px 6px;
-    opacity: 0.7;
+  /* The status stamps itself onto the page once, when the case opens. */
+  .case-stamp {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    transform-origin: center;
+    animation: stamp-down 0.42s cubic-bezier(0.3, 1.6, 0.5, 1) 0.25s both;
+  }
+
+  .case-stamp :global(.badge-status) {
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+    border: 2px solid currentColor;
+    border-radius: 0.4rem;
+    background: transparent;
+  }
+
+  @keyframes stamp-down {
+    from { opacity: 0; transform: rotate(-9deg) scale(1.9); }
+    to   { opacity: 1; transform: rotate(-2deg) scale(1); }
   }
 
   .case-caveat {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.85rem;
     padding: 1rem 1.25rem;
-    background: var(--color-surface);
-    border: 1px solid var(--color-amber);
-    border-left: 3px solid var(--color-amber);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--sev-recent);
+    border-radius: 0.5rem;
+    background: var(--card);
   }
 
-  .caveat-icon {
-    color: var(--color-amber);
-    font-size: 1rem;
-    line-height: 1.2;
-    flex-shrink: 0;
+  .case-caveat p {
+    margin-top: 0.25rem;
+    color: var(--muted-foreground);
   }
 
-  .caveat-body {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-    min-width: 0;
-  }
-
-  .caveat-label {
-    font-family: var(--font-mono);
-    font-size: 0.62rem;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--color-amber);
+  .key-facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+    gap: 1.5rem 2rem;
     margin: 0;
+    padding-block: 1.5rem;
+    border-block: 1px solid var(--border);
   }
 
-  .caveat-detail {
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
-    line-height: 1.7;
-    color: var(--color-text);
-    opacity: 0.85;
+  .key-facts div {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 0.25rem;
+  }
+
+  .key-facts dt {
+    color: var(--muted-foreground);
+    font-size: 0.9375rem;
+  }
+
+  .key-facts dd {
     margin: 0;
-  }
-
-  .case-quick-stats {
-    display: flex;
-    align-items: center;
-    gap: 2rem;
-    flex-wrap: wrap;
-    padding: 1rem 1.5rem;
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-  }
-
-  .quick-stat {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .qs-value {
     font-family: var(--font-display);
-    font-weight: 700;
-    font-size: 1.1rem;
-    color: var(--color-text);
-    letter-spacing: 0.05em;
-    line-height: 1;
-  }
-
-  .qs-gap { color: var(--color-danger); }
-
-  .qs-label {
-    font-family: var(--font-mono);
-    font-size: 0.5rem;
-    letter-spacing: 0.18em;
-    color: var(--color-muted);
-  }
-
-  .qs-divider {
-    width: 1px;
-    height: 2rem;
-    background: var(--color-border);
+    font-weight: 800;
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    line-height: 1.05;
+    font-variant-numeric: tabular-nums;
   }
 
   .case-section {
-    display: flex;
-    flex-direction: column;
+    display: grid;
     gap: 1rem;
   }
 
-  .section-title {
-    font-family: var(--font-mono);
-    font-size: 0.6rem;
-    letter-spacing: 0.3em;
-    color: var(--color-muted);
-    margin: 0;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid var(--color-border);
+  .prose {
+    max-width: 44rem;
   }
 
-  .redacted-panel {
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-left: 3px solid var(--color-danger);
-    padding: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+  .prose p + p {
+    margin-top: 0.75rem;
   }
 
-  .redacted-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  .related-intro {
+    max-width: 44rem;
   }
 
-  .redacted-label {
-    font-family: var(--font-mono);
-    font-size: 0.6rem;
-    letter-spacing: 0.15em;
-    color: var(--color-muted);
+  /* Evidence board: pins on each card, red string from the anchor pin. */
+  .board {
+    position: relative;
+    padding-top: 5rem;
   }
 
-  .redacted-status {
-    font-family: var(--font-mono);
-    font-size: 0.55rem;
-    letter-spacing: 0.2em;
-    color: var(--color-danger);
-    border: 1px solid var(--color-danger);
-    padding: 2px 6px;
-    opacity: 0.8;
+  .board-strings {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
   }
 
-  .redacted-content {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+  :global(.string) {
+    fill: none;
+    stroke: var(--string);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    opacity: 0.7;
+    transition: stroke-dashoffset 0.9s cubic-bezier(0.5, 0, 0.2, 1), opacity 0.15s, stroke-width 0.15s;
   }
 
-  .redacted-block {
-    display: flex;
-    gap: 0.75rem;
-    flex-wrap: wrap;
+  :global(.string.drawn) {
+    stroke-dashoffset: 0;
+  }
+
+  :global(.string.active) {
+    opacity: 1;
+    stroke-width: 2.5;
+  }
+
+  .pin {
+    position: absolute;
+    top: -0.35rem;
+    left: 50%;
+    width: 0.8rem;
+    height: 0.8rem;
+    margin-left: -0.4rem;
+    border-radius: 50%;
+    background: var(--string);
+    box-shadow: 0 0 0 2px var(--background);
+    z-index: 2;
+  }
+
+  .pin-anchor {
+    top: 0.5rem;
   }
 
   .related-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1px;
-    background: var(--color-border);
-    border: 1px solid var(--color-border);
-  }
-
-  .related-card {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding: 1rem 1rem 1rem 1.25rem;
-    background: var(--color-surface);
-    text-decoration: none;
-    transition: background 0.15s, border-left-color 0.15s;
-    border-left: 2px solid transparent;
-    overflow: hidden;
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+    gap: 1.75rem 1rem;
     position: relative;
   }
 
-  .related-card:hover {
-    background: var(--color-surface-2);
-    border-left-color: var(--color-accent);
+  .related-card {
+    position: relative;
+    display: grid;
+    gap: 0.4rem;
+    align-content: start;
+    height: 100%;
+    padding: 1.25rem 1rem 1rem;
+    color: inherit;
+    text-decoration: none;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 0.625rem;
+    transition: border-color 0.15s;
   }
 
-  .stamp-sm {
-    font-size: 0.5rem !important;
-    padding: 1px 5px !important;
-    transform: none !important;
-    animation: none !important;
-    align-self: flex-start;
+  .related-card:hover,
+  .related-card:focus-visible {
+    border-color: var(--string);
+  }
+
+  .related-card :global(.badge-status) {
+    justify-self: start;
   }
 
   .related-title {
     font-family: var(--font-display);
-    font-weight: 700;
-    font-size: 1.05rem;
-    color: var(--color-text);
-    letter-spacing: 0.04em;
+    font-weight: 800;
+    font-size: 1.35rem;
+    letter-spacing: var(--display-tracking);
     line-height: 1.15;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
 
-  .related-meta {
-    font-family: var(--font-mono);
-    font-size: 0.56rem;
-    color: var(--color-muted);
-    letter-spacing: 0.1em;
-    margin-top: auto;
+  .related-meta,
+  .related-shared {
+    font-size: 0.875rem;
+    color: var(--muted-foreground);
   }
 
   .case-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--color-border);
+    padding-top: 1rem;
   }
 
-  .back-link {
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
-    letter-spacing: 0.15em;
-    color: var(--color-accent);
-    text-decoration: none;
-    transition: opacity 0.15s;
-  }
+  @media (prefers-reduced-motion: reduce) {
+    .case-stamp {
+      animation: none;
+    }
 
-  .back-link:hover { opacity: 0.8; }
-
-  .case-footer-num {
-    font-family: var(--font-mono);
-    font-size: 0.55rem;
-    letter-spacing: 0.1em;
-    color: var(--color-muted);
-    opacity: 0.5;
-  }
-
-  @media (max-width: 600px) {
-    .case-container { padding: 1.5rem 1rem; gap: 2rem; }
-    .case-header { flex-direction: column; }
-    .case-stamp-wrap { align-items: flex-start; }
-    .case-quick-stats { gap: 1rem; }
-    .qs-divider { display: none; }
-    .related-grid { grid-template-columns: 1fr; }
+    :global(.string) {
+      stroke-dashoffset: 0;
+      transition: none;
+    }
   }
 </style>

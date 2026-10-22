@@ -1,16 +1,21 @@
 import { useState, useMemo, useEffect, useCallback } from 'react'
-import type { BreachSummary } from '../lib/types'
-import { getBreachStatus, getAllDataClasses } from '../lib/utils'
+import type { BreachStatus, BreachSummary } from '../lib/types'
+import { getBreachStatus, getAllDataClasses, STATUS_LABELS } from '../lib/utils'
 import { fetchBreachesClient } from '../lib/breaches-client'
+import { Button } from '@/components/starwind-react/button'
+import { Input } from '@/components/starwind-react/input'
+import { ToggleGroup, ToggleGroupItem } from '@/components/starwind-react/toggle-group'
 import { BreachCard } from './BreachCard'
 
-type StatusFilter = 'ALL' | 'CRITICAL' | 'UNSOLVED' | 'COLD CASE'
+type StatusFilter = 'all' | BreachStatus
 
+const PAGE_SIZE = 48
 const DECADE_ORDER = ['1990s', '2000s', '2010s', '2020s']
+const STATUS_OPTIONS: StatusFilter[] = ['all', 'critical', 'recent', 'older']
 
 function getDecade(dateStr: string): string {
   const year = new Date(dateStr).getFullYear()
-  if (Number.isNaN(year)) return 'UNKNOWN'
+  if (Number.isNaN(year)) return 'Unknown'
   if (year < 2000) return '1990s'
   if (year < 2010) return '2000s'
   if (year < 2020) return '2010s'
@@ -22,14 +27,17 @@ export function BreachArchive() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [search, setSearch] = useState('')
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
+  const [decadeFilter, setDecadeFilter] = useState('all')
+  const [dataClassFilter, setDataClassFilter] = useState('all')
+  const [showCount, setShowCount] = useState(PAGE_SIZE)
 
   const loadBreaches = useCallback(async (force = false) => {
     setLoading(true)
     setError(null)
 
     try {
-      const data = await fetchBreachesClient(force)
-      setBreaches(data)
+      setBreaches(await fetchBreachesClient(force))
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not load case files.')
     } finally {
@@ -41,47 +49,56 @@ export function BreachArchive() {
     void loadBreaches()
   }, [loadBreaches])
 
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>('ALL')
-  const [decadeFilter, setDecadeFilter] = useState('ALL')
-  const [dataClassFilter, setDataClassFilter] = useState('ALL')
-  const [showCount, setShowCount] = useState(48)
-
   const allDataClasses = useMemo(() => getAllDataClasses(breaches), [breaches])
 
   const decades = useMemo(() => {
     const present = new Set(breaches.map((b) => getDecade(b.BreachDate)))
-    return ['ALL', ...DECADE_ORDER.filter((d) => present.has(d))]
+    return ['all', ...DECADE_ORDER.filter((d) => present.has(d))]
   }, [breaches])
 
   const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase()
     return breaches.filter((b) => {
-      if (search) {
-        const q = search.toLowerCase()
-        if (
-          !b.Title.toLowerCase().includes(q) &&
-          !b.Domain?.toLowerCase().includes(q) &&
-          !b.DataClasses.some((dc) => dc.toLowerCase().includes(q))
-        ) return false
-      }
-      if (statusFilter !== 'ALL' && getBreachStatus(b) !== statusFilter) return false
-      if (decadeFilter !== 'ALL' && getDecade(b.BreachDate) !== decadeFilter) return false
-      if (dataClassFilter !== 'ALL' && !b.DataClasses.includes(dataClassFilter)) return false
+      if (
+        q &&
+        !b.Title.toLowerCase().includes(q) &&
+        !b.Domain?.toLowerCase().includes(q) &&
+        !b.DataClasses.some((dc) => dc.toLowerCase().includes(q))
+      ) return false
+      if (statusFilter !== 'all' && getBreachStatus(b) !== statusFilter) return false
+      if (decadeFilter !== 'all' && getDecade(b.BreachDate) !== decadeFilter) return false
+      if (dataClassFilter !== 'all' && !b.DataClasses.includes(dataClassFilter)) return false
       return true
     })
   }, [breaches, search, statusFilter, decadeFilter, dataClassFilter])
 
-  const visible = filtered.slice(0, showCount)
+  const hasFilters = search !== '' || statusFilter !== 'all' || decadeFilter !== 'all' || dataClassFilter !== 'all'
+
+  function change<T>(setter: (value: T) => void) {
+    return (value: T) => {
+      setter(value)
+      setShowCount(PAGE_SIZE)
+    }
+  }
+
+  function clearFilters() {
+    setSearch('')
+    setStatusFilter('all')
+    setDecadeFilter('all')
+    setDataClassFilter('all')
+    setShowCount(PAGE_SIZE)
+  }
 
   if (loading) {
     return (
-      <section className="archive-root" aria-label="Breach archive loading state">
+      <section className="archive-root wrap" aria-label="Loading case files" aria-busy="true">
         <div className="archive-grid">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="skeleton-card">
-              <div className="skeleton" style={{ width: '40%', height: 12, marginBottom: 12 }} />
-              <div className="skeleton" style={{ width: '70%', height: 20, marginBottom: 16 }} />
-              <div className="skeleton" style={{ width: '55%', height: 10, marginBottom: 8 }} />
-              <div className="skeleton" style={{ width: '45%', height: 10 }} />
+            <div key={i} className="breach-card breach-card-skeleton">
+              <div className="skeleton" style={{ width: '45%', height: 14 }} />
+              <div className="skeleton" style={{ width: '70%', height: 26 }} />
+              <div className="skeleton" style={{ width: '55%', height: 14 }} />
+              <div className="skeleton" style={{ width: '80%', height: 22 }} />
             </div>
           ))}
         </div>
@@ -91,143 +108,126 @@ export function BreachArchive() {
 
   if (error && breaches.length === 0) {
     return (
-      <section className="archive-root" aria-label="Breach archive error state">
-        <div className="shared-error" role="status" aria-live="polite">
-          <span className="shared-error-kicker">ARCHIVE OFFLINE</span>
-          <p className="shared-error-message">
-            The case files could not be loaded right now. Please try again.
-          </p>
-          <p className="shared-error-detail">{error}</p>
-          <button
-            type="button"
-            onClick={() => void loadBreaches(true)}
-            className="shared-error-retry"
-          >
-            RETRY LOAD
-          </button>
+      <section className="archive-root wrap" aria-label="Case files">
+        <div className="notice" role="status">
+          <h3>Could not load the case files</h3>
+          <p>{error}</p>
+          <Button variant="outline" size="sm" onClick={() => void loadBreaches(true)}>
+            Try again
+          </Button>
         </div>
       </section>
     )
   }
 
+  const visible = filtered.slice(0, showCount)
+
   return (
-    <section className="archive-root" aria-label="Searchable breach archive">
-      <header className="archive-controls">
-        <div className="search-wrap">
-          <span className="search-icon">⌕</span>
-          <input
-            type="text"
-            placeholder="SEARCH BREACHES..."
+    <section className="archive-root wrap" aria-label="Searchable breach archive">
+      <div className="archive-controls">
+        <div className="archive-search">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+          <Input
+            type="search"
+            placeholder="Search by name, domain or data type"
             aria-label="Search breaches"
             value={search}
-            onChange={(e) => { setSearch(e.target.value); setShowCount(48) }}
-            className="search-input"
+            onValueChange={change(setSearch)}
+            className="archive-search-input"
           />
-          {search && (
-            <button
-              type="button"
-              onClick={() => { setSearch(''); setShowCount(48) }}
-              className="search-clear"
-              aria-label="Clear search"
-            >
-              ✕
-            </button>
-          )}
         </div>
 
         <div className="filter-row">
-          <div className="filter-group" role="group" aria-label="Filter by status">
-            <span className="filter-label" aria-hidden="true">STATUS</span>
-            {(['ALL', 'CRITICAL', 'UNSOLVED', 'COLD CASE'] as StatusFilter[]).map((s) => (
-              <button
-                key={s}
-                type="button"
-                onClick={() => { setStatusFilter(s); setShowCount(48) }}
-                className={`filter-btn${statusFilter === s ? ' active' : ''}`}
-                data-status={s.toLowerCase().replace(' ', '-')}
-                aria-pressed={statusFilter === s}
-              >
-                {s}
-              </button>
-            ))}
-          </div>
-
-          <div className="filter-group" role="group" aria-label="Filter by era">
-            <span className="filter-label" aria-hidden="true">ERA</span>
-            {decades.map((d) => (
-              <button
-                key={d}
-                type="button"
-                onClick={() => { setDecadeFilter(d); setShowCount(48) }}
-                className={`filter-btn${decadeFilter === d ? ' active' : ''}`}
-                aria-pressed={decadeFilter === d}
-              >
-                {d}
-              </button>
-            ))}
-          </div>
-
-          <div className="filter-group" role="group" aria-label="Filter by data type">
-            <span className="filter-label" aria-hidden="true">DATA</span>
-            <select
-              value={dataClassFilter}
-              onChange={(e) => { setDataClassFilter(e.target.value); setShowCount(48) }}
-              className="filter-select"
-              aria-label="Filter by data type"
+          <div className="filter-group">
+            <span className="filter-label" id="filter-status">Status</span>
+            <ToggleGroup
+              variant="outline"
+              size="sm"
+              spacing={0}
+              aria-labelledby="filter-status"
+              value={[statusFilter]}
+              onValueChange={(v) => change(setStatusFilter)((v[0] as StatusFilter) ?? 'all')}
             >
-              <option value="ALL">ALL TYPES</option>
+              {STATUS_OPTIONS.map((s) => (
+                <ToggleGroupItem key={s} value={s}>
+                  {s === 'all' ? 'All' : STATUS_LABELS[s]}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
+          </div>
+
+          <div className="filter-group">
+            <span className="filter-label" id="filter-era">Era</span>
+            <ToggleGroup
+              variant="outline"
+              size="sm"
+              spacing={0}
+              aria-labelledby="filter-era"
+              value={[decadeFilter]}
+              onValueChange={(v) => change(setDecadeFilter)(v[0] ?? 'all')}
+            >
+              {decades.map((d) => (
+                <ToggleGroupItem key={d} value={d}>
+                  {d === 'all' ? 'All' : d}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
+          </div>
+
+          <div className="filter-group">
+            <label className="filter-label" htmlFor="filter-data">Data type</label>
+            <select
+              id="filter-data"
+              value={dataClassFilter}
+              onChange={(e) => change(setDataClassFilter)(e.target.value)}
+              className="filter-select"
+            >
+              <option value="all">All types</option>
               {allDataClasses.map((dc) => (
-                <option key={dc} value={dc}>{dc.toUpperCase()}</option>
+                <option key={dc} value={dc}>{dc}</option>
               ))}
             </select>
           </div>
         </div>
-      </header>
+      </div>
 
-      <div className="archive-count">
-        <span>{filtered.length} CASE{filtered.length !== 1 ? 'S' : ''} ON FILE</span>
-        {(search || statusFilter !== 'ALL' || decadeFilter !== 'ALL' || dataClassFilter !== 'ALL') && (
-          <button
-            type="button"
-            onClick={() => { setSearch(''); setStatusFilter('ALL'); setDecadeFilter('ALL'); setDataClassFilter('ALL'); setShowCount(48) }}
-            className="clear-filters"
-          >
-            CLEAR FILTERS
-          </button>
+      <div className="archive-count" aria-live="polite">
+        <span>
+          {filtered.length.toLocaleString('en-US')} case file{filtered.length === 1 ? '' : 's'}
+        </span>
+        {hasFilters && (
+          <Button variant="ghost" size="sm" onClick={clearFilters}>
+            Clear filters
+          </Button>
         )}
       </div>
 
       {filtered.length === 0 ? (
-        <div className="no-results">
-          <span className="no-results-icon">◻</span>
-          <p>NO CASES MATCH YOUR CRITERIA.</p>
+        <div className="archive-empty">
+          <h3>No case files match</h3>
+          <p>Try a shorter search or remove a filter.</p>
+          <Button variant="outline" size="sm" onClick={clearFilters}>
+            Clear filters
+          </Button>
         </div>
       ) : (
         <>
-          <section className="archive-grid" aria-label="Breach case files">
+          <div className="archive-grid">
             {visible.map((b) => (
               <BreachCard key={b.Name} breach={b} />
             ))}
-          </section>
+          </div>
 
           {showCount < filtered.length && (
-            <div className="load-more-wrap">
-              <button
-                type="button"
-                onClick={() => setShowCount((c) => c + 48)}
-                className="load-more-btn"
-              >
-                LOAD MORE CASES
-                <span className="load-more-count">
-                  {filtered.length - showCount} REMAINING
-                </span>
-              </button>
+            <div className="load-more">
+              <Button variant="outline" onClick={() => setShowCount((c) => c + PAGE_SIZE)}>
+                Show {Math.min(PAGE_SIZE, filtered.length - showCount)} more
+                <span className="muted">({(filtered.length - showCount).toLocaleString('en-US')} left)</span>
+              </Button>
             </div>
           )}
         </>
       )}
-
-
     </section>
   )
 }

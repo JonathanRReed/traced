@@ -1,15 +1,17 @@
 import { useRef, useState, useMemo, useEffect, useCallback } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import type { BreachSummary } from '../lib/types'
+import { navigate } from 'astro:transitions/client'
 import { getBreachStatus, slugify } from '../lib/utils'
+import { Button } from '@/components/starwind-react/button'
 import { fetchBreachesClient } from '../lib/breaches-client'
 
 interface YearData {
   year: number
   total: number
   critical: number
-  unsolved: number
-  cold: number
+  recent: number
+  older: number
   topBreach: BreachSummary
 }
 
@@ -18,7 +20,7 @@ interface TooltipState {
   x: number
 }
 
-const BAR_H = 80
+const BAR_H = 120
 
 export function TimelineScrubber() {
   const [breaches, setBreaches] = useState<BreachSummary[]>([])
@@ -70,25 +72,25 @@ export function TimelineScrubber() {
   const yearData = useMemo((): YearData[] => {
     return years.map((year) => {
       const group = yearMap.get(year) ?? []
-      let critical = 0, unsolved = 0, cold = 0
+      let critical = 0, recent = 0, older = 0
       let topBreach = group[0]
       group.forEach((b) => {
         const s = getBreachStatus(b)
-        if (s === 'CRITICAL') critical++
-        else if (s === 'UNSOLVED') unsolved++
-        else cold++
+        if (s === 'critical') critical++
+        else if (s === 'recent') recent++
+        else older++
         if (!topBreach || b.PwnCount > topBreach.PwnCount) topBreach = b
       })
-      return { year, total: group.length, critical, unsolved, cold, topBreach }
+      return { year, total: group.length, critical, recent, older, topBreach }
     })
   }, [years, yearMap])
 
   const maxCount = useMemo(() => Math.max(...yearData.map((d) => d.total), 1), [yearData])
 
   function barColor(d: YearData): string {
-    if (d.critical > 0) return 'var(--color-danger)'
-    if (d.unsolved > 0) return 'var(--color-accent)'
-    return 'var(--color-dim)'
+    if (d.critical > 0) return 'var(--sev-critical)'
+    if (d.recent > 0) return 'var(--sev-recent)'
+    return 'var(--sev-older)'
   }
 
   // Anchor the tooltip to the bar itself so it works for both hover and
@@ -104,61 +106,46 @@ export function TimelineScrubber() {
 
   if (loading) {
     return (
-      <div className="tl-wrap" aria-live="polite">
-        <div className="tl-header">
-          <span className="tl-label">
-            <span className="skeleton" style={{ width: 200, height: 10, display: 'inline-block' }} />
-          </span>
+      <section className="tl-wrap wrap" aria-label="Loading timeline" aria-busy="true">
+        <div className="tl-bars">
+          {Array.from({ length: 24 }).map((_, i) => (
+            <div
+              key={i}
+              className="skeleton"
+              style={{ width: '100%', height: 12 + ((i * 17) % 50), alignSelf: 'flex-end' }}
+            />
+          ))}
         </div>
-        <div className="tl-chart" style={{ height: BAR_H + 24 }}>
-          <div className="tl-bars">
-            {Array.from({ length: 24 }).map((_, i) => (
-              <div
-                key={i}
-                className="skeleton"
-                style={{
-                  width: '100%',
-                  height: Math.max(4, Math.round(Math.random() * BAR_H * 0.6)),
-                  alignSelf: 'flex-end',
-                }}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
+      </section>
     )
   }
 
   if (error && breaches.length === 0) {
     return (
-      <div className="tl-wrap" role="status" aria-live="polite">
-        <div className="shared-error">
-          <span className="shared-error-kicker">TIMELINE UNAVAILABLE</span>
-          <p className="shared-error-message">
-            We could not load the incident timeline right now.
-          </p>
-          <p className="shared-error-detail">{error}</p>
-          <button
-            type="button"
-            className="shared-error-retry"
-            onClick={() => void loadBreaches(true)}
-          >
-            RETRY TIMELINE
-          </button>
+      <section className="tl-wrap wrap">
+        <div className="notice" role="status">
+          <h3>Could not load the timeline</h3>
+          <p>{error}</p>
+          <Button variant="outline" size="sm" onClick={() => void loadBreaches(true)}>
+            Try again
+          </Button>
         </div>
-      </div>
+      </section>
     )
   }
 
   return (
-    <div className="tl-wrap">
+    <section className="tl-wrap wrap" aria-labelledby="timeline-heading">
       <div className="tl-header">
-        <span className="tl-label">INCIDENT FREQUENCY: {breaches.length} RECORDED EVENTS</span>
-        <span className="tl-legend">
-          <span className="tl-swatch tl-swatch-critical" />CRITICAL
-          <span className="tl-swatch tl-swatch-unsolved" />UNSOLVED
-          <span className="tl-swatch tl-swatch-cold" />COLD CASE
-        </span>
+        <div>
+          <h2 id="timeline-heading" className="section-title">Breaches by year</h2>
+          <p className="muted">{breaches.length.toLocaleString('en-US')} recorded breaches. Select a bar to open that year's largest case file.</p>
+        </div>
+        <ul className="tl-legend" aria-label="Bar colours">
+          <li><span className="tl-swatch" style={{ background: 'var(--sev-critical)' }} />Critical</li>
+          <li><span className="tl-swatch" style={{ background: 'var(--sev-recent)' }} />Recent</li>
+          <li><span className="tl-swatch" style={{ background: 'var(--sev-older)' }} />Older</li>
+        </ul>
       </div>
 
       <div className="tl-chart" ref={containerRef} style={{ height: BAR_H + 24 }}>
@@ -172,9 +159,7 @@ export function TimelineScrubber() {
                 className={`tl-bar ${d.total === 0 ? 'tl-bar-empty' : ''}`}
                 style={{
                   height: h,
-                  background: d.total === 0 ? 'var(--color-border)' : color,
-                  opacity: d.total === 0 ? 0.2 : 0.75,
-                  boxShadow: d.total > 0 ? `0 0 6px color-mix(in srgb, ${color} 25%, transparent)` : 'none',
+                  background: d.total === 0 ? 'var(--border)' : color,
                   transformOrigin: 'bottom',
                 }}
                 initial={reduceMotion ? false : { scaleY: 0 }}
@@ -187,13 +172,13 @@ export function TimelineScrubber() {
                 onBlur={() => setTooltip(null)}
                 onClick={() => {
                   if (d.total > 0 && d.topBreach) {
-                    window.location.href = `/case/${slugify(d.topBreach.Name)}/`
+                    void navigate(`/case/${slugify(d.topBreach.Name)}/`)
                   }
                 }}
                 aria-label={
                   d.total > 0
-                    ? `${d.year}: ${d.total} incident${d.total !== 1 ? 's' : ''}: open ${d.topBreach.Title} case file`
-                    : `${d.year}: no recorded incidents`
+                    ? `${d.year}: ${d.total} breach${d.total !== 1 ? 'es' : ''}. Open the ${d.topBreach.Title} case file`
+                    : `${d.year}: no recorded breaches`
                 }
                 disabled={d.total === 0}
               />
@@ -229,20 +214,18 @@ export function TimelineScrubber() {
             }}
           >
             <span className="tt-year">{tooltip.data.year}</span>
-            <span className="tt-total">{tooltip.data.total} incident{tooltip.data.total !== 1 ? 's' : ''}</span>
-            <div className="tt-breakdown">
-              {tooltip.data.critical > 0 && <span className="tt-crit">{tooltip.data.critical} CRITICAL</span>}
-              {tooltip.data.unsolved > 0 && <span className="tt-unsolved">{tooltip.data.unsolved} UNSOLVED</span>}
-              {tooltip.data.cold > 0 && <span className="tt-cold">{tooltip.data.cold} COLD</span>}
-            </div>
-            {tooltip.data.topBreach && (
-              <span className="tt-top">↳ {tooltip.data.topBreach.Title}</span>
-            )}
+            <span className="tt-total">{tooltip.data.total} breach{tooltip.data.total !== 1 ? 'es' : ''}</span>
+            <span className="tt-breakdown">
+              {[
+                tooltip.data.critical > 0 && `${tooltip.data.critical} critical`,
+                tooltip.data.recent > 0 && `${tooltip.data.recent} recent`,
+                tooltip.data.older > 0 && `${tooltip.data.older} older`,
+              ].filter(Boolean).join(', ')}
+            </span>
+            <span className="tt-top">Largest: {tooltip.data.topBreach.Title}</span>
           </div>
         )}
       </div>
-
-
-    </div>
+    </section>
   )
 }

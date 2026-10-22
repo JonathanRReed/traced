@@ -2,9 +2,16 @@
 import BaseLayout from '../layouts/BaseLayout.astro'
 import Nav from '../components/Nav.astro'
 import Footer from '../components/Footer.astro'
-import { HeroTitle } from '../components/HeroTitle'
 import { getAllBreaches } from '../lib/hibp'
-import { getTotalPwnCount, getAllDataClasses, getBreachStatus } from '../lib/utils'
+import {
+  getTotalPwnCount,
+  getAllDataClasses,
+  getBreachStatus,
+  formatBreachDate,
+  formatPwnCount,
+  slugify,
+} from '../lib/utils'
+import { StatusBadge } from '../components/StatusBadge'
 import { isIndexableCase } from '../lib/index-policy'
 import { TimelineScrubber } from '../components/TimelineScrubber'
 import { BreachArchive } from '../components/BreachArchive'
@@ -13,12 +20,18 @@ import FieldBriefing from '../components/FieldBriefing.astro'
 const breaches = await getAllBreaches()
 const totalPwned = getTotalPwnCount(breaches)
 const totalDataClasses = getAllDataClasses(breaches).length
-const criticalCount = breaches.filter((b) => getBreachStatus(b) === 'CRITICAL').length
+const criticalCount = breaches.filter((b) => getBreachStatus(b) === 'critical').length
 
 // Hard facts for the definition block. Every number below is counted from the
 // same HIBP payload the pages are built from, so the copy cannot drift from
 // the archive it describes.
 const fullRecordCount = breaches.filter(isIndexableCase).length
+// The three biggest full records sit in the hero as a stack of folders.
+const stack = breaches
+  .filter((b) => isIndexableCase(b) && !b.IsSpamList)
+  .sort((a, b) => b.PwnCount - a.PwnCount)
+  .slice(0, 3)
+  .reverse()
 const breachYears = breaches
   .map((b) => b.BreachDate?.slice(0, 4))
   .filter((year): year is string => !!year)
@@ -41,78 +54,84 @@ function formatBigNumber(n: number): string {
 
   <main id="main-content" tabindex="-1">
     <section class="hero">
-      <header class="hero-inner">
-        <div class="hero-eyebrow">Public Breach Archive</div>
+      <header class="hero-inner wrap">
         <h1 class="hero-title">
           <span class="sr-only">TRACED: public data breach archive and password exposure checker</span>
-          <span aria-hidden="true"><HeroTitle client:load /></span>
+          <span class="hero-title-art" aria-hidden="true">TRACED</span>
         </h1>
-        <p class="hero-tagline">KNOWN BREACHES. ON THE RECORD.</p>
 
-        <p class="hero-definition">
-          TRACED is a public archive of known data breaches. It reads the Have I Been Pwned breach records and gives
-          every incident its own case file: the date it happened, the data that got out, and how long it stayed quiet.
-          Enough to work out which of your own accounts need a new password or a passkey.
-        </p>
+        <div class="hero-main">
+          <div class="hero-copy">
+            <p class="hero-definition">
+              TRACED is a public archive of known data breaches, built from Have I Been Pwned records. Each breach gets a
+              case file with the date, the data that leaked, and when HIBP added it. Find a service you've used. If it's
+              here, change that password, and every other place you reused it.
+            </p>
+
+            <nav class="hero-actions" aria-label="Primary actions">
+              <a href="#archive" class="btn">Browse the archive</a>
+              <a href="/check/" class="btn btn-ghost">Check a password</a>
+            </nav>
+          </div>
+
+          <ul class="evidence" aria-label="Three of the largest case files">
+            {stack.map((b, i) => (
+              <li class="folder" style={`--i: ${i}`}>
+                <a href={`/case/${slugify(b.Name)}/`}>
+                  <span class="folder-tab data">{b.BreachDate.slice(0, 4)}</span>
+                  <span class="folder-title">{b.Title}</span>
+                  <span class="folder-meta data">{formatPwnCount(b.PwnCount)} accounts, {formatBreachDate(b.BreachDate)}</span>
+                  <StatusBadge status={getBreachStatus(b)} />
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
 
         <dl class="hero-stats" aria-label="Breach archive summary">
           <div class="stat">
-            <dt class="stat-label">CASE FILES</dt>
-            <dd class="stat-value" data-count={breaches.length}>{breaches.length}</dd>
+            <dt>Case files</dt>
+            <dd data-count={breaches.length}>{breaches.length.toLocaleString('en-US')}</dd>
           </div>
-          <div class="stat-divider">·</div>
           <div class="stat">
-            <dt class="stat-label">FULL RECORDS</dt>
-            <dd class="stat-value" data-count={fullRecordCount}>{fullRecordCount}</dd>
+            <dt>With full records</dt>
+            <dd data-count={fullRecordCount}>{fullRecordCount.toLocaleString('en-US')}</dd>
           </div>
-          <div class="stat-divider">·</div>
           <div class="stat">
-            <dt class="stat-label">EXPOSED ACCOUNTS</dt>
-            <dd class="stat-value" data-count={totalPwned} data-count-format="big">{formatBigNumber(totalPwned)}</dd>
+            <dt>Accounts exposed</dt>
+            <dd data-count={totalPwned} data-count-format="big">{formatBigNumber(totalPwned)}</dd>
           </div>
-          <div class="stat-divider">·</div>
           <div class="stat">
-            <dt class="stat-label">DATA TYPES EXPOSED</dt>
-            <dd class="stat-value" data-count={totalDataClasses}>{totalDataClasses}</dd>
+            <dt>Data types</dt>
+            <dd data-count={totalDataClasses}>{totalDataClasses}</dd>
           </div>
-          <div class="stat-divider">·</div>
-          <div class="stat">
-            <dt class="stat-label">CRITICAL</dt>
-            <dd class="stat-value critical-val" data-count={criticalCount}>{criticalCount}</dd>
+          <div class="stat stat-critical">
+            <dt>Critical</dt>
+            <dd data-count={criticalCount}>{criticalCount.toLocaleString('en-US')}</dd>
           </div>
         </dl>
 
-        <nav class="hero-cta-row" aria-label="Primary breach archive actions">
-          <a href="#archive" class="hero-cta">BROWSE THE ARCHIVE ↓</a>
-          <a href="/check/" class="hero-cta hero-cta-ghost">CHECK A PASSWORD →</a>
-        </nav>
-
         <p class="hero-note">
-          The archive covers breaches dated {earliestYear} to {latestYear}, all of it from Troy Hunt's public
-          <a href="https://haveibeenpwned.com" target="_blank" rel="noopener">Have I Been Pwned</a> database, re-read
-          from the HIBP API every time the site is rebuilt. {fullRecordCount} of the {breaches.length.toLocaleString('en-US')} case files carry
-          a full sourced record (real dates, a real exposure figure, and named data types) and those are the ones listed
-          in <a href="/archive/">the case index</a>; the rest stay readable but are kept out of search. No accounts, no
-          analytics, and no password ever reaches a server here.
+          Breaches dated {earliestYear} to {latestYear}, pulled from the HIBP API on every rebuild.
+          {fullRecordCount.toLocaleString('en-US')} of {breaches.length.toLocaleString('en-US')} case files have a full record: real dates, an exposure count and named data types.
+          Those are listed in <a href="/archive/">the case index</a>. The rest stay readable but are kept out of search engines.
+          There are no accounts and no analytics, and your password never leaves your browser.
         </p>
       </header>
-
-      <div class="hero-grid-bg" aria-hidden="true">
-      </div>
-
-      <div class="hero-glow" aria-hidden="true"></div>
     </section>
 
     <FieldBriefing breachCount={breaches.length} criticalCount={criticalCount} />
 
     <TimelineScrubber client:only="react" />
 
-    <section id="archive" aria-labelledby="archive-heading">
-      <h2 id="archive-heading" class="sr-only">Breach Archive</h2>
-      <p class="archive-index-line">
-        The grid below needs JavaScript to search and filter. If you just want the list,
-        <a href="/archive/">the case index</a> has every file in date order.
-      </p>
+    <section id="archive" aria-labelledby="archive-heading" class="archive-section">
+      <div class="wrap archive-intro">
+        <h2 id="archive-heading" class="section-title">All case files</h2>
+        <p class="muted">
+          Search and filters need JavaScript. Without it, <a href="/archive/">the case index</a> lists every file in
+          date order.
+        </p>
+      </div>
       <BreachArchive client:only="react" />
     </section>
   </main>
@@ -120,7 +139,22 @@ function formatBigNumber(n: number): string {
   <Footer />
 </BaseLayout>
 
-<script type="module" src="/count-up.js"></script>
+<script>
+  import '../scripts/count-up'
+
+  // Hovering or tapping the title traces it again.
+  document.addEventListener('astro:page-load', () => {
+    const art = document.querySelector<HTMLElement>('.hero-title-art')
+    if (!art) return
+    const replay = () => {
+      art.style.animation = 'none'
+      void art.offsetWidth
+      art.style.animation = ''
+    }
+    art.addEventListener('pointerenter', replay)
+    art.addEventListener('click', replay)
+  })
+</script>
 
 <style>
   main {
@@ -128,213 +162,217 @@ function formatBigNumber(n: number): string {
   }
 
   .hero {
-    position: relative;
-    min-height: 60vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 5rem 2rem 4rem;
-    overflow: hidden;
-    border-bottom: 1px solid var(--color-border);
+    padding-block: clamp(3rem, 9vw, 6rem) clamp(2.5rem, 6vw, 4rem);
+    border-bottom: 1px solid var(--border);
   }
 
   .hero-inner {
-    position: relative;
-    z-index: 2;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1.5rem;
+    display: grid;
+    gap: clamp(1.5rem, 4vw, 2.5rem);
   }
 
-  .hero-eyebrow {
-    font-family: var(--font-mono);
-    font-size: 0.6rem;
-    letter-spacing: 0.35em;
-    color: var(--color-accent);
-    opacity: 0.8;
-  }
-
+  /* The one deliberate moment on the page: the outline is traced, then filled
+     left to right. Without registered-property support the title simply shows
+     filled. */
   .hero-title {
     font-family: var(--font-display);
-    font-weight: 900;
-    font-size: clamp(5rem, 18vw, 14rem);
-    letter-spacing: 0.12em;
-    color: var(--color-text);
+    font-weight: 800;
+    font-size: var(--hero-size);
+    letter-spacing: 0.06em;
+    line-height: 0.85;
     margin: 0;
-    line-height: 0.9;
-    text-shadow: 0 0 80px rgba(59, 130, 246, 0.15);
-    animation: fade-up 0.8s ease both;
   }
 
-  .hero-tagline {
-    font-family: var(--font-mono);
-    font-size: clamp(0.55rem, 1.5vw, 0.75rem);
-    letter-spacing: 0.35em;
-    color: var(--color-muted);
-    margin: 0;
-    animation: fade-up 0.8s ease 0.3s both;
+  .hero-title-art {
+    display: inline-block;
+    color: transparent;
+    -webkit-text-stroke: 0.02em var(--foreground);
+    background-image: linear-gradient(
+      90deg,
+      var(--foreground) calc(var(--trace) - 3%),
+      var(--signal) calc(var(--trace) - 3%) var(--trace),
+      transparent var(--trace)
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    animation: trace-in 1.6s cubic-bezier(0.65, 0, 0.25, 1) 0.1s both;
+  }
+
+  @property --trace {
+    syntax: '<percentage>';
+    inherits: false;
+    initial-value: 110%;
+  }
+
+  @keyframes trace-in {
+    from { --trace: 0%; }
+    to   { --trace: 110%; }
+  }
+
+
+  .hero-main {
+    display: grid;
+    gap: 2.5rem;
+    align-items: center;
+  }
+
+  @media (min-width: 62rem) {
+    .hero-main {
+      grid-template-columns: minmax(0, 1fr) 22rem;
+    }
+  }
+
+  /* Three case files stacked like a pile on a desk. They fan out on hover
+     or keyboard focus, and the one under the pointer comes to the front. */
+  .evidence {
+    --spread: 0;
+    position: relative;
+    display: none;
+    height: 17.5rem;
+    margin: 2rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (min-width: 62rem) {
+    .evidence {
+      display: block;
+    }
+  }
+
+  .evidence:hover,
+  .evidence:focus-within {
+    --spread: 1;
+  }
+
+  .folder {
+    position: absolute;
+    inset: auto 0 auto 0;
+    top: calc(var(--i) * 3.6rem);
+    transform: translate(calc(var(--i) * 0.6rem), calc(var(--spread) * var(--i) * 0.9rem))
+      rotate(calc((var(--i) - 1) * 1.6deg * (1 - var(--spread))));
+    transition: transform 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.1);
+    z-index: var(--i);
+  }
+
+  .folder a {
+    position: relative;
+    display: grid;
+    gap: 0.45rem;
+    justify-items: start;
+    padding: 1.4rem 1.25rem 1.1rem;
+    color: inherit;
+    text-decoration: none;
+    background: var(--card);
+    border: 1px solid var(--input);
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 0 var(--border), 0 14px 28px -18px rgb(0 0 0 / 0.5);
+    transition: border-color 0.15s, box-shadow 0.25s;
+  }
+
+  .folder-tab {
+    position: absolute;
+    right: 1rem;
+    bottom: 100%;
+    padding: 0.2rem 0.7rem;
+    font-size: 0.75rem;
+    color: var(--muted-foreground);
+    background: var(--card);
+    border: 1px solid var(--input);
+    border-bottom-color: var(--card);
+    border-radius: 0.5rem 0.5rem 0 0;
+    pointer-events: none;
+  }
+
+  .folder-title {
+    max-width: calc(100% - 4.5rem);
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.75rem;
+    letter-spacing: var(--display-tracking);
+    line-height: 1.05;
+  }
+
+  .folder-meta {
+    font-size: 0.8125rem;
+    color: var(--muted-foreground);
+  }
+
+  .folder:hover,
+  .folder:focus-within {
+    z-index: 10;
+    transform: translate(calc(var(--i) * 0.6rem), calc(var(--spread) * var(--i) * 0.9rem - 0.6rem)) rotate(0deg);
+  }
+
+  .folder a:hover,
+  .folder a:focus-visible {
+    border-color: var(--signal);
+    box-shadow: 0 1px 0 var(--border), 0 22px 36px -18px rgb(0 0 0 / 0.6);
+  }
+
+  .hero-copy {
+    display: grid;
+    gap: 1.5rem;
+    max-width: 42rem;
   }
 
   .hero-definition {
-    max-width: 640px;
-    margin: 0 auto;
-    color: var(--color-text);
-    opacity: 0.85;
-    line-height: 1.7;
-    font-size: 1.05rem;
-    animation: fade-up 0.8s ease 0.45s both;
+    font-size: 1.1875rem;
+    line-height: 1.65;
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
   }
 
   .hero-stats {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-    justify-content: center;
-    animation: fade-up 0.8s ease 0.6s both;
-    padding: 1rem 2rem;
-    border: 1px solid var(--color-border);
-    background: rgba(13, 17, 23, 0.6);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+    gap: 1.5rem 2rem;
+    margin: 0;
+    padding-block: 1.5rem;
+    border-block: 1px solid var(--border);
   }
 
   .stat {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
+    flex-direction: column-reverse;
+    gap: 0.25rem;
   }
 
-  .stat-value {
-    font-family: var(--font-display);
-    font-weight: 900;
-    font-size: 1.6rem;
-    color: var(--color-text);
-    letter-spacing: 0.05em;
-    line-height: 1;
+  .stat dt {
+    color: var(--muted-foreground);
+    font-size: 0.9375rem;
+  }
+
+  .stat dd {
     margin: 0;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(2.25rem, 5vw, 3rem);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
   }
 
-  .critical-val { color: var(--color-danger); }
-
-  .stat-label {
-    font-family: var(--font-mono);
-    font-size: 0.6rem;
-    letter-spacing: 0.2em;
-    color: var(--color-muted);
+  .stat-critical dd {
+    color: var(--sev-critical);
   }
-
-  .stat-divider {
-    font-family: var(--font-mono);
-    color: var(--color-border);
-    font-size: 1.2rem;
-  }
-
-  .hero-cta-row {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-    justify-content: center;
-    animation: fade-up 0.8s ease 0.9s both;
-  }
-
-  .hero-cta {
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
-    letter-spacing: 0.2em;
-    font-weight: 600;
-    text-decoration: none;
-    padding: 10px 24px;
-    border: 1px solid var(--color-accent-hover);
-    color: #fff;
-    background: var(--color-accent-hover);
-    transition: all 0.15s;
-    border-radius: 2px;
-  }
-
-  .hero-cta:hover { background: var(--color-accent-press); border-color: var(--color-accent-press); }
-
-  .hero-cta-ghost {
-    background: transparent;
-    color: var(--color-muted);
-    border-color: var(--color-border);
-  }
-
-  .hero-cta-ghost:hover { color: var(--color-text); border-color: var(--color-muted); background: transparent; }
 
   .hero-note {
-    max-width: 640px;
-    margin: 1.25rem auto 0;
-    color: var(--color-muted);
-    line-height: 1.7;
-    font-size: 0.95rem;
-    animation: fade-up 0.8s ease 1s both;
+    max-width: 44rem;
+    color: var(--muted-foreground);
+    font-size: 1rem;
   }
 
-  .hero-note a {
-    color: var(--color-accent);
-    text-decoration: none;
-    border-bottom: 1px solid transparent;
-    transition: border-color 0.15s;
+  .archive-section {
+    padding-top: clamp(2.5rem, 6vw, 4rem);
   }
 
-  .hero-note a:hover { border-bottom-color: var(--color-accent); }
-
-  .archive-index-line {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 1.5rem 2rem 0.75rem;
-    font-family: var(--font-mono);
-    font-size: 0.68rem;
-    line-height: 1.8;
-    letter-spacing: 0.04em;
-    color: var(--color-muted);
-  }
-
-  .archive-index-line a {
-    color: var(--color-accent);
-    text-decoration: none;
-    border-bottom: 1px solid transparent;
-    transition: border-color 0.15s;
-  }
-
-  .archive-index-line a:hover { border-bottom-color: var(--color-accent); }
-
-  .hero-grid-bg {
-    position: absolute;
-    inset: 0;
-    opacity: 0.04;
-    pointer-events: none;
-    z-index: 0;
-    background-image:
-      linear-gradient(var(--color-text) 1px, transparent 1px),
-      linear-gradient(90deg, var(--color-text) 1px, transparent 1px);
-    background-size: 10% 12.5%;
-    animation: grid-pulse 4s ease-in-out infinite;
-  }
-
-  @keyframes grid-pulse {
-    0%, 100% { opacity: 1; }
-    50%      { opacity: 0.3; }
-  }
-
-  .hero-glow {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    pointer-events: none;
-    background: radial-gradient(ellipse 60% 50% at 50% 50%, rgba(59, 130, 246, 0.08) 0%, transparent 70%);
-  }
-
-  @media (max-width: 640px) {
-    .hero { padding: 4rem 1rem 3rem; }
-    .hero-stats { gap: 1rem; padding: 0.75rem 1rem; }
-    .stat-divider { display: none; }
-    .archive-index-line { padding: 1.25rem 1rem 0.75rem; }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .hero-grid-bg { animation: none; }
+  .archive-intro {
+    display: grid;
+    gap: 0.5rem;
+    max-width: var(--page-max);
   }
 </style>

@@ -1,14 +1,10 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import type { BreachSummary } from '../lib/types'
-import { getBreachStatus, formatPwnCount, slugify } from '../lib/utils'
+import { navigate as goTo } from 'astro:transitions/client'
+import { getBreachStatus, formatPwnCount, slugify, STATUS_LABELS } from '../lib/utils'
+import { Button } from '@/components/starwind-react/button'
+import { StatusBadge } from './StatusBadge'
 import { fetchBreachesClient } from '../lib/breaches-client'
-
-const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%'
-const STATUS_COLOR: Record<string, string> = {
-  CRITICAL: 'var(--color-danger)',
-  UNSOLVED: 'var(--color-accent)',
-  'COLD CASE': 'var(--color-muted)',
-}
 
 export function CommandPalette() {
   const [open, setOpen] = useState(false)
@@ -58,7 +54,7 @@ export function CommandPalette() {
 
   useEffect(() => {
     if (!open) return
-    // Remember what was focused (the ⌘K trigger) so we can restore it on close.
+    // Remember what was focused (the search button) so focus can return to it on close.
     const trigger = document.activeElement as HTMLElement | null
     setQuery('')
     setActiveIdx(0)
@@ -78,13 +74,14 @@ export function CommandPalette() {
           b.Title.toLowerCase().includes(q) ||
           b.Domain?.toLowerCase().includes(q) ||
           String(new Date(b.BreachDate).getFullYear()).includes(q) ||
-          getBreachStatus(b).toLowerCase().includes(q),
+          STATUS_LABELS[getBreachStatus(b)].toLowerCase().includes(q),
       )
       .slice(0, 50)
   }, [breaches, query])
 
   function navigate(breach: BreachSummary) {
-    window.location.href = `/case/${slugify(breach.Name)}/`
+    setOpen(false)
+    void goTo(`/case/${slugify(breach.Name)}/`)
   }
 
   function onKeyDown(e: React.KeyboardEvent) {
@@ -127,11 +124,11 @@ export function CommandPalette() {
     <div className="cp-backdrop" onClick={() => setOpen(false)}>
       <div className="cp-modal" onClick={(e) => e.stopPropagation()} onKeyDown={onKeyDown} role="dialog" aria-modal="true" aria-label="Search case files">
         <div className="cp-header">
-          <span className="cp-prompt">⌕</span>
+          <svg className="cp-prompt" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
           <input
             ref={inputRef}
             className="cp-input"
-            placeholder="SEARCH CASE FILES..."
+            placeholder="Search case files"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             autoComplete="off"
@@ -143,37 +140,29 @@ export function CommandPalette() {
             aria-autocomplete="list"
             aria-activedescendant={filtered[activeIdx] ? `cp-opt-${activeIdx}` : undefined}
           />
-          <kbd className="cp-esc" onClick={() => setOpen(false)}>ESC</kbd>
+          <button type="button" className="cp-esc" onClick={() => setOpen(false)} aria-label="Close search">Esc</button>
         </div>
 
         <div className="cp-divider" />
 
         <div className="cp-results" id="cp-listbox" ref={listRef} role="listbox" aria-label="Breach results">
           {error && breaches.length === 0 ? (
-            <div className="cp-empty cp-error" role="status" aria-live="polite">
-              <div className="cp-error-copy">
-                <span className="cp-error-label">CASE FILES UNAVAILABLE</span>
-                <span className="cp-error-detail">{error}</span>
+            <div className="cp-empty cp-error" role="status">
+              <div>
+                <strong>Could not load the case files</strong>
+                <p className="muted">{error}</p>
               </div>
-              <button
-                type="button"
-                className="cp-retry"
-                onClick={() => void loadBreaches(true)}
-              >
-                RETRY
-              </button>
+              <Button variant="outline" size="sm" onClick={() => void loadBreaches(true)}>
+                Try again
+              </Button>
             </div>
           ) : breaches.length === 0 ? (
-            <div className="cp-empty">
-              <span className="cp-loading-dot" />
-              ACCESSING DATABASE...
-            </div>
+            <div className="cp-empty" role="status">Loading case files...</div>
           ) : filtered.length === 0 ? (
-            <div className="cp-empty">NO RECORDS FOUND FOR &quot;{query.toUpperCase()}&quot;</div>
+            <div className="cp-empty" role="status">No case files match &quot;{query}&quot;.</div>
           ) : (
             filtered.map((b, i) => {
               const status = getBreachStatus(b)
-              const color = STATUS_COLOR[status]
               const year = new Date(b.BreachDate).getFullYear()
               return (
                 <div
@@ -186,14 +175,13 @@ export function CommandPalette() {
                   onMouseEnter={() => setActiveIdx(i)}
                 >
                   <div className="cp-item-left">
-                    <span className="cp-status-dot" style={{ background: color }} />
                     <span className="cp-title">{b.Title}</span>
                     {b.Domain && <span className="cp-domain">{b.Domain}</span>}
                   </div>
                   <div className="cp-item-right">
-                    <span className="cp-year">{year}</span>
-                    <span className="cp-count">{formatPwnCount(b.PwnCount)}</span>
-                    <span className="cp-status" style={{ color }}>{status}</span>
+                    <span className="cp-year data">{year}</span>
+                    <span className="cp-count data">{formatPwnCount(b.PwnCount)}</span>
+                    <StatusBadge status={status} />
                   </div>
                 </div>
               )
@@ -202,10 +190,10 @@ export function CommandPalette() {
         </div>
 
         <div className="cp-footer">
-          <span className="cp-hint"><kbd>↑↓</kbd> navigate</span>
-          <span className="cp-hint"><kbd>↵</kbd> open case file</span>
-          <span className="cp-hint"><kbd>⌘K</kbd> close</span>
-          <span className="cp-count-label">{filtered.length} RECORDS</span>
+          <span className="cp-hint"><kbd>↑↓</kbd> move</span>
+          <span className="cp-hint"><kbd>Enter</kbd> open</span>
+          <span className="cp-hint"><kbd>Esc</kbd> close</span>
+          <span className="cp-count-label">{filtered.length} shown</span>
         </div>
       </div>
 

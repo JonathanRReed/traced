@@ -17,32 +17,39 @@ const SENSITIVE_DATA_CLASSES = [
   'Private messages',
 ]
 
-export function getBreachStatus(breach: StatusFields): BreachStatus {
-  if (breach.IsSensitive) return 'CRITICAL'
+export const STATUS_LABELS: Record<BreachStatus, string> = {
+  critical: 'Critical',
+  recent: 'Recent',
+  older: 'Older',
+}
 
-  const hasSensitiveData = breach.DataClasses.some((dc) =>
-    SENSITIVE_DATA_CLASSES.includes(dc)
-  )
-  if (hasSensitiveData) return 'CRITICAL'
+export function isSensitiveDataClass(dataClass: string): boolean {
+  return SENSITIVE_DATA_CLASSES.includes(dataClass)
+}
+
+export function getBreachStatus(breach: StatusFields): BreachStatus {
+  if (breach.IsSensitive) return 'critical'
+
+  if (breach.DataClasses.some(isSensitiveDataClass)) return 'critical'
 
   const breachYear = new Date(breach.BreachDate).getFullYear()
   const fiveYearsAgo = new Date().getFullYear() - 5
 
-  if (breachYear >= fiveYearsAgo) return 'UNSOLVED'
-  return 'COLD CASE'
+  if (breachYear >= fiveYearsAgo) return 'recent'
+  return 'older'
 }
 
 export function formatBreachDate(dateStr: string): string {
-  if (!dateStr) return 'UNKNOWN'
+  if (!dateStr) return 'Unknown'
   const date = new Date(dateStr)
-  if (isNaN(date.getTime())) return 'UNKNOWN'
-  return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }).toUpperCase()
+  if (isNaN(date.getTime())) return 'Unknown'
+  return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
 }
 
 export function formatFullDate(dateStr: string): string {
-  if (!dateStr) return 'UNKNOWN'
+  if (!dateStr) return 'Unknown'
   const date = new Date(dateStr)
-  if (isNaN(date.getTime())) return 'UNKNOWN'
+  if (isNaN(date.getTime())) return 'Unknown'
   return date.toLocaleDateString('en-US', {
     day: 'numeric',
     month: 'long',

@@ -26,72 +26,46 @@ const passwordBreaches = allBreaches
   <Nav currentPath="/check/" />
 
   <main id="main-content" tabindex="-1" class="check-page">
-    <div class="check-container">
-
-      <div class="check-header">
-        <div class="check-eyebrow">BREACH LOOKUP</div>
-        <h1 class="check-title">PASSWORD<br />CHECK</h1>
-        <p class="check-subtitle">
-          Has your password shown up in known breach data?<br />
-          Check without sending the full password.
+    <div class="wrap check-container">
+      <header class="check-header">
+        <h1>Check a password</h1>
+        <p>
+          Has your password shown up in known breach data? You can find out without sending the full password
+          anywhere.
         </p>
-      </div>
-
-      <div class="check-how-it-works">
-        <div class="hiw-step">
-          <span class="hiw-num">01</span>
-          <span class="hiw-text">Your password is hashed locally in your browser</span>
-        </div>
-        <div class="hiw-arrow">→</div>
-        <div class="hiw-step">
-          <span class="hiw-num">02</span>
-          <span class="hiw-text">Only the first 5 characters of that hash are sent</span>
-        </div>
-        <div class="hiw-arrow">→</div>
-        <div class="hiw-step">
-          <span class="hiw-num">03</span>
-          <span class="hiw-text">Possible matches are returned and checked on your device</span>
-        </div>
-      </div>
+      </header>
 
       <PasswordChecker passwordBreaches={passwordBreaches} client:load />
 
-      <div class="check-footer-note">
-        <div class="fn-row">
-          <span class="fn-icon">◈</span>
-          <div>
-            <span class="fn-title">K-ANONYMITY MODEL</span>
-            <p class="fn-body">
-              This uses Troy Hunt&apos;s Pwned Passwords k-anonymity API.
-              <a href="https://haveibeenpwned.com/Passwords" target="_blank" rel="noopener">Learn how Pwned Passwords protects password range searches</a>
-            </p>
-          </div>
-        </div>
-      </div>
+      <p class="check-source muted">
+        This uses Troy Hunt's Pwned Passwords k-anonymity API.
+        <a href="https://haveibeenpwned.com/Passwords" target="_blank" rel="noopener">Read how Pwned Passwords protects range searches<span class="sr-only"> (opens in a new tab)</span></a>.
+      </p>
 
-      <section class="check-explainer">
-        <h2>What this check can and cannot tell you</h2>
+      <section class="check-explainer prose" aria-labelledby="explainer-heading">
+        <h2 id="explainer-heading">What this check can and cannot tell you</h2>
         <p>
-          A match means the password is sitting in the public Pwned Passwords corpus, so stop using it. Change it anywhere it
-          still protects an account, then turn on two-factor authentication on the services that matter. No match tells you less
-          than people assume. It isn&apos;t proof the password is strong or private, only that it hasn&apos;t turned up in a
-          public dump.
+          A match means the password is in the public Pwned Passwords corpus, so stop using it. Change it anywhere it
+          still protects an account, then turn on two-factor authentication on the services that matter.
         </p>
         <p>
-          TRACED never ties the check to an email address, account name, or browsing profile. There is nothing to sign into and
-          nothing to fill out, because the check does not need any of that to work.
+          No match tells you less than people assume. It does not prove the password is strong or private, only that it
+          has not turned up in a public dump.
         </p>
         <p>
-          Work through the reuse in order: email, banking, cloud storage, school, work, shopping, and social accounts, since
-          those are the ones an attacker uses to reset everything else. Then go after the weaker variants built on the same
-          base phrase or pattern.
+          TRACED never ties the check to an email address, account name or browsing profile. There is nothing to sign
+          into and nothing to fill out.
         </p>
         <p>
-          Long unique passwords beat reused memorable ones, and a password manager is what makes that realistic to keep up.
-          This page only does the one check. It does not watch your accounts and it will not tell you later if something changes.
+          If you reuse passwords, fix the accounts an attacker would use to reset everything else first: email,
+          banking, cloud storage, school, work, shopping and social accounts. Then deal with weaker variants built on
+          the same phrase or pattern.
+        </p>
+        <p>
+          Long unique passwords beat reused memorable ones, and a password manager makes that realistic to keep up.
+          This page runs one check. It does not watch your accounts and will not tell you later if something changes.
         </p>
       </section>
-
     </div>
   </main>
   <Footer />
@@ -100,162 +74,46 @@ const passwordBreaches = allBreaches
 <style>
   .check-page {
     min-height: 100vh;
-    padding-bottom: 6rem;
+    padding-bottom: 5rem;
   }
 
   .check-container {
-    max-width: 760px;
-    margin: 0 auto;
-    padding: 3rem 2rem;
-    display: flex;
-    flex-direction: column;
-    gap: 3rem;
+    max-width: 52rem;
+    display: grid;
+    gap: 2.5rem;
+    padding-top: clamp(2.5rem, 6vw, 4rem);
   }
 
   .check-header {
-    display: flex;
-    flex-direction: column;
+    display: grid;
     gap: 1rem;
   }
 
-  .check-eyebrow {
-    font-family: var(--font-mono);
-    font-size: 0.6rem;
-    letter-spacing: 0.35em;
-    color: var(--color-accent);
-    opacity: 0.8;
+  .check-header h1 {
+    font-size: clamp(3rem, 9vw, 5.5rem);
+    line-height: 0.95;
   }
 
-  .check-title {
-    font-family: var(--font-display);
-    font-weight: 900;
-    font-size: clamp(3rem, 10vw, 6rem);
-    letter-spacing: 0.08em;
-    color: var(--color-text);
-    margin: 0;
-    line-height: 0.9;
+  .check-header p {
+    max-width: 38rem;
+    font-size: 1.1875rem;
   }
 
-  .check-subtitle {
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
-    line-height: 1.7;
-    color: var(--color-muted);
-    margin: 0;
-    letter-spacing: 0.05em;
+  .check-source {
+    max-width: 40rem;
+    font-size: 0.9375rem;
   }
-
-  .check-how-it-works {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    flex-wrap: wrap;
-    padding: 1.25rem 1.5rem;
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-  }
-
-  .hiw-step {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    flex: 1;
-    min-width: 140px;
-  }
-
-  .hiw-num {
-    font-family: var(--font-display);
-    font-weight: 900;
-    font-size: 1.4rem;
-    color: var(--color-accent);
-    opacity: 0.4;
-    line-height: 1;
-  }
-
-  .hiw-text {
-    font-family: var(--font-mono);
-    font-size: 0.62rem;
-    line-height: 1.6;
-    color: var(--color-muted);
-    letter-spacing: 0.04em;
-  }
-
-  .hiw-arrow {
-    font-family: var(--font-mono);
-    color: var(--color-border);
-    font-size: 1.2rem;
-    flex-shrink: 0;
-  }
-
-  .check-footer-note {
-    border: 1px solid var(--color-border);
-    background: var(--color-surface);
-    padding: 1.25rem 1.5rem;
-  }
-
-  .fn-row {
-    display: flex;
-    gap: 1rem;
-    align-items: flex-start;
-  }
-
-  .fn-icon {
-    color: var(--color-accent);
-    font-size: 1rem;
-    flex-shrink: 0;
-    margin-top: 2px;
-  }
-
-  .fn-title {
-    display: block;
-    font-family: var(--font-mono);
-    font-size: 0.58rem;
-    letter-spacing: 0.2em;
-    color: var(--color-muted);
-    margin-bottom: 6px;
-  }
-
-  .fn-body {
-    font-family: var(--font-mono);
-    font-size: 0.67rem;
-    line-height: 1.7;
-    color: var(--color-text);
-    opacity: 0.7;
-    margin: 0;
-  }
-
-  .fn-body a {
-    color: var(--color-accent);
-    text-decoration: none;
-  }
-
-  .fn-body a:hover { text-decoration: underline; }
 
   .check-explainer {
-    border-top: 1px solid var(--color-border);
-    padding-top: 1.5rem;
+    display: grid;
+    gap: 0.75rem;
+    max-width: 42rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
   }
 
   .check-explainer h2 {
-    font-family: var(--font-mono);
-    font-size: 0.66rem;
-    letter-spacing: 0.24em;
-    color: var(--color-accent);
-    margin: 0 0 1rem;
-    text-transform: uppercase;
-  }
-
-  .check-explainer p {
-    margin: 0 0 1rem;
-    color: var(--color-muted);
-    line-height: 1.75;
-  }
-
-  .check-explainer p:last-child { margin-bottom: 0; }
-
-  @media (max-width: 600px) {
-    .check-container { padding: 2rem 1rem; gap: 2rem; }
-    .hiw-arrow { display: none; }
-    .check-how-it-works { gap: 1.5rem; }
+    font-size: 1.75rem;
+    margin-bottom: 0.25rem;
   }
 </style>

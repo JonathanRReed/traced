@@ -37,7 +37,7 @@ export type BreachSummary = Pick<
   | 'LogoPath'
 >
 
-export type BreachStatus = 'CRITICAL' | 'UNSOLVED' | 'COLD CASE'
+export type BreachStatus = 'critical' | 'recent' | 'older'
 
 export interface DiscoveryGap {
   label: string
