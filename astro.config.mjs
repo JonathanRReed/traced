@@ -21,5 +21,11 @@ export default defineConfig({
   integrations: [react()],
   vite: {
     plugins: [tailwindcss()],
+    build: {
+      // Never inline assets as data: URLs. The smallest font subsets fall
+      // under Vite's 4 KB threshold, and the site's Content Security Policy
+      // (font-src 'self' in public/_headers) blocks data: fonts.
+      assetsInlineLimit: 0,
+    },
   },
 });
