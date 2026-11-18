@@ -1,6 +1,6 @@
 # TRACED
 
-Browse the public [Have I Been Pwned](https://haveibeenpwned.com) breach database as case files, explore its timeline, and check a password against Pwned Passwords.
+Browse the public [Have I Been Pwned](https://haveibeenpwned.com) breach database as one searchable printout with a case file per breach, and check a password against Pwned Passwords.
 
 ## Password checks
 
@@ -17,15 +17,23 @@ bun run dev
 
 Open `http://localhost:4321`. `bun run build` writes the static site to `dist/`; `bun run preview` serves that build locally.
 
-The app uses Astro 5, React 19 islands, Tailwind CSS 4, [Starwind UI](https://starwind.dev) components, and Framer Motion. Fonts are self-hosted through Fontsource. Cloudflare Pages hosts it. The public breach and password data paths used here require no API key.
+The app uses Astro 7, React 19 islands, Tailwind CSS 4 and [Starwind UI](https://starwind.dev) components. Motion is plain CSS. Fonts (Martian Mono, Doto, Atkinson Hyperlegible) are self-hosted through Fontsource. Cloudflare Pages serves `dist/` as static files, so there is no adapter. The public breach and password data paths used here require no API key.
 
-The site has light and dark themes and three font choices (TRACED, Readable, OpenDyslexic). The choices live in the Aa menu and are saved in `localStorage`. Design tokens are in `src/styles/global.css`; styles for the React islands are in `src/styles/components.css`.
+`bun test` runs the unit tests and `bun run check` type-checks the project.
+
+The design is three flat fields: a green band for each page's title, paper for the content, ink for the footer. Titles and figures are set in Doto (a dot-matrix face), data in Martian Mono, prose in Atkinson Hyperlegible. Every list sits on alternating green bars, and data types worth acting on are marked in red with an asterisk. The dark theme is the same system on indigo. There are three font choices (Printout, Readable, OpenDyslexic). Theme and font live in the Aa menu and are saved in `localStorage`. Design tokens are in `src/styles/global.css`; the rows, record panels, list controls and island styles are in `src/styles/components.css`.
+
+Headings stand on their own: pages carry no lede or caption lines under them. The plain-language definition of the site sits after the list on the homepage.
+
+The homepage server-renders the newest 60 breaches and fetches the rest from `/breaches.json` when the browser is idle. Search, filters, year and sort are kept in the URL, so a filtered view can be shared.
+
+Pages that are only read (case files, the index, about, privacy) load no framework code. React and the search palette are fetched the first time someone presses Cmd/Ctrl+K or the search button; `src/scripts/site.ts` handles that.
 
 ## Repository guide
 
-`src/components/` contains the archive, case cards, password checker, timeline, command palette, and page sections. API helpers live in `src/lib/`.
+`src/components/` contains the breach list (`Ledger`), its rows, the case slip, password checker and command palette. Data helpers live in `src/lib/`, including the grouping of HIBP's data types into the marked families (`utils.ts`).
 
-Routes in `src/pages/` include the archive home, `check.astro`, `about.astro`, and breach pages under `case/`. Shared layout is in `src/layouts/BaseLayout.astro`; static assets are in `public/`.
+Routes in `src/pages/` include the home list, the static case index under `archive/`, `check.astro`, `about.astro`, and breach pages under `case/`. Shared layout is in `src/layouts/BaseLayout.astro`; static assets are in `public/`.
 
 ## Attribution
 

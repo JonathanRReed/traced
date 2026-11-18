@@ -19,25 +19,24 @@ export interface HibpBreach {
 }
 
 /**
- * The subset of HibpBreach fields the client actually reads (archive grid,
- * timeline, command palette). The /breaches.json endpoint ships only these to
- * keep the client payload small — full records (incl. Description, IsVerified)
- * are only needed at build time for case pages.
+ * The subset of HibpBreach fields the client actually reads (the breach list
+ * and the search palette). The /breaches.json endpoint ships only these to
+ * keep the client payload small. Full records (Description, IsVerified and so
+ * on) are only needed at build time for case pages.
  */
 export type BreachSummary = Pick<
   HibpBreach,
-  | 'Name'
-  | 'Title'
-  | 'Domain'
-  | 'BreachDate'
-  | 'AddedDate'
-  | 'PwnCount'
-  | 'DataClasses'
-  | 'IsSensitive'
-  | 'LogoPath'
+  'Name' | 'Title' | 'Domain' | 'BreachDate' | 'AddedDate' | 'PwnCount' | 'DataClasses' | 'LogoPath'
 >
 
-export type BreachStatus = 'critical' | 'recent' | 'older'
+/** The kinds of leaked data worth acting on first. */
+export type LeakFamily = 'passwords' | 'financial' | 'ids' | 'health' | 'messages'
+
+export interface YearStat {
+  year: number
+  count: number
+  accounts: number
+}
 
 export interface DiscoveryGap {
   label: string

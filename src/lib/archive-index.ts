@@ -1,11 +1,13 @@
 import type { HibpBreach } from './types'
 import { isIndexableCase } from './index-policy'
+import { byNewest } from './utils'
 
 /**
  * Shared definition of the server-rendered case index at /archive/.
  *
- * The homepage archive is a client-side React island, so a crawler that does
- * not execute JavaScript sees no links to any case page. Before this hub the
+ * The homepage list server-renders only its newest rows; the rest arrive with
+ * JavaScript, so a crawler that does not run it sees a fraction of the case
+ * pages there. Before this hub the
  * only inbound path to most case files was sitemap.xml plus the four related
  * cases on each page, which left the corpus effectively flat and pushed a large
  * share of it past three clicks from the homepage. /archive/ is the static,
@@ -30,12 +32,7 @@ export const ARCHIVE_PAGE_SIZE = 50
  * (a shuffled page would churn canonicals and lastmod for no reason).
  */
 export function archiveCases(breaches: HibpBreach[]): HibpBreach[] {
-  return breaches
-    .filter(isIndexableCase)
-    .sort(
-      (a, b) =>
-        b.BreachDate.localeCompare(a.BreachDate) || a.Name.localeCompare(b.Name),
-    )
+  return breaches.filter(isIndexableCase).sort(byNewest)
 }
 
 export function archivePageCount(total: number): number {

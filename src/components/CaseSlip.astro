@@ -1,0 +1,68 @@
+---
+import type { HibpBreach } from '../lib/types'
+import { formatFullDate, formatPwnCount, isSensitiveDataClass, sortDataClasses } from '../lib/utils'
+
+interface Props {
+  breach: HibpBreach
+}
+
+const { breach } = Astro.props
+const dataClasses = sortDataClasses(breach.DataClasses)
+---
+
+<!-- The itemised record for one breach: what was taken, and how much of it. -->
+<div class="slip">
+  <dl class="slip-lines">
+    <div>
+      <dt>Breach date</dt>
+      <dd>{formatFullDate(breach.BreachDate)}</dd>
+    </div>
+    <div>
+      <dt>Added to HIBP</dt>
+      <dd>{formatFullDate(breach.AddedDate)}</dd>
+    </div>
+    <div>
+      <dt>Verification</dt>
+      <dd>{breach.IsVerified ? 'Verified by HIBP' : 'Not verified'}</dd>
+    </div>
+    {breach.Domain && (
+      <div>
+        <dt>Domain</dt>
+        <dd>{breach.Domain}</dd>
+      </div>
+    )}
+    {breach.IsSensitive && (
+      <div>
+        <dt>HIBP flag</dt>
+        <dd>Sensitive</dd>
+      </div>
+    )}
+    {breach.IsRetired && (
+      <div>
+        <dt>Record</dt>
+        <dd>Retired by HIBP</dd>
+      </div>
+    )}
+  </dl>
+
+  <hr />
+
+  <div>
+    <h2 class="slip-heading">
+      What leaked
+      <span>{dataClasses.length} {dataClasses.length === 1 ? 'type' : 'types'}</span>
+    </h2>
+    <ul class="slip-items">
+      {dataClasses.map((dataClass) => (
+        <li class:list={{ 'leak-hot': isSensitiveDataClass(dataClass) }}>{dataClass}</li>
+      ))}
+    </ul>
+  </div>
+
+  <hr />
+
+  <div class="slip-total">
+    <span>Accounts</span>
+    <span class="figure">{formatPwnCount(breach.PwnCount)}</span>
+  </div>
+</div>

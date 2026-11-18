@@ -1,106 +1,58 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro'
-import Nav from '../components/Nav.astro'
 import Footer from '../components/Footer.astro'
 ---
 
 <BaseLayout title="File not found | TRACED" description="This case file does not exist in the archive." robots="noindex,follow">
-  <Nav currentPath="/" />
 
-  <main id="main-content" tabindex="-1" class="page">
-    <div class="wrap nf-layout">
-      <div class="nf">
-      <p class="nf-code data" aria-hidden="true">404</p>
-      <h1>
-        This case file isn't in the archive
-      </h1>
-      <p class="lede muted">
-        The page may have moved, been renamed, or never existed. Try the archive, or check a password instead.
-      </p>
-      <p class="nf-actions">
-        <a href="/#archive" class="btn">Browse the archive</a>
-        <a href="/check/" class="btn btn-ghost">Check a password</a>
-      </p>
-      </div>
-
-      <svg class="nf-folder" viewBox="0 0 240 190" role="img" aria-label="An empty case folder">
-        <g fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
-          <path class="nf-back" d="M16 40 a8 8 0 0 1 8-8 h62 l14 16 h116 a8 8 0 0 1 8 8 v100 a8 8 0 0 1-8 8 H24 a8 8 0 0 1-8-8z" stroke-dasharray="7 7" />
-          <path class="nf-sheet" d="M44 56 h150 v90 H44z" />
-          <path class="nf-front" d="M16 70 a8 8 0 0 1 8-8 h192 a8 8 0 0 1 8 8 v82 a8 8 0 0 1-8 8 H24 a8 8 0 0 1-8-8z" />
-        </g>
-        <text x="120" y="130" text-anchor="middle" class="nf-q">?</text>
-      </svg>
+  <main id="main-content" tabindex="-1">
+    <div class="wrap nf band">
+      <p class="nf-code figure" aria-hidden="true">404</p>
+      <h1>No such page</h1>
     </div>
+
+    <p class="wrap nf-actions">
+      <a href="/" class="btn">Search every breach</a>
+      <a href="/check/" class="btn btn-ghost">Check a password</a>
+    </p>
+
+    <ol class="rows nf-blank" aria-hidden="true">
+      <li class="row"></li>
+      <li class="row"></li>
+      <li class="row"></li>
+      <li class="row"></li>
+      <li class="row"></li>
+      <li class="row"></li>
+    </ol>
   </main>
   <Footer />
 </BaseLayout>
 
 <style>
-  .nf-layout {
-    display: grid;
-    gap: 3rem;
-    align-items: center;
-  }
-
-  @media (min-width: 56rem) {
-    .nf-layout {
-      grid-template-columns: minmax(0, 1fr) 15rem;
-    }
-  }
-
-  .nf-folder {
-    width: 100%;
-    max-width: 15rem;
-    color: var(--muted-foreground);
-    cursor: help;
-  }
-
-  .nf-q {
-    fill: var(--sev-critical);
-    font: 800 3.25rem var(--font-display);
-  }
-
-  .nf-sheet {
-    fill: var(--card);
-    transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.3);
-  }
-
-  .nf-front {
-    fill: var(--background);
-  }
-
-  .nf-folder:hover .nf-sheet {
-    transform: translateY(-14px);
-  }
-
   .nf {
     display: grid;
-    gap: 1.25rem;
-    max-width: 44rem;
+    gap: 1rem;
+    padding-block: clamp(2rem, 5vw, 3.5rem);
   }
 
   .nf-code {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--sev-critical);
-    letter-spacing: 0.1em;
-  }
-
-  .nf h1 {
-    font-size: clamp(3rem, 9vw, 5.5rem);
-    line-height: 0.95;
-  }
-
-  .lede {
-    font-size: 1.1875rem;
-    max-width: 34rem;
+    font-size: calc(clamp(1.5rem, 4vw, 2.5rem) * var(--figure-scale));
+    color: var(--ribbon);
   }
 
   .nf-actions {
     display: flex;
     flex-wrap: wrap;
     gap: 0.75rem;
-    margin-top: 0.5rem;
+    padding-block: clamp(2rem, 5vw, 3rem);
+  }
+
+  /* The list carries on, with nothing on it. */
+  .nf-blank {
+    border: 0;
+  }
+
+  .nf-blank .row {
+    height: 2.75rem;
   }
 </style>

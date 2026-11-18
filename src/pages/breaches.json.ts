@@ -14,7 +14,6 @@ export const GET: APIRoute = async () => {
     AddedDate: b.AddedDate,
     PwnCount: b.PwnCount,
     DataClasses: b.DataClasses,
-    IsSensitive: b.IsSensitive,
     LogoPath: b.LogoPath,
   }))
   return new Response(JSON.stringify(summaries), {

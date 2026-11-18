@@ -1,51 +1,77 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro'
-import Nav from '../components/Nav.astro'
 import Footer from '../components/Footer.astro'
 ---
 
 <BaseLayout
+  currentPath="/about/"
   title="About TRACED | Jonathan R. Reed Data Breach Archive Project"
   description="Learn how Jonathan R. Reed built TRACED as a static public breach archive using Have I Been Pwned data, client-side password checking, and privacy-first design."
 >
-  <Nav currentPath="/about/" />
 
   <main id="main-content" tabindex="-1" class="page">
+    <header class="page-head band">
+      <h1>About TRACED</h1>
+      <p class="lede">
+        TRACED is a weekend project. I wanted a better way to browse the
+        <a href="https://haveibeenpwned.com" target="_blank" rel="noopener">Have I Been Pwned<span class="sr-only"> (opens in a new tab)</span></a>
+        dataset: one long list you can search, and a case file for every breach.
+      </p>
+      <p class="byline">
+        <img
+          src="https://img.jonathanrreed.com/personal/jonathan.avif"
+          alt=""
+          width="48"
+          height="48"
+          class="byline-photo"
+          onerror="this.style.display='none'"
+        />
+        <span>
+          By <a href="https://jonathanrreed.com" target="_blank" rel="noopener">Jonathan R. Reed<span class="sr-only"> (opens in a new tab)</span></a>
+        </span>
+      </p>
+    </header>
     <div class="wrap about">
-      <header class="page-head">
-        <h1>About TRACED</h1>
-        <p class="lede">
-          TRACED is a weekend project. I wanted a better way to browse the
-          <a href="https://haveibeenpwned.com" target="_blank" rel="noopener">Have I Been Pwned<span class="sr-only"> (opens in a new tab)</span></a>
-          dataset, and the case-file format felt like a good fit.
-        </p>
-        <p class="byline">
-          <img
-            src="https://img.jonathanrreed.com/personal/jonathan.avif"
-            alt=""
-            width="48"
-            height="48"
-            class="byline-photo"
-            onerror="this.style.display='none'"
-          />
-          <span>
-            By <a href="https://jonathanrreed.com" target="_blank" rel="noopener">Jonathan R. Reed<span class="sr-only"> (opens in a new tab)</span></a>
-          </span>
-        </p>
-      </header>
 
       <div class="prose">
         <section>
           <h2>What this is</h2>
           <p>
-            A browser for the Have I Been Pwned breach database, set up like a case-file archive. Each breach gets its
-            own page with dates, the number of affected accounts, the data that was exposed, and how long HIBP took to
-            list it.
+            A browser for the Have I Been Pwned breach database. Each breach gets its own case file with the breach
+            date, the number of affected accounts, the data that was exposed, and when HIBP added it to the database.
           </p>
           <p>
             It doesn't replace HIBP. It's another way to read public breach history, and a reminder that old accounts
             tend to outlive the services they were made for.
           </p>
+        </section>
+
+        <section>
+          <h2>How to read it</h2>
+          <dl class="how">
+            <div>
+              <dt><span class="leak-hot">*</span>Marked data types</dt>
+              <dd>
+                Passwords, financial details, government IDs, health data and private messages are printed in red
+                with an asterisk. They are the ones that change what you should do next, and the list can be filtered
+                by them.
+              </dd>
+            </div>
+            <div>
+              <dt>Accounts</dt>
+              <dd>
+                The number of account records in a breach, as HIBP counts them. One person can appear in many
+                breaches, so the total across the list is records, not people.
+              </dd>
+            </div>
+            <div>
+              <dt>HIBP listing interval</dt>
+              <dd>
+                The time between the recorded breach date and when HIBP added it to the database. It does not tell
+                you when the breach was discovered or publicly disclosed.
+              </dd>
+            </div>
+          </dl>
         </section>
 
         <section>
@@ -117,9 +143,10 @@ import Footer from '../components/Footer.astro'
         <section>
           <h2>Built with</h2>
           <p>
-            Astro 5 for the static pages, React 19 for the interactive parts, Tailwind CSS v4 and
+            Astro 7 for the static pages, React 19 for the interactive parts, Tailwind CSS v4 and
             <a href="https://starwind.dev" target="_blank" rel="noopener">Starwind UI<span class="sr-only"> (opens in a new tab)</span></a>
-            for styling and components, and Cloudflare Pages for hosting.
+            for styling and components, and Cloudflare Pages for hosting. The type is Martian Mono, Doto and
+            Atkinson Hyperlegible, all served from this domain.
           </p>
         </section>
       </div>
@@ -133,7 +160,7 @@ import Footer from '../components/Footer.astro'
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    color: var(--muted-foreground);
+    color: var(--ink-soft);
   }
 
   .byline-photo {
@@ -141,7 +168,7 @@ import Footer from '../components/Footer.astro'
     height: 3rem;
     border-radius: 50%;
     object-fit: cover;
-    border: 1px solid var(--border);
+    border: 1px solid var(--rule);
   }
 
   .how {
@@ -152,51 +179,43 @@ import Footer from '../components/Footer.astro'
 
   .how dt {
     font-family: var(--font-display);
-    font-weight: 800;
-    font-size: 1.3rem;
-    letter-spacing: var(--display-tracking);
+    font-stretch: var(--display-stretch);
+    font-weight: 700;
+    letter-spacing: -0.02em;
   }
 
   .how dd {
     margin: 0.15rem 0 0;
-    color: var(--muted-foreground);
+    color: var(--ink-soft);
   }
 
   .sources {
     display: grid;
-    gap: 1rem;
+    gap: 1.5rem;
   }
 
   .source {
     display: grid;
-    gap: 0.75rem;
-    padding: 1.25rem;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    background: var(--card);
-  }
-
-  .source h3 {
-    font-size: 1.4rem;
+    gap: 0.6rem;
   }
 
   .source p {
-    color: var(--muted-foreground);
+    color: var(--ink-soft);
   }
 
   .endpoints {
     display: grid;
-    gap: 0.35rem;
     margin: 0;
     padding: 0;
     list-style: none;
-    font-size: 0.875rem;
     word-break: break-all;
   }
 
   .endpoints li {
-    padding: 0.35rem 0.6rem;
-    background: var(--muted);
-    border-radius: 0.375rem;
+    padding: 0.45rem 0.75rem;
+  }
+
+  .endpoints li:nth-child(odd) {
+    background: var(--bar);
   }
 </style>

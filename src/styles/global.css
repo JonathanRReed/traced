@@ -2,18 +2,10 @@
 
 /* Fonts are self-hosted through Fontsource, so no request leaves this origin.
    A face only downloads once something on the page uses it. */
-@import "@fontsource/barlow-condensed/latin-600.css";
-@import "@fontsource/barlow-condensed/latin-800.css";
-@import "@fontsource/ibm-plex-sans/latin-400.css";
-@import "@fontsource/ibm-plex-sans/latin-500.css";
-@import "@fontsource/ibm-plex-sans/latin-600.css";
-@import "@fontsource/ibm-plex-mono/latin-400.css";
-@import "@fontsource/ibm-plex-mono/latin-500.css";
-@import "@fontsource/atkinson-hyperlegible-next/latin-400.css";
-@import "@fontsource/atkinson-hyperlegible-next/latin-600.css";
-@import "@fontsource/atkinson-hyperlegible-next/latin-700.css";
-@import "@fontsource/atkinson-hyperlegible-mono/latin-400.css";
-@import "@fontsource/atkinson-hyperlegible-mono/latin-600.css";
+@import "@fontsource-variable/martian-mono/wdth.css";
+@import "@fontsource-variable/doto/wght.css";
+@import "@fontsource-variable/atkinson-hyperlegible-next/wght.css";
+@import "@fontsource-variable/atkinson-hyperlegible-mono/wght.css";
 @import "@fontsource/opendyslexic/latin-400.css";
 @import "@fontsource/opendyslexic/latin-700.css";
 
@@ -21,89 +13,103 @@
 
 /* ─────────────────────────────────────────────
    Tokens
+   Three flat fields carry every page: a green band for the title, paper for
+   the content, ink for the footer. Lists sit on alternating green bars, the
+   way a printed listing does. Dark is the same system on indigo.
    Starwind's semantic tokens (background, card, border, primary...) are
-   re-pointed at the TRACED palette. Site-only tokens use plain names.
+   re-pointed at that palette. Site-only tokens use plain names.
    ───────────────────────────────────────────── */
 :root {
-  --background: #f4f6fa;
-  --foreground: #111826;
-  --card: #ffffff;
-  --card-foreground: #111826;
-  --popover: #ffffff;
-  --popover-foreground: #111826;
-  --muted: #e9edf4;
-  --muted-foreground: #4a566a;
-  --accent: #e9edf4;
-  --accent-foreground: #111826;
-  --secondary: #e9edf4;
-  --secondary-foreground: #111826;
-  --border: #d3dae6;
-  --input: #b9c3d3;
-  --outline: #1b57c4;
-  --primary: #1b57c4;
-  --primary-foreground: #ffffff;
-  --primary-accent: #1b57c4;
-  --error: #c42828;
+  --paper: #f8faf4;
+  --bar: #cbe5c5;
+  --bar-rule: #a4cc9e;
+  --slip: #ffffff;
+  --ink: #17201b;
+  --ink-soft: #3f4d45;
+  --form: #0a5c3b;
+  --ribbon: #b3200f;
+  --canary: #f6e26a;
+  --rule: #b7c7b6;
+  --perf: #8fa593;
+  --edge: #6a7d70;
+  --logo-tile: #24332b;
+  --foot: #17201b;
+  --foot-ink: #f8faf4;
 
-  --surface-2: #e9edf4;
-  --signal: #1b57c4;
-  --sev-critical: #c42828;
-  --sev-recent: #94530a;
-  --sev-older: #566379;
-  --ok: #17794a;
-  --string: #c42828;
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --card: var(--slip);
+  --card-foreground: var(--ink);
+  --popover: var(--slip);
+  --popover-foreground: var(--ink);
+  --muted: var(--bar);
+  --muted-foreground: var(--ink-soft);
+  --accent: var(--bar);
+  --accent-foreground: var(--ink);
+  --secondary: var(--bar);
+  --secondary-foreground: var(--ink);
+  --border: var(--rule);
+  --input: var(--edge);
+  --outline: var(--form);
+  --primary: var(--form);
+  --primary-foreground: #f8faf4;
+  --primary-accent: var(--form);
+  --error: var(--ribbon);
 
-  --radius: 0.625rem;
-  --page-max: 72rem;
-  --gutter: clamp(1rem, 4vw, 2rem);
+  --radius: 0.25rem;
+  --page-max: 84rem;
+  --gutter: clamp(1rem, 4vw, 2.5rem);
+  /* Side padding that keeps content inside the page width while letting
+     backgrounds run edge to edge. Percentages resolve where it is used. */
+  --pad: max(var(--gutter), calc((100% - var(--page-max)) / 2 + var(--gutter)));
   --nav-h: 3.5rem;
 
-  --font-display: 'Barlow Condensed', 'Arial Narrow', sans-serif;
-  --font-body: 'IBM Plex Sans', system-ui, sans-serif;
-  --font-data: 'IBM Plex Mono', ui-monospace, monospace;
-  --hero-size: clamp(5rem, 19vw, 13rem);
-  --display-tracking: 0.04em;
-  --body-leading: 1.65;
+  --font-display: 'Martian Mono Variable', ui-monospace, 'SF Mono', Menlo, monospace;
+  --font-data: 'Martian Mono Variable', ui-monospace, 'SF Mono', Menlo, monospace;
+  --font-figure: 'Doto Variable', 'Martian Mono Variable', ui-monospace, monospace;
+  --font-body: 'Atkinson Hyperlegible Next Variable', system-ui, sans-serif;
+  --display-stretch: 75%;
+  --display-tracking: -0.04em;
+  --data-stretch: 80%;
+  --data-size: 0.8125rem;
+  --figure-weight: 900;
+  --figure-scale: 1;
+  --body-leading: 1.6;
   --body-tracking: 0;
 }
 
 .dark {
-  --background: #0b0f15;
-  --foreground: #eef1f6;
-  --card: #131923;
-  --card-foreground: #eef1f6;
-  --popover: #131923;
-  --popover-foreground: #eef1f6;
-  --muted: #1a222e;
-  --muted-foreground: #a9b4c4;
-  --accent: #1a222e;
-  --accent-foreground: #eef1f6;
-  --secondary: #1a222e;
-  --secondary-foreground: #eef1f6;
-  --border: #263040;
-  --input: #3a465a;
-  --outline: #7db2ff;
-  --primary: #2a68d6;
-  --primary-foreground: #ffffff;
-  --primary-accent: #7db2ff;
-  --error: #ff8080;
+  --paper: #15173a;
+  --bar: #262a66;
+  --bar-rule: #363c88;
+  --slip: #1d2049;
+  --ink: #e8e8f9;
+  --ink-soft: #b4b6e0;
+  --form: #8fe0b1;
+  --ribbon: #ff9383;
+  --canary: #f3dc62;
+  --rule: #353970;
+  --perf: #5a5f9f;
+  --edge: #7a7fc0;
+  --logo-tile: #0b0c1c;
+  --foot: #0a0b20;
+  --foot-ink: #e8e8f9;
 
-  --surface-2: #1a222e;
-  --signal: #7db2ff;
-  --sev-critical: #ff8080;
-  --sev-recent: #ffc266;
-  --sev-older: #9fb0c6;
-  --ok: #6ee7a8;
-  --string: #ff8080;
+  --primary-foreground: #10122c;
 }
 
 /* Font choices from the Aa menu. The attribute lives on <html>. */
 html[data-font='readable'] {
-  --font-display: 'Atkinson Hyperlegible Next', system-ui, sans-serif;
-  --font-body: 'Atkinson Hyperlegible Next', system-ui, sans-serif;
-  --font-data: 'Atkinson Hyperlegible Mono', ui-monospace, monospace;
-  --hero-size: clamp(4rem, 15vw, 10rem);
-  --display-tracking: 0;
+  --font-display: 'Atkinson Hyperlegible Next Variable', system-ui, sans-serif;
+  --font-body: 'Atkinson Hyperlegible Next Variable', system-ui, sans-serif;
+  --font-data: 'Atkinson Hyperlegible Mono Variable', ui-monospace, monospace;
+  --font-figure: 'Atkinson Hyperlegible Next Variable', system-ui, sans-serif;
+  --display-stretch: 100%;
+  --display-tracking: -0.015em;
+  --data-stretch: 100%;
+  --data-size: 0.875rem;
+  --figure-weight: 700;
+  --figure-scale: 0.8;
   --body-leading: 1.7;
 }
 
@@ -111,10 +117,19 @@ html[data-font='dyslexic'] {
   --font-display: 'OpenDyslexic', 'Comic Sans MS', sans-serif;
   --font-body: 'OpenDyslexic', 'Comic Sans MS', sans-serif;
   --font-data: 'OpenDyslexic', 'Comic Sans MS', sans-serif;
-  --hero-size: clamp(3rem, 11vw, 7rem);
+  --font-figure: 'OpenDyslexic', 'Comic Sans MS', sans-serif;
+  --display-stretch: 100%;
   --display-tracking: 0;
+  --data-stretch: 100%;
+  --data-size: 0.8125rem;
+  --figure-weight: 700;
+  --figure-scale: 0.55;
   --body-leading: 1.85;
   --body-tracking: 0.02em;
+}
+
+html[data-font='dyslexic'] :is(h1, h2, h3, h4) {
+  line-height: 1.3;
 }
 
 /* ─────────────────────────────────────────────
@@ -128,8 +143,9 @@ html[data-font='dyslexic'] {
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: calc(var(--nav-h) + 1rem);
+  scroll-padding-top: calc(var(--nav-h) + 1.5rem);
   color-scheme: light;
+  -webkit-text-size-adjust: 100%;
 }
 
 html.dark {
@@ -138,15 +154,22 @@ html.dark {
 
 body {
   margin: 0;
-  background-color: var(--background);
-  color: var(--foreground);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: clip;
+  background-color: var(--paper);
+  color: var(--ink);
   font-family: var(--font-body);
-  font-size: 1rem;
+  font-size: 1.0625rem;
   line-height: var(--body-leading);
   letter-spacing: var(--body-tracking);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
+}
+
+body > main {
+  flex: 1;
 }
 
 h1,
@@ -154,11 +177,32 @@ h2,
 h3,
 h4 {
   font-family: var(--font-display);
+  font-stretch: var(--display-stretch);
   font-weight: 800;
   letter-spacing: var(--display-tracking);
-  line-height: 1.1;
+  line-height: 1.08;
   margin: 0;
   text-wrap: balance;
+}
+
+/* Page titles are set in dots. It is the one loud voice on the site. */
+h1 {
+  font-family: var(--font-figure);
+  font-stretch: normal;
+  font-weight: var(--figure-weight);
+  font-size: calc(clamp(2.6rem, 8vw, 5.5rem) * var(--figure-scale));
+  letter-spacing: 0;
+  line-height: 0.92;
+}
+
+h2 {
+  font-size: clamp(1.25rem, 2.6vw, 1.625rem);
+}
+
+h3 {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 p {
@@ -171,14 +215,14 @@ main[id] {
 }
 
 ::selection {
-  background: var(--signal);
-  color: var(--background);
+  background: var(--canary);
+  color: #17201b;
 }
 
 :where(a, button, input, select, textarea, summary, [tabindex]:not([tabindex='-1'])):focus-visible {
-  outline: 2px solid var(--signal);
-  outline-offset: 3px;
-  border-radius: 4px;
+  outline: 2px solid var(--form);
+  outline-offset: 2px;
+  border-radius: 2px;
 }
 
 .skip-link {
@@ -188,11 +232,11 @@ main[id] {
   transform: translateY(-220%);
   z-index: 10000;
   padding: 0.65rem 1rem;
-  background: var(--primary);
+  background: var(--form);
   color: var(--primary-foreground);
   text-decoration: none;
   font-weight: 600;
-  border-radius: 6px;
+  border-radius: var(--radius);
   transition: transform 0.15s ease;
 }
 
@@ -215,8 +259,8 @@ main[id] {
 /* Running text links are underlined, so colour is never the only cue. */
 .prose a,
 p a,
-li a {
-  color: var(--signal);
+dd a {
+  color: var(--form);
   text-decoration: underline;
   text-underline-offset: 0.2em;
   text-decoration-thickness: 1px;
@@ -224,129 +268,118 @@ li a {
 
 .prose a:hover,
 p a:hover,
-li a:hover {
+dd a:hover {
   text-decoration-thickness: 2px;
 }
 
 /* ─────────────────────────────────────────────
-   Shared building blocks
+   Layout
    ───────────────────────────────────────────── */
 .wrap {
   width: 100%;
-  max-width: var(--page-max);
-  margin-inline: auto;
-  padding-inline: var(--gutter);
+  padding-inline: var(--pad);
+}
+
+/* The title field at the top of every page: the same green as the bars,
+   edge to edge, directly under the header. */
+.band {
+  background: var(--bar);
+  border-bottom: 2px solid var(--ink);
+}
+
+.band .breadcrumb a {
+  color: var(--ink);
+}
+
+.band .muted {
+  color: var(--ink-soft);
+}
+
+/* A thin break between sections of a page. */
+.divider {
+  height: 0;
+  margin: 0;
+  border: 0;
+  border-top: 2px solid var(--ink);
 }
 
 .data {
   font-family: var(--font-data);
+  font-stretch: var(--data-stretch);
+  font-size: var(--data-size);
   font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+/* Figures: totals, years, counts. */
+.figure {
+  font-family: var(--font-figure);
+  font-weight: var(--figure-weight);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+  line-height: 0.9;
 }
 
 .muted {
-  color: var(--muted-foreground);
+  color: var(--ink-soft);
 }
 
-.section-title {
-  font-size: clamp(1.75rem, 4vw, 2.5rem);
+/* Buttons. Plain Astro pages use .btn; React islands use the Starwind Button. */
+.btn,
+[data-slot='button'] {
+  font-family: var(--font-data);
+  font-stretch: var(--data-stretch);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  border-radius: var(--radius);
+  transition: transform 0.06s, background-color 0.12s;
 }
 
-/* Buttons for plain Astro pages. React islands use the Starwind Button. */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
   min-height: 2.75rem;
-  padding: 0.5rem 1.25rem;
-  font: 600 1rem/1 var(--font-body);
-  border-radius: 0.5rem;
-  border: 1px solid var(--primary);
-  background: var(--primary);
+  padding: 0.5rem 1.1rem;
+  font-size: 0.875rem;
+  line-height: 1;
+  border: 1.5px solid var(--form);
+  background: var(--form);
   color: var(--primary-foreground);
   text-decoration: none;
-  transition: background-color 0.15s, border-color 0.15s;
+  cursor: pointer;
 }
 
 .btn:hover {
-  background: color-mix(in srgb, var(--primary) 88%, var(--foreground));
+  background: color-mix(in srgb, var(--form) 86%, var(--ink));
+}
+
+.btn:active,
+[data-slot='button']:active {
+  transform: translateY(1px);
 }
 
 .btn-ghost {
   background: transparent;
-  border-color: var(--input);
-  color: var(--foreground);
+  border-color: var(--ink);
+  color: var(--ink);
 }
 
 .btn-ghost:hover {
-  background: var(--muted);
+  background: var(--bar);
 }
 
-/* Severity badges. Colour plus a shape, never colour alone. */
-.badge-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  font: 600 0.8125rem/1 var(--font-body);
-  padding: 0.3rem 0.65rem;
-  border-radius: 999px;
-  color: var(--sev);
-  background: color-mix(in srgb, var(--sev) 14%, transparent);
+[data-slot='button'][data-slot='button'] {
+  border: 1.5px solid var(--ink);
+  box-shadow: none;
 }
 
-.badge-status::before {
-  content: '';
-  width: 0.5rem;
-  height: 0.5rem;
-  background: currentColor;
-  border-radius: 50%;
-}
-
-.badge-status[data-status='critical'] {
-  --sev: var(--sev-critical);
-}
-.badge-status[data-status='critical']::before {
-  border-radius: 1px;
-  transform: rotate(45deg);
-}
-.badge-status[data-status='recent'] {
-  --sev: var(--sev-recent);
-}
-.badge-status[data-status='recent']::before {
-  border-radius: 0;
-  clip-path: polygon(50% 0, 100% 100%, 0 100%);
-}
-.badge-status[data-status='older'] {
-  --sev: var(--sev-older);
-}
-
-/* Data-type chips. */
-.chip {
-  display: inline-flex;
-  align-items: center;
-  font: 500 0.8125rem/1.2 var(--font-body);
-  padding: 0.25rem 0.55rem;
-  border-radius: 0.375rem;
-  background: var(--muted);
-  color: var(--foreground);
-  border: 1px solid transparent;
-}
-
-.chip[data-sensitive='true'] {
-  border-color: color-mix(in srgb, var(--sev-critical) 45%, transparent);
-}
-
-/* Skeleton placeholders. */
-.skeleton {
-  background: linear-gradient(90deg, var(--card) 25%, var(--muted) 50%, var(--card) 75%);
-  background-size: 800px 100%;
-  animation: shimmer 1.6s infinite linear;
-  border-radius: 0.375rem;
-}
-
-@keyframes shimmer {
-  from { background-position: -400px 0; }
-  to   { background-position: 400px 0; }
+[data-slot='toggle-group-item'],
+[data-slot='input'] {
+  font-family: var(--font-data);
+  font-stretch: var(--data-stretch);
+  letter-spacing: -0.01em;
 }
 
 /* Error / empty states. */
@@ -357,104 +390,70 @@ li a:hover {
   align-items: flex-start;
   max-width: 34rem;
   padding: 1.25rem;
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--sev-critical);
-  border-radius: 0.5rem;
-  background: var(--card);
-}
-
-.notice h3 {
-  font-size: 1.4rem;
+  border: 1.5px solid var(--ink);
+  border-left: 5px solid var(--ribbon);
+  background: var(--slip);
 }
 
 .notice p {
-  color: var(--muted-foreground);
+  color: var(--ink-soft);
 }
 
-/* Long-form text pages: about, privacy, contact. */
+.breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--ink-soft);
+}
+
+.breadcrumb a {
+  color: var(--form);
+  text-underline-offset: 0.2em;
+}
+
+/* ─────────────────────────────────────────────
+   Text pages: about, privacy, contact
+   ───────────────────────────────────────────── */
 .page {
-  padding-block: clamp(2.5rem, 6vw, 4.5rem) clamp(4rem, 8vw, 6rem);
-  min-height: 70vh;
+  padding-bottom: clamp(4rem, 8vw, 6rem);
 }
 
 .page-head {
   display: grid;
-  gap: 1rem;
-  max-width: 44rem;
+  gap: 1.5rem;
   margin-bottom: clamp(2rem, 5vw, 3rem);
+  padding: clamp(2rem, 5vw, 3.5rem) var(--pad);
 }
 
-.page-head h1 {
-  font-size: clamp(3rem, 9vw, 5.5rem);
-  line-height: 0.95;
+.page-head > :not(h1) {
+  max-width: 40rem;
 }
 
-.page-head .lede {
+.lede {
   font-size: 1.1875rem;
-  color: var(--muted-foreground);
+  line-height: 1.5;
+  max-width: 36rem;
 }
 
 .prose {
   display: grid;
   gap: 0.875rem;
-  max-width: 42rem;
-}
-
-.prose h2 {
-  font-size: 1.75rem;
+  max-width: 40rem;
 }
 
 .prose section {
   display: grid;
   gap: 0.75rem;
-  margin-top: 1rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--border);
+  margin-top: 1.25rem;
+  padding-top: 1.75rem;
+  border-top: 1px solid var(--edge);
 }
 
-/* Red thread across the top that follows reading progress. */
-.read-progress {
-  position: fixed;
-  inset: 0 0 auto 0;
-  z-index: 200;
-  height: 3px;
-  background: var(--string);
-  transform: scaleX(0);
-  transform-origin: 0 50%;
-  pointer-events: none;
-}
-
-@supports (animation-timeline: scroll()) {
-  .read-progress {
-    animation: read-progress linear both;
-    animation-timeline: scroll(root);
-  }
-}
-
-@keyframes read-progress {
-  to { transform: scaleX(1); }
-}
-
-/* Section titles get a red underline that draws as they scroll in. */
-.section-title {
-  width: fit-content;
-  padding-bottom: 0.3em;
-  background: linear-gradient(var(--string), var(--string)) no-repeat 0 100% / 3.5rem 3px;
-}
-
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .section-title {
-      background-size: 0 3px;
-      animation: title-underline linear both;
-      animation-timeline: view();
-      animation-range: entry 10% entry 90%;
-    }
-  }
-}
-
-@keyframes title-underline {
-  to { background-size: 3.5rem 3px; }
+.prose > section:first-child {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
 }
 
 /* Theme switch: the new theme grows out of the Aa button. */
@@ -477,13 +476,14 @@ html.theme-vt::view-transition-new(root) {
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
+    animation-delay: 0s !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
 }
 
 /* Cross-page transitions. The browser cross-fades by default; this only
-   shortens the fade and keeps the nav still. */
+   shortens the fade. */
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation-duration: 0.18s;

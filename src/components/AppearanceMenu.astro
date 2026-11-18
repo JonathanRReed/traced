@@ -1,0 +1,213 @@
+---
+// Theme and font settings. A native popover holding two radio groups, so it
+// needs no framework code: the browser handles opening, Escape, click-away
+// and focus, and the radios are ordinary form controls.
+const THEMES = [
+  { value: 'system', label: 'System' },
+  { value: 'light', label: 'Light' },
+  { value: 'dark', label: 'Dark' },
+]
+
+const FONTS = [
+  { value: 'default', label: 'Printout', family: "'Martian Mono Variable', monospace" },
+  { value: 'readable', label: 'Readable', family: "'Atkinson Hyperlegible Next Variable', sans-serif" },
+  { value: 'dyslexic', label: 'OpenDyslexic', family: "'OpenDyslexic', sans-serif" },
+]
+---
+
+<button
+  type="button"
+  class="appearance-trigger"
+  popovertarget="appearance-menu"
+  aria-label="Appearance: theme and font"
+>
+  <span aria-hidden="true">Aa</span>
+</button>
+
+<div id="appearance-menu" class="appearance-menu" popover>
+  <fieldset>
+    <legend>Theme</legend>
+    {THEMES.map((theme) => (
+      <label>
+        <input type="radio" name="appearance-theme" value={theme.value} />
+        <span>{theme.label}</span>
+      </label>
+    ))}
+  </fieldset>
+  <fieldset>
+    <legend>Font</legend>
+    {FONTS.map((font) => (
+      <label>
+        <input type="radio" name="appearance-font" value={font.value} />
+        <span style={`font-family: ${font.family}`}>{font.label}</span>
+      </label>
+    ))}
+  </fieldset>
+</div>
+
+<script>
+  const THEME_KEY = 'colorTheme'
+  const FONT_KEY = 'traced-font'
+
+  type ViewTransitionDocument = Document & {
+    startViewTransition?: (update: () => void) => { ready: Promise<void>; finished: Promise<void> }
+  }
+
+  function read(key: string, fallback: string): string {
+    try {
+      return localStorage.getItem(key) ?? fallback
+    } catch {
+      return fallback
+    }
+  }
+
+  function save(key: string, value: string) {
+    try {
+      localStorage.setItem(key, value)
+    } catch {
+      // Storage can be blocked. The choice still applies until the next page load.
+    }
+    ;(window as unknown as { __applyAppearance?: () => void }).__applyAppearance?.()
+  }
+
+  // The new theme grows out of the Aa button.
+  function switchTheme(value: string) {
+    const doc = document as ViewTransitionDocument
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const trigger = document.querySelector('.appearance-trigger')
+    if (!doc.startViewTransition || reduceMotion || !trigger) {
+      save(THEME_KEY, value)
+      return
+    }
+
+    const box = trigger.getBoundingClientRect()
+    const x = box.left + box.width / 2
+    const y = box.top + box.height / 2
+    const radius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y))
+
+    document.documentElement.classList.add('theme-vt')
+    const transition = doc.startViewTransition(() => save(THEME_KEY, value))
+    // A second switch before the first finishes skips the first transition,
+    // which rejects these promises. The theme has still changed, so that is fine.
+    transition.ready
+      .then(() => {
+        document.documentElement.animate(
+          { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
+          { duration: 550, easing: 'cubic-bezier(0.3, 0, 0.2, 1)', pseudoElement: '::view-transition-new(root)' },
+        )
+      })
+      .catch(() => {})
+    transition.finished.catch(() => {}).finally(() => document.documentElement.classList.remove('theme-vt'))
+  }
+
+  function sync() {
+    const check = (name: string, value: string) => {
+      const input = document.querySelector<HTMLInputElement>(`input[name="${name}"][value="${value}"]`)
+      if (input) input.checked = true
+    }
+    check('appearance-theme', read(THEME_KEY, 'system'))
+    check('appearance-font', read(FONT_KEY, 'default'))
+  }
+
+  // Pages swap without a reload, so listen on the document rather than on
+  // elements that will be replaced.
+  document.addEventListener('change', (event) => {
+    const input = event.target as HTMLInputElement
+    if (input.name === 'appearance-theme') switchTheme(input.value)
+    if (input.name === 'appearance-font') save(FONT_KEY, input.value)
+  })
+
+  document.addEventListener('astro:page-load', sync)
+</script>
+
+<style>
+  .appearance-menu {
+    position: fixed;
+    inset: auto;
+    top: 3.75rem;
+    right: max(var(--gutter), calc((100vw - var(--page-max)) / 2 + var(--gutter)));
+    margin: 0;
+    min-width: 12rem;
+    padding: 0.4rem;
+    font-family: var(--font-data);
+    font-stretch: var(--data-stretch);
+    font-size: var(--data-size);
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    background: var(--slip);
+    border: 1.5px solid var(--ink);
+    border-radius: var(--radius);
+    box-shadow: 0.35rem 0.35rem 0 var(--ink);
+  }
+
+  .appearance-menu:popover-open {
+    display: grid;
+    gap: 0.4rem;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .appearance-menu:popover-open {
+      animation: menu-in 0.12s ease-out;
+    }
+  }
+
+  @keyframes menu-in {
+    from { opacity: 0; transform: translateY(-4px); }
+  }
+
+  fieldset {
+    display: grid;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  fieldset + fieldset {
+    padding-top: 0.4rem;
+    border-top: 1px solid var(--rule);
+  }
+
+  legend {
+    padding: 0.35rem 0.6rem;
+    color: var(--ink-soft);
+  }
+
+  label {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-height: 2.25rem;
+    padding: 0 0.6rem;
+    font-weight: 600;
+    border-radius: 0.15rem;
+    cursor: pointer;
+  }
+
+  label:hover {
+    background: var(--bar);
+  }
+
+  /* The radio itself is hidden; the row shows a printed tick instead. */
+  input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  label::before {
+    content: '';
+    width: 1ch;
+    color: var(--form);
+  }
+
+  label:has(:checked)::before {
+    content: '✓';
+  }
+
+  label:has(:focus-visible) {
+    outline: 2px solid var(--form);
+    outline-offset: -2px;
+  }
+</style>

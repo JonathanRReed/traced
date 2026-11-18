@@ -1,7 +1,12 @@
 ---
 import '../styles/global.css'
 import { ClientRouter } from 'astro:transitions'
-import { CommandPalette } from '../components/CommandPalette'
+import Nav from '../components/Nav.astro'
+// The three faces every page prints with (about 78KB together). Preloading them stops the first
+// paint from waiting on the stylesheet to discover them.
+import dataFont from '@fontsource-variable/martian-mono/files/martian-mono-latin-wdth-normal.woff2?url'
+import bodyFont from '@fontsource-variable/atkinson-hyperlegible-next/files/atkinson-hyperlegible-next-latin-wght-normal.woff2?url'
+import figureFont from '@fontsource-variable/doto/files/doto-latin-wght-normal.woff2?url'
 
 interface Props {
   title?: string
@@ -9,6 +14,8 @@ interface Props {
   robots?: string
   imageWidth?: number
   imageHeight?: number
+  /** The nav entry to light up, e.g. "/check/". */
+  currentPath?: string
   /** Optional page-specific JSON-LD (e.g. a case page's Article + breadcrumb). */
   extraSchema?: unknown
 }
@@ -20,9 +27,10 @@ const {
   imageWidth = 1200,
   imageHeight = 630,
   extraSchema,
+  currentPath,
 } = Astro.props
 
-const siteUrl = 'https://traced.jonathanrreed.com'
+const siteUrl = (Astro.site?.toString() ?? 'https://traced.jonathanrreed.com/').replace(/\/$/, '')
 const ogImage = `${siteUrl}/og-image.png`
 const canonicalUrl = new URL(Astro.url.pathname, siteUrl).toString()
 const schema = {
@@ -60,8 +68,8 @@ const schema = {
     <meta name="description" content={description} />
     <meta name="author" content="Jonathan R. Reed" />
     <meta name="generator" content={Astro.generator} />
-    <meta name="theme-color" content="#0b0f15" media="(prefers-color-scheme: dark)" />
-    <meta name="theme-color" content="#f4f6fa" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#262a66" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#cbe5c5" media="(prefers-color-scheme: light)" />
     <meta name="robots" content={robots} />
     <link rel="canonical" href={canonicalUrl} />
 
@@ -75,7 +83,7 @@ const schema = {
     <meta property="og:image:type" content="image/png" />
     <meta property="og:image:width" content={String(imageWidth)} />
     <meta property="og:image:height" content={String(imageHeight)} />
-    <meta property="og:image:alt" content="TRACED data breach case files" />
+    <meta property="og:image:alt" content="TRACED: a printout of known data breaches" />
 
     <!-- Twitter / X -->
     <meta name="twitter:card" content="summary_large_image" />
@@ -85,8 +93,10 @@ const schema = {
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" type="image/webp" href="/TracedLogo.webp" />
-    <link rel="apple-touch-icon" href="/TracedLogo.webp" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="preload" as="font" type="font/woff2" href={dataFont} crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href={bodyFont} crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href={figureFont} crossorigin />
     <link rel="sitemap" href="/sitemap.xml" />
 
     <script is:inline>
@@ -118,8 +128,11 @@ const schema = {
   </head>
   <body>
     <a href="#main-content" class="skip-link">Skip to main content</a>
-    <CommandPalette client:load />
+    <Nav currentPath={currentPath} />
     <slot />
-
+    <div id="palette-root" transition:persist></div>
+    <script>
+      import '../scripts/site'
+    </script>
   </body>
 </html>

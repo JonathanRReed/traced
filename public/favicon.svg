@@ -1,13 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" fill="#080b0f"/>
-  <text
-    x="16"
-    y="26"
-    text-anchor="middle"
-    font-family="Arial Black, sans-serif"
-    font-weight="900"
-    font-size="26"
-    fill="#e2e8f0"
-    letter-spacing="1"
-  >T</text>
+  <style>
+    .paper { fill: #f4f7f0 }
+    .bar { fill: #cfe3cb }
+    .ink { fill: #18211c }
+    @media (prefers-color-scheme: dark) {
+      .paper { fill: #181a3b }
+      .bar { fill: #2a2e63 }
+      .ink { fill: #e6e6f8 }
+    }
+  </style>
+  <rect class="paper" width="32" height="32" rx="5"/>
+  <rect class="bar" y="12" width="32" height="8"/>
+  <g class="ink">
+    <rect x="5" y="5" width="3.6" height="3.6"/><rect x="9.6" y="5" width="3.6" height="3.6"/><rect x="14.2" y="5" width="3.6" height="3.6"/><rect x="18.8" y="5" width="3.6" height="3.6"/><rect x="23.4" y="5" width="3.6" height="3.6"/>
+    <rect x="14.2" y="9.6" width="3.6" height="3.6"/><rect x="14.2" y="14.2" width="3.6" height="3.6"/><rect x="14.2" y="18.8" width="3.6" height="3.6"/><rect x="14.2" y="23.4" width="3.6" height="3.6"/>
+  </g>
 </svg>

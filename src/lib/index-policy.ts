@@ -51,7 +51,20 @@ function isValidDate(value: string): boolean {
   return !!value && !Number.isNaN(new Date(value).getTime())
 }
 
+// Related-case ranking asks this about every record for every case page, so
+// the answer is remembered per record instead of recounting the description.
+const indexable = new WeakMap<HibpBreach, boolean>()
+
 export function isIndexableCase(breach: HibpBreach): boolean {
+  let answer = indexable.get(breach)
+  if (answer === undefined) {
+    answer = checkIndexable(breach)
+    indexable.set(breach, answer)
+  }
+  return answer
+}
+
+function checkIndexable(breach: HibpBreach): boolean {
   // Record completeness. IsVerified / IsRetired are deliberately NOT checked
   // here — they are disclosed on the page instead (see caseCaveat).
   if (!isValidDate(breach.BreachDate) || !isValidDate(breach.AddedDate)) return false

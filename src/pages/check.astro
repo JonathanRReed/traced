@@ -1,6 +1,5 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro'
-import Nav from '../components/Nav.astro'
 import Footer from '../components/Footer.astro'
 import { PasswordChecker } from '../components/PasswordChecker'
 import { getAllBreaches } from '../lib/hibp'
@@ -20,28 +19,23 @@ const passwordBreaches = allBreaches
 ---
 
 <BaseLayout
+  currentPath="/check/"
   title="Password Exposure Check | TRACED Public Breach Archive"
   description="Check whether a password appears in breach data. TRACED hashes it in your browser, sends only a hash prefix, and keeps the full password on your device."
 >
-  <Nav currentPath="/check/" />
 
   <main id="main-content" tabindex="-1" class="check-page">
-    <div class="wrap check-container">
-      <header class="check-header">
-        <h1>Check a password</h1>
-        <p>
-          Has your password shown up in known breach data? You can find out without sending the full password
-          anywhere.
-        </p>
-      </header>
+    <header class="wrap check-header band">
+      <h1>Check a password</h1>
+    </header>
 
+    <div class="wrap check-tool">
       <PasswordChecker passwordBreaches={passwordBreaches} client:load />
+    </div>
 
-      <p class="check-source muted">
-        This uses Troy Hunt's Pwned Passwords k-anonymity API.
-        <a href="https://haveibeenpwned.com/Passwords" target="_blank" rel="noopener">Read how Pwned Passwords protects range searches<span class="sr-only"> (opens in a new tab)</span></a>.
-      </p>
+    <hr class="divider" />
 
+    <div class="wrap">
       <section class="check-explainer prose" aria-labelledby="explainer-heading">
         <h2 id="explainer-heading">What this check can and cannot tell you</h2>
         <p>
@@ -73,47 +67,22 @@ const passwordBreaches = allBreaches
 
 <style>
   .check-page {
-    min-height: 100vh;
     padding-bottom: 5rem;
   }
 
-  .check-container {
-    max-width: 52rem;
-    display: grid;
-    gap: 2.5rem;
-    padding-top: clamp(2.5rem, 6vw, 4rem);
-  }
-
   .check-header {
-    display: grid;
-    gap: 1rem;
+    padding-block: clamp(2rem, 5vw, 3.5rem);
   }
 
-  .check-header h1 {
-    font-size: clamp(3rem, 9vw, 5.5rem);
-    line-height: 0.95;
-  }
-
-  .check-header p {
-    max-width: 38rem;
-    font-size: 1.1875rem;
-  }
-
-  .check-source {
-    max-width: 40rem;
-    font-size: 0.9375rem;
+  .check-tool {
+    padding-block: clamp(2rem, 5vw, 3.5rem);
   }
 
   .check-explainer {
-    display: grid;
-    gap: 0.75rem;
-    max-width: 42rem;
-    padding-top: 2rem;
-    border-top: 1px solid var(--border);
+    padding-top: clamp(2rem, 5vw, 3rem);
   }
 
   .check-explainer h2 {
-    font-size: 1.75rem;
     margin-bottom: 0.25rem;
   }
 </style>

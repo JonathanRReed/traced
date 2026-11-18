@@ -1,31 +1,27 @@
 ---
-import { AppearanceMenu } from './AppearanceMenu'
+import AppearanceMenu from './AppearanceMenu.astro'
 
 interface Props {
   currentPath?: string
 }
-const { currentPath = '/' } = Astro.props
+const { currentPath = '' } = Astro.props
 
 const links = [
-  { href: '/', label: 'Archive' },
+  { href: '/', label: 'Breaches' },
   { href: '/archive/', label: 'Index' },
-  { href: '/check/', label: 'Check a password' },
+  { href: '/check/', label: 'Check', rest: ' a password' },
   { href: '/about/', label: 'About' },
 ]
 ---
 
 <header class="nav">
   <div class="nav-inner wrap">
-    <a href="/" class="nav-wordmark" aria-label="TRACED home">TRACED</a>
+    <a href="/" class="nav-wordmark figure" aria-label="TRACED home">TRACED</a>
 
     <nav class="nav-links" aria-label="Main">
       {links.map((link) => (
-        <a
-          href={link.href}
-          class:list={['nav-link', { active: currentPath === link.href }]}
-          aria-current={currentPath === link.href ? 'page' : undefined}
-        >
-          {link.label}
+        <a href={link.href} class="nav-link" aria-current={currentPath === link.href ? 'page' : undefined}>
+          {link.label}{link.rest && <span class="nav-rest">{link.rest}</span>}
         </a>
       ))}
     </nav>
@@ -33,147 +29,117 @@ const links = [
     <div class="nav-tools">
       <button
         type="button"
-        class="nav-search"
-        aria-label="Search case files"
+        class="nav-tool nav-search"
+        aria-label="Search breaches"
         onclick="window.dispatchEvent(new CustomEvent('open-command-palette'))"
       >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <span class="nav-search-label">Search</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="20" y1="20" x2="16.2" y2="16.2"/></svg>
         <kbd class="nav-kbd" data-shortcut>Ctrl K</kbd>
       </button>
-      <AppearanceMenu client:load />
+      <AppearanceMenu />
     </div>
   </div>
 </header>
 
 <script>
-  const isMac = /Mac|iPhone|iPad/.test(navigator.platform)
-  document.querySelectorAll<HTMLElement>('[data-shortcut]').forEach((el) => {
-    el.textContent = isMac ? '⌘K' : 'Ctrl K'
+  document.addEventListener('astro:page-load', () => {
+    const isMac = /Mac|iPhone|iPad/.test(navigator.platform)
+    document.querySelectorAll<HTMLElement>('[data-shortcut]').forEach((el) => {
+      el.textContent = isMac ? '⌘K' : 'Ctrl K'
+    })
   })
 </script>
 
 <style>
+  /* The header is the first green bar of the page. */
   .nav {
     position: sticky;
     top: 0;
-    z-index: 100;
-    background: color-mix(in srgb, var(--background) 92%, transparent);
-    border-bottom: 1px solid var(--border);
-    backdrop-filter: blur(10px);
+    z-index: 300;
+    background: var(--bar);
+    border-bottom: 2px solid var(--ink);
   }
 
   .nav-inner {
     display: flex;
     align-items: center;
-    gap: 1.5rem;
+    gap: clamp(1rem, 3vw, 2.5rem);
     min-height: var(--nav-h);
+    font-family: var(--font-data);
+    font-stretch: var(--data-stretch);
+    font-size: var(--data-size);
+    letter-spacing: -0.01em;
   }
 
   .nav-wordmark {
-    font-family: var(--font-display);
-    font-weight: 800;
-    font-size: 1.6rem;
-    letter-spacing: 0.14em;
-    color: var(--foreground);
-    text-decoration: none;
+    font-size: calc(2rem * var(--figure-scale));
+    letter-spacing: 0.04em;
     line-height: 1;
+    color: var(--ink);
+    text-decoration: none;
   }
 
   .nav-links {
     display: flex;
-    gap: 0.25rem;
+    gap: clamp(0.75rem, 2vw, 1.75rem);
     margin-right: auto;
   }
 
   .nav-link {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.9375rem;
-    font-weight: 500;
-    color: var(--muted-foreground);
-    text-decoration: none;
-    border-radius: 0.375rem;
-    position: relative;
+    padding-block: 0.5rem;
+    font-weight: 700;
     white-space: nowrap;
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 3px solid transparent;
   }
 
   .nav-link:hover {
-    color: var(--foreground);
-    background: var(--muted);
+    border-bottom-color: color-mix(in srgb, var(--ink) 35%, transparent);
   }
 
-  .nav-link.active {
-    color: var(--foreground);
-  }
-
-  .nav-link.active::after {
-    content: '';
-    position: absolute;
-    left: 0.75rem;
-    right: 0.75rem;
-    bottom: 0.15rem;
-    height: 2px;
-    background: var(--signal);
-    border-radius: 1px;
+  .nav-link[aria-current='page'] {
+    border-bottom-color: var(--ink);
   }
 
   .nav-tools {
     display: flex;
-    align-items: center;
-    gap: 0.5rem;
+    gap: 0.4rem;
   }
 
-  .nav-search {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    min-height: 2.25rem;
-    padding: 0 0.6rem;
-    font: 500 0.9375rem/1 var(--font-body);
-    color: var(--muted-foreground);
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 0.5rem;
-    cursor: pointer;
-  }
-
-  .nav-search:hover {
-    color: var(--foreground);
-    border-color: var(--input);
-  }
-
-  .nav-kbd {
-    font: 500 0.75rem/1 var(--font-data);
-    padding: 0.2rem 0.35rem;
-    border: 1px solid var(--border);
-    border-radius: 0.25rem;
-    background: var(--muted);
-  }
-
+  .nav-tool,
   :global(.appearance-trigger) {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 2.25rem;
-    min-height: 2.25rem;
-    padding: 0 0.5rem;
-    font: 600 1rem/1 var(--font-body);
-    color: var(--foreground);
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 0.5rem;
+    gap: 0.5rem;
+    min-width: 2.5rem;
+    min-height: 2.5rem;
+    padding: 0 0.7rem;
+    font: inherit;
+    font-weight: 700;
+    color: var(--ink);
+    background: transparent;
+    border: 1.5px solid var(--ink);
+    border-radius: var(--radius);
     cursor: pointer;
   }
 
+  .nav-tool:hover,
   :global(.appearance-trigger:hover) {
-    border-color: var(--input);
+    background: var(--paper);
   }
 
-  @media (max-width: 760px) {
+  .nav-kbd {
+    font: inherit;
+    font-weight: 400;
+  }
+
+  @media (max-width: 40rem) {
     .nav-inner {
       flex-wrap: wrap;
       row-gap: 0;
-      padding-block: 0.4rem 0;
+      padding-block: 0.5rem 0;
     }
 
     .nav-wordmark {
@@ -187,19 +153,12 @@ const links = [
     .nav-links {
       order: 3;
       flex: 1 0 100%;
-      margin: 0 -0.5rem;
-      flex-wrap: wrap;
+      justify-content: space-between;
     }
 
-    .nav-search-label,
+    .nav-rest,
     .nav-kbd {
       display: none;
-    }
-
-    .nav-search {
-      width: 2.25rem;
-      justify-content: center;
-      padding: 0;
     }
   }
 </style>

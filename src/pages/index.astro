@@ -1,378 +1,134 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro'
-import Nav from '../components/Nav.astro'
 import Footer from '../components/Footer.astro'
 import { getAllBreaches } from '../lib/hibp'
-import {
-  getTotalPwnCount,
-  getAllDataClasses,
-  getBreachStatus,
-  formatBreachDate,
-  formatPwnCount,
-  slugify,
-} from '../lib/utils'
-import { StatusBadge } from '../components/StatusBadge'
+import { byNewest, formatPwnCount, getAllDataClasses, getTotalPwnCount, yearStats } from '../lib/utils'
 import { isIndexableCase } from '../lib/index-policy'
-import { TimelineScrubber } from '../components/TimelineScrubber'
-import { BreachArchive } from '../components/BreachArchive'
-import FieldBriefing from '../components/FieldBriefing.astro'
+import { Ledger } from '../components/Ledger'
+import type { BreachSummary } from '../lib/types'
+
+const PAGE_SIZE = 60
 
 const breaches = await getAllBreaches()
 const totalPwned = getTotalPwnCount(breaches)
-const totalDataClasses = getAllDataClasses(breaches).length
-const criticalCount = breaches.filter((b) => getBreachStatus(b) === 'critical').length
-
-// Hard facts for the definition block. Every number below is counted from the
-// same HIBP payload the pages are built from, so the copy cannot drift from
-// the archive it describes.
+const dataClasses = getAllDataClasses(breaches)
+const years = yearStats(breaches)
+const passwordCount = breaches.filter((b) => b.DataClasses.includes('Passwords')).length
 const fullRecordCount = breaches.filter(isIndexableCase).length
-// The three biggest full records sit in the hero as a stack of folders.
-const stack = breaches
-  .filter((b) => isIndexableCase(b) && !b.IsSpamList)
-  .sort((a, b) => b.PwnCount - a.PwnCount)
-  .slice(0, 3)
-  .reverse()
-const breachYears = breaches
-  .map((b) => b.BreachDate?.slice(0, 4))
-  .filter((year): year is string => !!year)
-  .sort()
-const earliestYear = breachYears[0]
-const latestYear = breachYears[breachYears.length - 1]
 
-function formatBigNumber(n: number): string {
-  if (n >= 1_000_000_000) return (n / 1_000_000_000).toFixed(1) + 'B'
-  if (n >= 1_000_000) return (n / 1_000_000).toFixed(0) + 'M'
-  return n.toLocaleString()
-}
+// Every number on this page is counted from the same HIBP payload the pages
+// are built from, so the copy cannot drift from the list it describes.
+const count = breaches.length.toLocaleString('en-US')
+
+// The headline is three lines, each sized to fill the width of the page.
+const headline = [formatPwnCount(totalPwned), 'accounts exposed in', `${count} breaches`]
+
+// Only the fields the list reads, and only the first screenful: the rest
+// arrives from /breaches.json once the browser is idle.
+const initial: BreachSummary[] = [...breaches]
+  .sort(byNewest)
+  .slice(0, PAGE_SIZE)
+  .map((b) => ({
+    Name: b.Name,
+    Title: b.Title,
+    Domain: b.Domain,
+    BreachDate: b.BreachDate,
+    AddedDate: b.AddedDate,
+    PwnCount: b.PwnCount,
+    DataClasses: b.DataClasses,
+    LogoPath: b.LogoPath,
+  }))
 ---
 
 <BaseLayout
+  currentPath="/"
   title="TRACED | Data Breach Archive and Password Checker"
   description="Browse public breach case files, compare exposed account records, and check passwords against Have I Been Pwned sources without sending the full password."
 >
-  <Nav currentPath="/" />
-
   <main id="main-content" tabindex="-1">
-    <section class="hero">
-      <header class="hero-inner wrap">
-        <h1 class="hero-title">
-          <span class="sr-only">TRACED: public data breach archive and password exposure checker</span>
-          <span class="hero-title-art" aria-hidden="true">TRACED</span>
+    <header class="hero band">
+      <div class="wrap">
+        <h1 class="lockup">
+          {headline.map((line) => (
+            <span style={`--chars: ${line.length}`}>{line} </span>
+          ))}
         </h1>
-
-        <div class="hero-main">
-          <div class="hero-copy">
-            <p class="hero-definition">
-              TRACED is a public archive of known data breaches, built from Have I Been Pwned records. Each breach gets a
-              case file with the date, the data that leaked, and when HIBP added it. Find a service you've used. If it's
-              here, change that password, and every other place you reused it.
-            </p>
-
-            <nav class="hero-actions" aria-label="Primary actions">
-              <a href="#archive" class="btn">Browse the archive</a>
-              <a href="/check/" class="btn btn-ghost">Check a password</a>
-            </nav>
-          </div>
-
-          <ul class="evidence" aria-label="Three of the largest case files">
-            {stack.map((b, i) => (
-              <li class="folder" style={`--i: ${i}`}>
-                <a href={`/case/${slugify(b.Name)}/`}>
-                  <span class="folder-tab data">{b.BreachDate.slice(0, 4)}</span>
-                  <span class="folder-title">{b.Title}</span>
-                  <span class="folder-meta data">{formatPwnCount(b.PwnCount)} accounts, {formatBreachDate(b.BreachDate)}</span>
-                  <StatusBadge status={getBreachStatus(b)} />
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <dl class="hero-stats" aria-label="Breach archive summary">
-          <div class="stat">
-            <dt>Case files</dt>
-            <dd data-count={breaches.length}>{breaches.length.toLocaleString('en-US')}</dd>
-          </div>
-          <div class="stat">
-            <dt>With full records</dt>
-            <dd data-count={fullRecordCount}>{fullRecordCount.toLocaleString('en-US')}</dd>
-          </div>
-          <div class="stat">
-            <dt>Accounts exposed</dt>
-            <dd data-count={totalPwned} data-count-format="big">{formatBigNumber(totalPwned)}</dd>
-          </div>
-          <div class="stat">
-            <dt>Data types</dt>
-            <dd data-count={totalDataClasses}>{totalDataClasses}</dd>
-          </div>
-          <div class="stat stat-critical">
-            <dt>Critical</dt>
-            <dd data-count={criticalCount}>{criticalCount.toLocaleString('en-US')}</dd>
-          </div>
-        </dl>
-
-        <p class="hero-note">
-          Breaches dated {earliestYear} to {latestYear}, pulled from the HIBP API on every rebuild.
-          {fullRecordCount.toLocaleString('en-US')} of {breaches.length.toLocaleString('en-US')} case files have a full record: real dates, an exposure count and named data types.
-          Those are listed in <a href="/archive/">the case index</a>. The rest stay readable but are kept out of search engines.
-          There are no accounts and no analytics, and your password never leaves your browser.
-        </p>
-      </header>
-    </section>
-
-    <FieldBriefing breachCount={breaches.length} criticalCount={criticalCount} />
-
-    <TimelineScrubber client:only="react" />
-
-    <section id="archive" aria-labelledby="archive-heading" class="archive-section">
-      <div class="wrap archive-intro">
-        <h2 id="archive-heading" class="section-title">All case files</h2>
-        <p class="muted">
-          Search and filters need JavaScript. Without it, <a href="/archive/">the case index</a> lists every file in
-          date order.
-        </p>
       </div>
-      <BreachArchive client:only="react" />
-    </section>
+    </header>
+
+    <Ledger client:load initial={initial} total={breaches.length} years={years} dataClasses={dataClasses} />
+
+    <noscript>
+      <p class="wrap colophon">
+        Search and filters need JavaScript. <a href="/archive/">The case index</a> lists the {fullRecordCount}
+        breaches with a full record, newest first.
+      </p>
+    </noscript>
+
+    <hr class="divider" />
+
+    <!-- The plain-language definition of the site. It sits after the list, where
+         it informs without standing between a visitor and the search box. -->
+    <div class="wrap colophon">
+      <p>
+        TRACED is a public archive of known data breaches, built from
+        <a href="https://haveibeenpwned.com" target="_blank" rel="noopener">Have I Been Pwned<span class="sr-only"> (opens in a new tab)</span></a>
+        records on every rebuild. Each of the {count} breaches gets a case file with the date, the data that
+        leaked, and when HIBP added it. {passwordCount.toLocaleString('en-US')} of them leaked passwords.
+      </p>
+      <p>
+        Find a service you've used. If it's on the list, change that password, and every other place you reused
+        it. To test a password itself, <a href="/check/">check it against known leaks</a>: it never leaves your
+        browser.
+      </p>
+    </div>
   </main>
 
   <Footer />
 </BaseLayout>
 
-<script>
-  import '../scripts/count-up'
-
-  // Hovering or tapping the title traces it again.
-  document.addEventListener('astro:page-load', () => {
-    const art = document.querySelector<HTMLElement>('.hero-title-art')
-    if (!art) return
-    const replay = () => {
-      art.style.animation = 'none'
-      void art.offsetWidth
-      art.style.animation = ''
-    }
-    art.addEventListener('pointerenter', replay)
-    art.addEventListener('click', replay)
-  })
-</script>
-
 <style>
-  main {
-    min-height: 100vh;
-  }
-
   .hero {
-    padding-block: clamp(3rem, 9vw, 6rem) clamp(2.5rem, 6vw, 4rem);
-    border-bottom: 1px solid var(--border);
+    padding-block: clamp(1.5rem, 4vw, 3rem) clamp(1.25rem, 3.5vw, 2.5rem);
   }
 
-  .hero-inner {
+  /* The face is fixed-pitch, so the size that makes a line span the page
+     follows from how many characters it has. */
+  .lockup {
+    container-type: inline-size;
     display: grid;
-    gap: clamp(1.5rem, 4vw, 2.5rem);
+    line-height: 0.9;
   }
 
-  /* The one deliberate moment on the page: the outline is traced, then filled
-     left to right. Without registered-property support the title simply shows
-     filled. */
-  .hero-title {
-    font-family: var(--font-display);
-    font-weight: 800;
-    font-size: var(--hero-size);
-    letter-spacing: 0.06em;
-    line-height: 0.85;
-    margin: 0;
+  .lockup span {
+    font-size: calc(100cqw / (var(--chars) * 0.612));
+    white-space: nowrap;
   }
 
-  .hero-title-art {
-    display: inline-block;
-    color: transparent;
-    -webkit-text-stroke: 0.02em var(--foreground);
-    background-image: linear-gradient(
-      90deg,
-      var(--foreground) calc(var(--trace) - 3%),
-      var(--signal) calc(var(--trace) - 3%) var(--trace),
-      transparent var(--trace)
-    );
-    -webkit-background-clip: text;
-    background-clip: text;
-    animation: trace-in 1.6s cubic-bezier(0.65, 0, 0.25, 1) 0.1s both;
+  /* The other faces in the Aa menu are not fixed-pitch, so they set the
+     headline as an ordinary large sentence instead. */
+  :global(html[data-font]) .lockup {
+    display: block;
+    font-size: clamp(2rem, 7vw, 5rem);
+    line-height: 1.1;
   }
 
-  @property --trace {
-    syntax: '<percentage>';
-    inherits: false;
-    initial-value: 110%;
+  :global(html[data-font]) .lockup span {
+    font-size: inherit;
+    white-space: normal;
   }
 
-  @keyframes trace-in {
-    from { --trace: 0%; }
-    to   { --trace: 110%; }
-  }
-
-
-  .hero-main {
+  .colophon {
     display: grid;
-    gap: 2.5rem;
-    align-items: center;
-  }
-
-  @media (min-width: 62rem) {
-    .hero-main {
-      grid-template-columns: minmax(0, 1fr) 22rem;
-    }
-  }
-
-  /* Three case files stacked like a pile on a desk. They fan out on hover
-     or keyboard focus, and the one under the pointer comes to the front. */
-  .evidence {
-    --spread: 0;
-    position: relative;
-    display: none;
-    height: 17.5rem;
-    margin: 2rem 0 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  @media (min-width: 62rem) {
-    .evidence {
-      display: block;
-    }
-  }
-
-  .evidence:hover,
-  .evidence:focus-within {
-    --spread: 1;
-  }
-
-  .folder {
-    position: absolute;
-    inset: auto 0 auto 0;
-    top: calc(var(--i) * 3.6rem);
-    transform: translate(calc(var(--i) * 0.6rem), calc(var(--spread) * var(--i) * 0.9rem))
-      rotate(calc((var(--i) - 1) * 1.6deg * (1 - var(--spread))));
-    transition: transform 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.1);
-    z-index: var(--i);
-  }
-
-  .folder a {
-    position: relative;
-    display: grid;
-    gap: 0.45rem;
-    justify-items: start;
-    padding: 1.4rem 1.25rem 1.1rem;
-    color: inherit;
-    text-decoration: none;
-    background: var(--card);
-    border: 1px solid var(--input);
-    border-radius: 0.75rem;
-    box-shadow: 0 1px 0 var(--border), 0 14px 28px -18px rgb(0 0 0 / 0.5);
-    transition: border-color 0.15s, box-shadow 0.25s;
-  }
-
-  .folder-tab {
-    position: absolute;
-    right: 1rem;
-    bottom: 100%;
-    padding: 0.2rem 0.7rem;
-    font-size: 0.75rem;
-    color: var(--muted-foreground);
-    background: var(--card);
-    border: 1px solid var(--input);
-    border-bottom-color: var(--card);
-    border-radius: 0.5rem 0.5rem 0 0;
-    pointer-events: none;
-  }
-
-  .folder-title {
-    max-width: calc(100% - 4.5rem);
-    font-family: var(--font-display);
-    font-weight: 800;
-    font-size: 1.75rem;
-    letter-spacing: var(--display-tracking);
-    line-height: 1.05;
-  }
-
-  .folder-meta {
-    font-size: 0.8125rem;
-    color: var(--muted-foreground);
-  }
-
-  .folder:hover,
-  .folder:focus-within {
-    z-index: 10;
-    transform: translate(calc(var(--i) * 0.6rem), calc(var(--spread) * var(--i) * 0.9rem - 0.6rem)) rotate(0deg);
-  }
-
-  .folder a:hover,
-  .folder a:focus-visible {
-    border-color: var(--signal);
-    box-shadow: 0 1px 0 var(--border), 0 22px 36px -18px rgb(0 0 0 / 0.6);
-  }
-
-  .hero-copy {
-    display: grid;
-    gap: 1.5rem;
-    max-width: 42rem;
-  }
-
-  .hero-definition {
-    font-size: 1.1875rem;
-    line-height: 1.65;
-  }
-
-  .hero-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-  }
-
-  .hero-stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
-    gap: 1.5rem 2rem;
-    margin: 0;
-    padding-block: 1.5rem;
-    border-block: 1px solid var(--border);
-  }
-
-  .stat {
-    display: flex;
-    flex-direction: column-reverse;
-    gap: 0.25rem;
-  }
-
-  .stat dt {
-    color: var(--muted-foreground);
+    gap: 1rem 4rem;
+    padding-block: clamp(2rem, 5vw, 3rem) clamp(3rem, 7vw, 5rem);
+    color: var(--ink-soft);
     font-size: 0.9375rem;
   }
 
-  .stat dd {
-    margin: 0;
-    font-family: var(--font-display);
-    font-weight: 800;
-    font-size: clamp(2.25rem, 5vw, 3rem);
-    line-height: 1;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .stat-critical dd {
-    color: var(--sev-critical);
-  }
-
-  .hero-note {
-    max-width: 44rem;
-    color: var(--muted-foreground);
-    font-size: 1rem;
-  }
-
-  .archive-section {
-    padding-top: clamp(2.5rem, 6vw, 4rem);
-  }
-
-  .archive-intro {
-    display: grid;
-    gap: 0.5rem;
-    max-width: var(--page-max);
+  @media (min-width: 56rem) {
+    .colophon {
+      grid-template-columns: repeat(2, minmax(0, 30rem));
+    }
   }
 </style>

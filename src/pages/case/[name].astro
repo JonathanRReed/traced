@@ -1,14 +1,13 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro'
-import Nav from '../../components/Nav.astro'
 import Footer from '../../components/Footer.astro'
 import { getAllBreaches } from '../../lib/hibp'
 import { caseRobots, caseCaveat } from '../../lib/index-policy'
 import { relatedCases } from '../../lib/related-cases'
-import { getBreachStatus, getCaseNumber, getDiscoveryGap, formatBreachDate, formatPwnCount, slugify } from '../../lib/utils'
-import CaseRecord from '../../components/CaseRecord.astro'
-import { StatusBadge } from '../../components/StatusBadge'
+import { getDiscoveryGap, formatPwnCount, slugify } from '../../lib/utils'
+import CaseSlip from '../../components/CaseSlip.astro'
 import { DiscoveryGap } from '../../components/DiscoveryGap'
+import { LedgerHead, LedgerRow } from '../../components/LedgerRow'
 import type { HibpBreach } from '../../lib/types'
 
 export async function getStaticPaths() {
@@ -25,18 +24,25 @@ interface Props {
 }
 
 const { breach, allBreaches } = Astro.props
-const status = getBreachStatus(breach)
-const caseNumber = getCaseNumber(breach)
 const gap = getDiscoveryGap(breach)
 const caveat = caseCaveat(breach)
 
 const hasPasswords = breach.DataClasses.includes('Passwords')
 
-const breachYear = new Date(breach.BreachDate).getFullYear()
-const related = relatedCases(breach, allBreaches).map((b) => ({
-  breach: b,
-  shared: b.DataClasses.filter((dc) => breach.DataClasses.includes(dc)),
-}))
+const related = relatedCases(breach, allBreaches).map((b) => {
+  const shared = b.DataClasses.filter((dc) => breach.DataClasses.includes(dc))
+  return {
+    breach: b,
+    note:
+      shared.length > 0
+        ? `${shared.length} shared: ${shared.slice(0, 3).join(', ')}${shared.length > 3 ? ` +${shared.length - 3}` : ''}`
+        : 'Close in time, nothing shared',
+  }
+})
+const description = (breach.Description || 'No description available.')
+  .replace(/<[^>]*>/g, ' ')
+  .replace(/\s+/g, ' ')
+  .trim()
 
 const caseTitle = `${breach.Title} Data Breach Case File | TRACED`
 const slug = slugify(breach.Name)
@@ -105,13 +111,11 @@ const caseSchema = {
   robots={caseRobots(breach)}
   extraSchema={caseSchema}
 >
-  <Nav />
 
-  <div class="read-progress" aria-hidden="true"></div>
   <main id="main-content" tabindex="-1" class="case-page">
-    <div class="wrap case-container">
-      <nav class="breadcrumb" aria-label="Breadcrumb">
-        <a href="/">Archive</a>
+    <div class="wrap case-top band">
+      <nav class="breadcrumb data" aria-label="Breadcrumb">
+        <a href="/">Breaches</a>
         <span aria-hidden="true">/</span>
         <a href="/archive/">Case index</a>
         <span aria-hidden="true">/</span>
@@ -119,439 +123,181 @@ const caseSchema = {
       </nav>
 
       <header class="case-header">
-        <div class="case-heading">
-          <p class="case-id data muted">{caseNumber}</p>
-          <div class="case-title-row">
-            {breach.LogoPath && (
-              <img
-                src={breach.LogoPath}
-                alt=""
-                width="56"
-                height="56"
-                class="case-logo"
-                onerror="this.style.display='none'"
-              />
-            )}
-            <h1 style={`view-transition-name: case-${slug}`}>{breach.Title}</h1>
-          </div>
-          {breach.Domain && <p class="data muted">{breach.Domain}</p>}
-        </div>
-
-        <div class="case-stamp">
-          <StatusBadge status={status} />
-          {breach.IsSensitive && <span class="badge-status" data-status="critical">Sensitive</span>}
-        </div>
-      </header>
-
-      {caveat && (
-        <aside class="case-caveat" role="note" aria-label="Source caveat">
-          <strong>{caveat.label}</strong>
-          <p>{caveat.detail}</p>
-        </aside>
-      )}
-
-      <dl class="key-facts">
-        <div>
-          <dt>Accounts</dt>
-          <dd>{formatPwnCount(breach.PwnCount)}</dd>
-        </div>
-        <div>
-          <dt>Breach date</dt>
-          <dd>{formatBreachDate(breach.BreachDate)}</dd>
-        </div>
-        <div>
-          <dt>Data types</dt>
-          <dd>{breach.DataClasses.length}</dd>
-        </div>
-        {gap && (
-          <div>
-            <dt>HIBP listing interval</dt>
-            <dd>{gap.label}</dd>
-          </div>
+        {breach.LogoPath && (
+          <img
+            src={breach.LogoPath}
+            alt=""
+            width="56"
+            height="56"
+            class="case-logo"
+            onerror="this.style.visibility='hidden'"
+          />
         )}
-      </dl>
+        <h1 class="case-title" data-size={breach.Title.length > 26 ? 'long' : breach.Title.length > 13 ? 'medium' : 'short'} style={`view-transition-name: case-${slug}`}>{breach.Title}</h1>
+      </header>
+    </div>
 
-      <section class="case-section" aria-labelledby="record-heading">
-        <h2 id="record-heading" class="section-title">The record</h2>
-        <CaseRecord breach={breach} />
-      </section>
+    <div class="wrap case-grid">
+      <aside class="case-slip" aria-label="Breach record" data-pinned={breach.DataClasses.length <= 10}>
+        <CaseSlip breach={breach} />
+      </aside>
 
-      <section class="case-section prose" aria-labelledby="advice-heading">
-        <h2 id="advice-heading" class="section-title">What to do</h2>
-        <p>{passwordCopy}</p>
-        {riskNotes.length > 0 && <p>{riskNotes.join(' ')}</p>}
-        <p>{verifiedCopy} {sensitiveCopy}</p>
-        <p class="muted">
-          These counts describe the public record. They do not say whether you were in it. To find out, search your
-          email address on <a href="https://haveibeenpwned.com" target="_blank" rel="noopener">Have I Been Pwned<span class="sr-only"> (opens in a new tab)</span></a>.
-        </p>
-      </section>
+      <div class="case-body">
+        {caveat && (
+          <aside class="case-caveat" role="note" aria-label="Source caveat">
+            <strong>{caveat.label}</strong>
+            <p>{caveat.detail}</p>
+          </aside>
+        )}
 
-      {gap && (
-        <section class="case-section" aria-labelledby="gap-heading">
-          <h2 id="gap-heading" class="section-title">HIBP listing interval</h2>
-          <DiscoveryGap gap={gap} client:visible />
-        </section>
-      )}
-
-      {related.length > 0 && (
-        <section class="case-section" aria-labelledby="related-heading">
-          <h2 id="related-heading" class="section-title">Related cases</h2>
-          <p class="muted related-intro">
-            Breaches near {breachYear} that overlap most with this one in what leaked. The red string joins cases that
-            share data types.
+        <section class="case-section prose" aria-labelledby="advice-heading">
+          <h2 id="advice-heading">What to do</h2>
+          <p>{passwordCopy}</p>
+          {riskNotes.length > 0 && <p>{riskNotes.join(' ')}</p>}
+          <p class="muted">
+            These counts describe the public record. They do not say whether you were in it. To find out, search your
+            email address on <a href="https://haveibeenpwned.com" target="_blank" rel="noopener">Have I Been Pwned<span class="sr-only"> (opens in a new tab)</span></a>.
           </p>
-          <div class="board" data-board>
-            <svg class="board-strings" aria-hidden="true"></svg>
-            <span class="pin pin-anchor" data-anchor aria-hidden="true"></span>
-            <ul class="related-grid">
-              {related.map(({ breach: b, shared }) => (
-                <li>
-                  <a href={`/case/${slugify(b.Name)}/`} class="related-card" data-related>
-                    <span class="pin" data-pin aria-hidden="true"></span>
-                    <StatusBadge status={getBreachStatus(b)} />
-                    <span class="related-title">{b.Title}</span>
-                    <span class="related-meta data">{formatBreachDate(b.BreachDate)}, {formatPwnCount(b.PwnCount)}</span>
-                    <span class="related-shared">
-                      {shared.length > 0
-                        ? `Shares ${shared.length} data type${shared.length === 1 ? '' : 's'}: ${shared.slice(0, 3).join(', ')}${shared.length > 3 ? '...' : ''}`
-                        : 'Close in time, no shared data types'}
-                    </span>
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
         </section>
-      )}
 
-      <div class="case-footer">
-        <a href="/archive/" class="btn btn-ghost">Browse the case index</a>
+        <section class="case-section prose" aria-labelledby="report-heading">
+          <h2 id="report-heading">What HIBP says happened</h2>
+          <p>{description}</p>
+          <p class="muted">{verifiedCopy} {sensitiveCopy}</p>
+        </section>
+
+        {gap && (
+          <section class="case-section" aria-labelledby="gap-heading">
+            <h2 id="gap-heading">HIBP listing interval</h2>
+            <DiscoveryGap gap={gap} />
+          </section>
+        )}
       </div>
+    </div>
+
+    {related.length > 0 && (
+      <section class="case-related" aria-labelledby="related-heading">
+        <hr class="divider" />
+        <div class="wrap case-related-head">
+          <h2 id="related-heading">Related breaches</h2>
+        </div>
+        <LedgerHead lastColumn="In common" />
+        <ol class="rows">
+          {related.map(({ breach: b, note }) => (
+            <LedgerRow breach={b} note={note} />
+          ))}
+        </ol>
+      </section>
+    )}
+
+    <div class="wrap case-footer">
+      <a href="/" class="btn">Search every breach</a>
+      <a href="/archive/" class="btn btn-ghost">Browse the case index</a>
     </div>
   </main>
   <Footer />
 </BaseLayout>
 
-<script>
-  const SVG_NS = 'http://www.w3.org/2000/svg'
-
-  function center(el: Element, board: Element) {
-    const box = el.getBoundingClientRect()
-    const origin = board.getBoundingClientRect()
-    return { x: box.left - origin.left + box.width / 2, y: box.top - origin.top + box.height / 2 }
-  }
-
-  function initBoard() {
-    const board = document.querySelector<HTMLElement>('[data-board]')
-    const svg = board?.querySelector<SVGSVGElement>('.board-strings')
-    const anchor = board?.querySelector('[data-anchor]')
-    const cards = board ? [...board.querySelectorAll<HTMLElement>('[data-related]')] : []
-    if (!board || !svg || !anchor || !cards.length) return
-
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    let drawn = false
-
-    const draw = () => {
-      svg.replaceChildren()
-      const from = center(anchor, board)
-      cards.forEach((card) => {
-        const pin = card.querySelector('[data-pin]')
-        if (!pin) return
-        const to = center(pin, board)
-        const sag = 10 + Math.abs(to.x - from.x) * 0.03
-        const path = document.createElementNS(SVG_NS, 'path')
-        path.setAttribute('d', `M${from.x} ${from.y} Q${(from.x + to.x) / 2} ${(from.y + to.y) / 2 + sag} ${to.x} ${to.y}`)
-        path.setAttribute('pathLength', '1')
-        path.classList.add('string')
-        if (drawn || reduceMotion) path.classList.add('drawn')
-        card.addEventListener('mouseenter', () => path.classList.add('active'))
-        card.addEventListener('mouseleave', () => path.classList.remove('active'))
-        card.addEventListener('focus', () => path.classList.add('active'))
-        card.addEventListener('blur', () => path.classList.remove('active'))
-        svg.append(path)
-      })
-    }
-
-    draw()
-    new ResizeObserver(draw).observe(board)
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (!entries.some((entry) => entry.isIntersecting)) return
-        observer.disconnect()
-        drawn = true
-        svg.querySelectorAll('.string').forEach((path, i) => {
-          setTimeout(() => path.classList.add('drawn'), i * 140)
-        })
-      },
-      { threshold: 0.35 },
-    )
-    observer.observe(board)
-  }
-
-  document.addEventListener('astro:page-load', initBoard)
-</script>
-
 <style>
   .case-page {
-    min-height: 100vh;
-    padding-bottom: 5rem;
+    padding-bottom: 4rem;
   }
 
-  .case-container {
-    max-width: 60rem;
+  .case-top {
     display: grid;
-    gap: clamp(2rem, 5vw, 3rem);
-    padding-top: 2rem;
-  }
-
-  .breadcrumb {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.9375rem;
-    color: var(--muted-foreground);
-  }
-
-  .breadcrumb a {
-    color: var(--signal);
+    gap: clamp(1.5rem, 4vw, 2.5rem);
+    padding-block: 1.25rem clamp(1.75rem, 4vw, 2.75rem);
   }
 
   .case-header {
     display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-  }
-
-  .case-heading {
-    display: grid;
-    gap: 0.5rem;
-    min-width: 0;
-  }
-
-  .case-id {
-    font-size: 0.875rem;
-  }
-
-  .case-title-row {
-    display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: clamp(1rem, 2.5vw, 1.75rem);
   }
 
-  .case-title-row h1 {
-    font-size: clamp(2.75rem, 8vw, 5rem);
-    line-height: 0.95;
+  .case-title {
+    min-width: 0;
     overflow-wrap: anywhere;
   }
 
+  .case-title[data-size='short'] {
+    font-size: calc(clamp(3.25rem, 11vw, 8rem) * var(--figure-scale));
+  }
+
+  .case-title[data-size='long'] {
+    font-size: calc(clamp(2rem, 5.2vw, 3.75rem) * var(--figure-scale));
+  }
+
+  /* HIBP's logos are drawn for a dark background, so they sit on a dark tile
+     in both themes. */
   .case-logo {
-    width: 3.5rem;
-    height: 3.5rem;
-    flex-shrink: 0;
+    flex: none;
+    width: clamp(3rem, 8vw, 5rem);
+    height: clamp(3rem, 8vw, 5rem);
+    padding: 0.5rem;
     object-fit: contain;
-    padding: 0.25rem;
-    background: #fff;
-    border-radius: 0.5rem;
+    background: var(--logo-tile);
+    border-radius: var(--radius);
   }
 
-  /* The status stamps itself onto the page once, when the case opens. */
-  .case-stamp {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-    transform-origin: center;
-    animation: stamp-down 0.42s cubic-bezier(0.3, 1.6, 0.5, 1) 0.25s both;
+  .case-grid {
+    display: grid;
+    gap: clamp(2.5rem, 6vw, 5rem);
+    align-items: start;
+    padding-block: clamp(2rem, 5vw, 3.5rem) clamp(3rem, 7vw, 5rem);
   }
 
-  .case-stamp :global(.badge-status) {
-    font-size: 1rem;
-    padding: 0.5rem 1rem;
-    border: 2px solid currentColor;
-    border-radius: 0.4rem;
-    background: transparent;
+  @media (min-width: 58rem) {
+    .case-grid {
+      grid-template-columns: 23rem minmax(0, 40rem);
+    }
   }
 
-  @keyframes stamp-down {
-    from { opacity: 0; transform: rotate(-9deg) scale(1.9); }
-    to   { opacity: 1; transform: rotate(-2deg) scale(1); }
+  .case-slip {
+    max-width: 26rem;
+  }
+
+  /* A short record stays beside the text as it scrolls. A long one would be
+     cut off by the window, so it scrolls with the page instead. */
+  @media (min-width: 58rem) and (min-height: 44rem) {
+    .case-slip[data-pinned] {
+      position: sticky;
+      top: calc(var(--nav-h) + 1.5rem);
+    }
+  }
+
+  .case-body {
+    display: grid;
+    gap: clamp(2rem, 5vw, 3rem);
   }
 
   .case-caveat {
     padding: 1rem 1.25rem;
-    border: 1px solid var(--border);
-    border-left: 3px solid var(--sev-recent);
-    border-radius: 0.5rem;
-    background: var(--card);
+    border: 1.5px solid var(--ink);
+    border-left: 5px solid var(--ribbon);
+    background: var(--slip);
   }
 
   .case-caveat p {
     margin-top: 0.25rem;
-    color: var(--muted-foreground);
-  }
-
-  .key-facts {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
-    gap: 1.5rem 2rem;
-    margin: 0;
-    padding-block: 1.5rem;
-    border-block: 1px solid var(--border);
-  }
-
-  .key-facts div {
-    display: flex;
-    flex-direction: column-reverse;
-    gap: 0.25rem;
-  }
-
-  .key-facts dt {
-    color: var(--muted-foreground);
-    font-size: 0.9375rem;
-  }
-
-  .key-facts dd {
-    margin: 0;
-    font-family: var(--font-display);
-    font-weight: 800;
-    font-size: clamp(1.75rem, 4vw, 2.5rem);
-    line-height: 1.05;
-    font-variant-numeric: tabular-nums;
+    color: var(--ink-soft);
   }
 
   .case-section {
     display: grid;
-    gap: 1rem;
+    gap: 0.9rem;
   }
 
-  .prose {
-    max-width: 44rem;
-  }
-
-  .prose p + p {
-    margin-top: 0.75rem;
-  }
-
-  .related-intro {
-    max-width: 44rem;
-  }
-
-  /* Evidence board: pins on each card, red string from the anchor pin. */
-  .board {
-    position: relative;
-    padding-top: 5rem;
-  }
-
-  .board-strings {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    overflow: visible;
-    pointer-events: none;
-  }
-
-  :global(.string) {
-    fill: none;
-    stroke: var(--string);
-    stroke-width: 1.5;
-    stroke-linecap: round;
-    stroke-dasharray: 1;
-    stroke-dashoffset: 1;
-    opacity: 0.7;
-    transition: stroke-dashoffset 0.9s cubic-bezier(0.5, 0, 0.2, 1), opacity 0.15s, stroke-width 0.15s;
-  }
-
-  :global(.string.drawn) {
-    stroke-dashoffset: 0;
-  }
-
-  :global(.string.active) {
-    opacity: 1;
-    stroke-width: 2.5;
-  }
-
-  .pin {
-    position: absolute;
-    top: -0.35rem;
-    left: 50%;
-    width: 0.8rem;
-    height: 0.8rem;
-    margin-left: -0.4rem;
-    border-radius: 50%;
-    background: var(--string);
-    box-shadow: 0 0 0 2px var(--background);
-    z-index: 2;
-  }
-
-  .pin-anchor {
-    top: 0.5rem;
-  }
-
-  .related-grid {
-    list-style: none;
-    margin: 0;
-    padding: 0;
+  .case-related-head {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
-    gap: 1.75rem 1rem;
-    position: relative;
-  }
-
-  .related-card {
-    position: relative;
-    display: grid;
-    gap: 0.4rem;
-    align-content: start;
-    height: 100%;
-    padding: 1.25rem 1rem 1rem;
-    color: inherit;
-    text-decoration: none;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 0.625rem;
-    transition: border-color 0.15s;
-  }
-
-  .related-card:hover,
-  .related-card:focus-visible {
-    border-color: var(--string);
-  }
-
-  .related-card :global(.badge-status) {
-    justify-self: start;
-  }
-
-  .related-title {
-    font-family: var(--font-display);
-    font-weight: 800;
-    font-size: 1.35rem;
-    letter-spacing: var(--display-tracking);
-    line-height: 1.15;
-  }
-
-  .related-meta,
-  .related-shared {
-    font-size: 0.875rem;
-    color: var(--muted-foreground);
+    gap: 0.5rem;
+    padding-block: clamp(2rem, 5vw, 3rem) 1.5rem;
   }
 
   .case-footer {
-    padding-top: 1rem;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .case-stamp {
-      animation: none;
-    }
-
-    :global(.string) {
-      stroke-dashoffset: 0;
-      transition: none;
-    }
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding-top: 2.5rem;
   }
 </style>
