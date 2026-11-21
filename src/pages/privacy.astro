@@ -5,8 +5,8 @@ import Footer from '../components/Footer.astro'
 
 <BaseLayout
   currentPath="/privacy/"
-  title="TRACED Privacy | Public Breach Archive"
-  description="Read the TRACED privacy policy. The site has no analytics, cookies, accounts, or tracking, and password checks happen with client-side hashing and k-anonymity."
+  title="Privacy | TRACED"
+  description="How TRACED handles privacy: no accounts, analytics, or tracking cookies, and password checks hash locally in your browser."
   robots="noindex,follow"
 >
 
@@ -19,26 +19,26 @@ import Footer from '../components/Footer.astro'
 
       <article class="prose">
         <section>
-          <h2>No accounts, cookies or analytics</h2>
+          <h2>No accounts, cookies, or analytics</h2>
           <p>
-            TRACED is a static public breach archive. It has no user accounts, sets no tracking cookies, runs no
-            analytics and keeps no behavioral profiles. Cloudflare Pages serves the pages as static files.
+            TRACED is a static site hosted on Cloudflare Pages. It doesn't have user accounts, analytics, tracking
+            cookies, or user profiles.
           </p>
         </section>
 
         <section>
           <h2>Password checks</h2>
           <p>
-            Password checks use the Have I Been Pwned k-anonymity model. Your browser hashes the password with SHA-1,
-            sends only the first five characters of the hash, and receives a list of possible matches. Your device
-            makes the final comparison. The full password never leaves your browser.
+            The password checker uses Have I Been Pwned's k-anonymity API. Your browser hashes the password locally
+            with SHA-1, sends only the first 5 characters of that hash, and compares the returned list on your own
+            device. Your password and its full hash never leave the browser.
           </p>
         </section>
 
         <section>
           <h2>Data sources</h2>
           <p>
-            Case files are built from public Have I Been Pwned breach data. TRACED is not affiliated with Have I Been
+            Case files are built from public Have I Been Pwned breach data. TRACED isn't affiliated with Have I Been
             Pwned or Troy Hunt.
           </p>
         </section>
@@ -46,42 +46,45 @@ import Footer from '../components/Footer.astro'
         <section>
           <h2>Network requests</h2>
           <p>
-            A normal page visit requests static files, including breach metadata, from Cloudflare Pages. Fonts are served
-            from this site's own domain, so no font requests go to Google. A password check also calls the Pwned
-            Passwords range endpoint with the short hash prefix. TRACED adds no marketing pixels, session replay
-            tools, advertising tags or custom analytics scripts to any of these requests.
+            When you open a page, your browser downloads static files and breach metadata from Cloudflare Pages.
+            Because all of the fonts are self-hosted on this domain, nothing calls out to Google Fonts or any ad or
+            tracking scripts. If you run a password check, your browser makes one request to the Pwned Passwords API
+            with that 5-character hash prefix.
           </p>
           <p>
-            Hosting providers can keep their own request logs. TRACED does not control those logs.
+            Cloudflare Pages and the Pwned Passwords API may still keep standard server request logs on their side, and
+            I don't have control over those.
           </p>
         </section>
 
         <section>
           <h2>Browser storage</h2>
           <p>
-            If you choose a light or dark theme or a different font in the Aa menu, TRACED saves that choice in your
-            browser's local storage so it applies on your next visit. It stays on your device and is never sent
-            anywhere. Clear your site data to remove it.
+            If you pick a theme or font in the Aa menu, TRACED saves that preference in your browser's local storage so
+            it stays set on your next visit. That data stays on your device and never gets sent anywhere. You can wipe
+            it anytime by clearing site data in your browser.
           </p>
           <p>
-            TRACED does not save searches or account profiles. Your browser may keep its own history, autofill entries
-            or cached pages. Your browser and device settings control those.
+            TRACED doesn't store your searches or build any kind of profile. Your browser might still keep normal
+            history, cached pages, or autofill entries depending on your own browser settings.
           </p>
         </section>
 
         <section>
           <h2>What the archive can't tell you</h2>
           <p>
-            Case files describe public breach records, not the status of your accounts. A record shows what kinds of
-            data were exposed, when the incident happened and whether passwords were included. It cannot show whether a
-            specific email address or account is yours.
+            Case files only summarize public breach records: when the breach happened, what kinds of data leaked, and
+            whether passwords were exposed. They can't tell you whether your own email address or account was in a
+            breach. To check that, use
+            <a href="https://haveibeenpwned.com" target="_blank" rel="noopener">Have I Been Pwned<span class="sr-only"> (opens in a new tab)</span></a>
+            directly.
           </p>
         </section>
 
         <section>
           <h2>Contact</h2>
           <p>
-            For questions about this site, contact Jonathan R. Reed through
+            If you have questions about privacy or how this site works, you can reach me at
             <a href="https://jonathanrreed.com/contact/" rel="noopener">jonathanrreed.com/contact/</a>.
           </p>
         </section>

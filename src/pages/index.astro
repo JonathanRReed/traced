@@ -43,7 +43,7 @@ const initial: BreachSummary[] = [...breaches]
 <BaseLayout
   currentPath="/"
   title="TRACED | Data Breach Archive and Password Checker"
-  description="Browse public breach case files, compare exposed account records, and check passwords against Have I Been Pwned sources without sending the full password."
+  description="Search public data breaches from Have I Been Pwned, read case files for each leak, and check if a password has been exposed without sending it off your device."
 >
   <main id="main-content" tabindex="-1">
     <header class="hero band">
@@ -60,26 +60,27 @@ const initial: BreachSummary[] = [...breaches]
 
     <noscript>
       <p class="wrap colophon">
-        Search and filters need JavaScript. <a href="/archive/">The case index</a> lists the {fullRecordCount}
-        breaches with a full record, newest first.
+        Search and filters need JavaScript. You can still browse all {fullRecordCount} full breach records in{' '}
+        <a href="/archive/">the case index</a>, starting with the newest.
       </p>
     </noscript>
 
     <hr class="divider" />
 
-    <!-- The plain-language definition of the site. It sits after the list, where
-         it informs without standing between a visitor and the search box. -->
+    <!-- Plain-language note about the site. Placed below the list so visitors
+         can jump straight into searching. -->
     <div class="wrap colophon">
       <p>
-        TRACED is a public archive of known data breaches, built from
+        TRACED is a searchable archive of public data breaches, pulled from
         <a href="https://haveibeenpwned.com" target="_blank" rel="noopener">Have I Been Pwned<span class="sr-only"> (opens in a new tab)</span></a>
-        records on every rebuild. Each of the {count} breaches gets a case file with the date, the data that
-        leaked, and when HIBP added it. {passwordCount.toLocaleString('en-US')} of them leaked passwords.
+        whenever the site rebuilds. Each of the {count} breaches has its own case file showing when it happened, what
+        kind of data leaked, and when HIBP added it. Out of those, {passwordCount.toLocaleString('en-US')} included
+        passwords.
       </p>
       <p>
-        Find a service you've used. If it's on the list, change that password, and every other place you reused
-        it. To test a password itself, <a href="/check/">check it against known leaks</a>: it never leaves your
-        browser.
+        Look up a site or app you've had an account on. If it shows up here, change your password there and anywhere
+        else you reused it. You can also <a href="/check/">check a password directly</a> against known leaks without it
+        ever leaving your browser.
       </p>
     </div>
   </main>

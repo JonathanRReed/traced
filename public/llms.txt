@@ -1,8 +1,8 @@
 # TRACED
 
-> TRACED is Jonathan R. Reed's public data breach archive and privacy-first password exposure checker. It turns public Have I Been Pwned breach records into static case files that help people understand old account exposure without creating accounts, logging passwords, or tracking behavior.
+> TRACED is Jonathan R. Reed's public data breach archive and local password checker. It turns Have I Been Pwned's public breach records into static case files so people can look up past leaks and check passwords without accounts, password logging, or tracking.
 
-Built and maintained by Jonathan R. Reed, whose canonical site is <https://jonathanrreed.com/>. Related work: AI safety, secure AI deployment, public security education, and source-grounded technical tools.
+Built and maintained by Jonathan R. Reed (<https://jonathanrreed.com/>). Other work covers AI safety, secure AI deployment, public security education, and source-grounded technical tools.
 
 ## Pages
 

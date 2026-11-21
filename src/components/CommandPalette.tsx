@@ -15,10 +15,10 @@ interface Item {
 }
 
 const PAGES: Item[] = [
-  { key: 'page-home', href: '/', title: 'All breaches', detail: 'Search, filter and sort the full list' },
-  { key: 'page-check', href: '/check/', title: 'Check a password', detail: 'Without sending it anywhere' },
-  { key: 'page-index', href: '/archive/', title: 'Case index', detail: 'Every full record, newest first' },
-  { key: 'page-about', href: '/about/', title: 'About TRACED', detail: 'Where the data comes from' },
+  { key: 'page-home', href: '/', title: 'All breaches', detail: 'Search, filter, and sort the full list' },
+  { key: 'page-check', href: '/check/', title: 'Check a password', detail: 'Hashed locally in your browser' },
+  { key: 'page-index', href: '/archive/', title: 'Case index', detail: 'All full records, newest first' },
+  { key: 'page-about', href: '/about/', title: 'About TRACED', detail: 'How it works and where the data comes from' },
 ]
 
 const MAX_RESULTS = 50
@@ -208,7 +208,7 @@ export function CommandPalette() {
           {error && breaches.length === 0 ? (
             <div className="cp-empty" role="status">
               <div>
-                <strong>The breach list did not load</strong>
+                <strong>Couldn't load the breach list</strong>
                 <p>{error}</p>
               </div>
               <Button variant="outline" size="sm" onClick={() => void loadBreaches(true)}>
@@ -216,9 +216,9 @@ export function CommandPalette() {
               </Button>
             </div>
           ) : loading ? (
-            <div className="cp-empty" role="status">Loading the breach list…</div>
+            <div className="cp-empty" role="status">Loading breaches...</div>
           ) : items.length === 0 ? (
-            <div className="cp-empty" role="status">Nothing on file matches &quot;{query}&quot;.</div>
+            <div className="cp-empty" role="status">No matches for &quot;{query}&quot;.</div>
           ) : null}
         </div>
 

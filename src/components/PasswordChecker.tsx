@@ -19,8 +19,8 @@ interface Props {
 const STEPS = [
   'Your browser hashes the password with SHA-1',
   'It sends only the first 5 characters of that hash',
-  'Pwned Passwords returns every hash that starts with them',
-  'Your browser looks for the full hash in that list',
+  'Pwned Passwords returns all hashes starting with those 5 characters',
+  'Your browser checks if the full hash is in that list',
 ]
 
 const HASH_LENGTH = 40
@@ -77,7 +77,7 @@ export function PasswordChecker({ passwordBreaches = [] }: Props) {
       const res = await fetch(`https://api.pwnedpasswords.com/range/${hashPrefix}`, {
         headers: { 'Add-Padding': 'true' },
       })
-      if (!res.ok) throw new Error(`Pwned Passwords answered with status ${res.status}.`)
+      if (!res.ok) throw new Error(`Pwned Passwords returned status ${res.status}.`)
 
       const text = await res.text()
       setCandidates(text.split('\n').length)
@@ -155,13 +155,13 @@ export function PasswordChecker({ passwordBreaches = [] }: Props) {
           <div className="checker-after">
             <p>
               {found
-                ? 'Stop using this password. Change it everywhere it still protects an account, starting with email and banking.'
-                : "That is good news, but it doesn't make the password safe. It only means the password hasn't turned up in a public dump. Keep one unique password per account and turn on two-factor authentication."}
+                ? 'Stop using this password and change it anywhere you still have it active, starting with your email and bank accounts.'
+                : "It didn't show up in any known leaks. That still doesn't guarantee it's a strong password, so it's worth using a unique password for each account and turning on two-factor authentication."}
             </p>
 
             {found && passwordBreaches.length > 0 && (
               <div className="result-cases">
-                <h3>The largest breaches that leaked passwords</h3>
+                <h3>Biggest breaches that leaked passwords</h3>
                 <ul className="mini-rows">
                   {passwordBreaches.map((b) => (
                     <li key={b.name}>
@@ -184,7 +184,7 @@ export function PasswordChecker({ passwordBreaches = [] }: Props) {
 
         {state === 'error' && (
           <div className="notice" role="alert">
-            <h2>The check did not finish</h2>
+            <h2>The check didn't finish</h2>
             <p>{errorMessage} Your password never left this browser. Check your connection and try again.</p>
             <Button variant="outline" onClick={handleReset}>
               Try again
@@ -240,7 +240,7 @@ export function PasswordChecker({ passwordBreaches = [] }: Props) {
                   <span>{count === 1 ? 'time' : 'times'} in the Pwned Passwords dataset</span>
                 </>
               ) : (
-                <span>This password is not in the Pwned Passwords dataset.</span>
+                <span>This password isn't in the Pwned Passwords dataset.</span>
               )}
             </div>
           </>

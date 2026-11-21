@@ -7,7 +7,7 @@ import type { HibpBreach } from './types'
  * around a two-line incident report, so Google crawls them and drops them
  * ("crawled, currently not indexed"). A case file is only submitted and
  * indexable when its underlying record carries enough unique, sourced detail to
- * stand on its own. Excluded cases stay fully readable — they are dropped from
+ * stand on its own. Excluded cases stay fully readable. They are dropped from
  * sitemap.xml and rendered noindex,follow, never removed.
  *
  * Thresholds are derived from the live HIBP corpus (1003 records after the
@@ -16,16 +16,16 @@ import type { HibpBreach } from './types'
  *
  * REVISION (2026-08-04): `IsVerified` / `IsRetired` are no longer index gates.
  * The first cut used them as a provenance floor, which dropped ~38 of the
- * highest-demand records in the archive — Collection #1 (772.9M), Exploit.In,
+ * highest-demand records in the archive (Collection #1 (772.9M), Exploit.In,
  * Anti Public, NetEase, Cit0day, National Public Data, Badoo, Taobao, mail.ru,
- * Ticketek (retired) — even though every one of them has a full sourced
- * description, real dates and real data classes. HIBP's "unverified" flag means
+ * Ticketek (retired)) even though every one of them has a full sourced
+ * description, real dates, and real data classes. HIBP's "unverified" flag means
  * the dump could not be attributed to the named service, not that the record is
  * empty; "retired" means HIBP withdrew the record, not that the incident is
  * fictional. Both are facts *about* the incident, so they are surfaced to the
  * reader as a visible caveat on the page (see `caseCaveat`) instead of being
- * used to suppress the page from search. Genuinely thin records — no dates, no
- * exposure figure, boilerplate description, no data-class detail — stay out.
+ * used to suppress the page from search. Genuinely thin records (no dates, no
+ * exposure figure, boilerplate description, no data-class detail) stay out.
  */
 
 /** Below this the incident report is a single sentence of boilerplate. */
@@ -66,7 +66,7 @@ export function isIndexableCase(breach: HibpBreach): boolean {
 
 function checkIndexable(breach: HibpBreach): boolean {
   // Record completeness. IsVerified / IsRetired are deliberately NOT checked
-  // here — they are disclosed on the page instead (see caseCaveat).
+  // here because they are disclosed on the page instead (see caseCaveat).
   if (!isValidDate(breach.BreachDate) || !isValidDate(breach.AddedDate)) return false
   if (breach.PwnCount <= 0) return false
 
@@ -115,14 +115,14 @@ export function caseCaveat(breach: HibpBreach): CaseCaveat | null {
     return {
       label: 'Retired breach',
       detail:
-        'Have I Been Pwned has retired this record and no longer returns it in breach searches. It is kept here as a historical archive entry; treat the details below as a past public claim, not a current confirmation.',
+        'Have I Been Pwned retired this record and no longer includes it in breach searches. It stays here for historical reference, so keep in mind that the details below come from an older public claim.',
     }
   }
   if (!breach.IsVerified) {
     return {
-      label: 'Unverified breach: reported but not confirmed',
+      label: 'Unverified breach: not confirmed by HIBP',
       detail:
-        'Have I Been Pwned has not been able to confirm this data against the named service. The incident is reported and the data exists, but the source attribution is unproven. Treat everything below as a public claim rather than a confirmed breach of this company.',
+        "Have I Been Pwned hasn't been able to verify that this data actually came from the named service. The dump exists and was reported publicly, so the details below are still an unconfirmed claim.",
     }
   }
   return null

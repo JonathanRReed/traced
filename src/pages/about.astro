@@ -5,17 +5,17 @@ import Footer from '../components/Footer.astro'
 
 <BaseLayout
   currentPath="/about/"
-  title="About TRACED | Jonathan R. Reed Data Breach Archive Project"
-  description="Learn how Jonathan R. Reed built TRACED as a static public breach archive using Have I Been Pwned data, client-side password checking, and privacy-first design."
+  title="About TRACED | Jonathan R. Reed"
+  description="Why I built TRACED, where the breach data comes from, and how the local password check works without accounts or tracking."
 >
 
   <main id="main-content" tabindex="-1" class="page">
     <header class="page-head band">
       <h1>About TRACED</h1>
       <p class="lede">
-        TRACED is a weekend project. I wanted a better way to browse the
+        TRACED started as a weekend project. I wanted a simpler way to browse the
         <a href="https://haveibeenpwned.com" target="_blank" rel="noopener">Have I Been Pwned<span class="sr-only"> (opens in a new tab)</span></a>
-        dataset: one long list you can search, and a case file for every breach.
+        dataset, with one searchable list and a case file for every breach.
       </p>
       <p class="byline">
         <img
@@ -37,12 +37,12 @@ import Footer from '../components/Footer.astro'
         <section>
           <h2>What this is</h2>
           <p>
-            A browser for the Have I Been Pwned breach database. Each breach gets its own case file with the breach
-            date, the number of affected accounts, the data that was exposed, and when HIBP added it to the database.
+            Every breach in Have I Been Pwned gets its own case file here with the date it happened, how many accounts
+            were affected, what kind of data leaked, and when HIBP added it to the database.
           </p>
           <p>
-            It doesn't replace HIBP. It's another way to read public breach history, and a reminder that old accounts
-            tend to outlive the services they were made for.
+            If you want to check whether your own email address was in a breach, go straight to HIBP. I built this so
+            you can actually read through the public breach history and look up old sites or apps you've used.
           </p>
         </section>
 
@@ -52,23 +52,24 @@ import Footer from '../components/Footer.astro'
             <div>
               <dt><span class="leak-hot">*</span>Marked data types</dt>
               <dd>
-                Passwords, financial details, government IDs, health data and private messages are printed in red
-                with an asterisk. They are the ones that change what you should do next, and the list can be filtered
-                by them.
+                Passwords, financial info, government IDs, health records, and private messages show up in red with an
+                asterisk. Those are the leaks you actually need to do something about right away, so you can filter the
+                list just for them.
               </dd>
             </div>
             <div>
               <dt>Accounts</dt>
               <dd>
-                The number of account records in a breach, as HIBP counts them. One person can appear in many
-                breaches, so the total across the list is records, not people.
+                The number of account records in a breach based on HIBP's count. Because the same person can show up in
+                dozens of breaches, the total at the top of the homepage adds up every exposed record across all of
+                them.
               </dd>
             </div>
             <div>
               <dt>HIBP listing interval</dt>
               <dd>
-                The time between the recorded breach date and when HIBP added it to the database. It does not tell
-                you when the breach was discovered or publicly disclosed.
+                The gap between the recorded breach date and when HIBP added it to the database. It doesn't tell you
+                when the breach was actually discovered or publicly disclosed.
               </dd>
             </div>
           </dl>
@@ -78,24 +79,24 @@ import Footer from '../components/Footer.astro'
           <h2>How it works</h2>
           <dl class="how">
             <div>
-              <dt>Pre-built pages</dt>
+              <dt>Static pages</dt>
               <dd>
-                Every breach page is generated at build time from HIBP's public breach feed. No app server or database
-                sits behind it.
+                Every case file is built ahead of time from HIBP's public breach feed and served as static HTML.
+                There's no app server or database running behind the site.
               </dd>
             </div>
             <div>
               <dt>No tracking</dt>
               <dd>
-                No analytics, no cookies and no behavioral tracking. TRACED adds no logging or profiling of its own.
-                Hosting providers may keep standard request logs.
+                I didn't put any analytics, cookies, or tracking scripts on here, and TRACED doesn't log or profile
+                visitors. The hosting provider can still keep standard server request logs on their end.
               </dd>
             </div>
             <div>
               <dt>Password check</dt>
               <dd>
-                Your browser hashes the password and sends only the first 5 characters of the hash. The password itself
-                never leaves your device.
+                When you test a password, your browser hashes it locally and only sends the first 5 characters of that
+                hash to Pwned Passwords. The actual password never leaves your device.
               </dd>
             </div>
           </dl>
@@ -104,15 +105,16 @@ import Footer from '../components/Footer.astro'
         <section>
           <h2>Data sources</h2>
           <p>
-            Everything here comes from Troy Hunt's Have I Been Pwned, a public breach database he has run since 2013.
+            Everything here comes from Troy Hunt's Have I Been Pwned, a public breach database he's been running since
+            2013.
           </p>
 
           <div class="sources">
             <article class="source">
               <h3>Have I Been Pwned</h3>
               <p>
-                The main breach database. Every publicly known breach, with dates, the number of affected accounts,
-                the data taken and whether the breach is verified. Free, no API key.
+                The main public breach list. It includes dates, affected account counts, exposed data types, and
+                whether HIBP verified the breach. The public feed is free to read and doesn't need an API key.
               </p>
               <ul class="endpoints data">
                 <li>GET haveibeenpwned.com/api/v3/breaches</li>
@@ -124,8 +126,8 @@ import Footer from '../components/Footer.astro'
             <article class="source">
               <h3>Pwned Passwords</h3>
               <p>
-                Hundreds of millions of real passwords exposed in past breaches. The password checker uses this API
-                with k-anonymity, so the full password or hash is never sent.
+                Hundreds of millions of real passwords exposed in past breaches. The password checker uses k-anonymity
+                when it calls this API, so your password and its full hash never leave your browser.
               </p>
               <ul class="endpoints data">
                 <li>GET api.pwnedpasswords.com/range/{'{prefix}'}</li>
@@ -135,18 +137,19 @@ import Footer from '../components/Footer.astro'
           </div>
 
           <p class="muted">
-            All the data belongs to Troy Hunt and Have I Been Pwned. TRACED is an independent front end, not affiliated
-            with or endorsed by HIBP.
+            All of the breach data belongs to Troy Hunt and Have I Been Pwned. TRACED is an unofficial, independent
+            frontend and isn't affiliated with or endorsed by HIBP.
           </p>
         </section>
 
         <section>
           <h2>Built with</h2>
           <p>
-            Astro 7 for the static pages, React 19 for the interactive parts, Tailwind CSS v4 and
+            The site runs on Astro 7 for static pages, React 19 for search and the password checker, Tailwind CSS v4
+            and
             <a href="https://starwind.dev" target="_blank" rel="noopener">Starwind UI<span class="sr-only"> (opens in a new tab)</span></a>
-            for styling and components, and Cloudflare Pages for hosting. The type is Martian Mono, Doto and
-            Atkinson Hyperlegible, all served from this domain.
+            for styling and components, and Cloudflare Pages for hosting. The fonts are Martian Mono, Doto, and
+            Atkinson Hyperlegible, all self-hosted on this domain.
           </p>
         </section>
       </div>

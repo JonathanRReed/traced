@@ -36,7 +36,7 @@ const related = relatedCases(breach, allBreaches).map((b) => {
     note:
       shared.length > 0
         ? `${shared.length} shared: ${shared.slice(0, 3).join(', ')}${shared.length > 3 ? ` +${shared.length - 3}` : ''}`
-        : 'Close in time, nothing shared',
+        : 'Close in time, no shared data types',
   }
 })
 const description = (breach.Description || 'No description available.')
@@ -48,22 +48,23 @@ const caseTitle = `${breach.Title} Data Breach Case File | TRACED`
 const slug = slugify(breach.Name)
 const has = (...classes: string[]) => classes.some((c) => breach.DataClasses.includes(c))
 const verifiedCopy = breach.IsVerified
-  ? 'HIBP marks this breach as verified, which means it checked the data against the service it is attributed to.'
-  : 'HIBP does not mark this breach as verified. The details come from public claims and are less certain.'
+  ? 'HIBP marks this breach as verified, which means they checked the data against the service it is attributed to.'
+  : "HIBP hasn't marked this breach as verified, so the details come from public reports and are less certain."
 const sensitiveCopy = breach.IsSensitive
-  ? 'HIBP flags it as sensitive, which limits how it can be searched on their site.'
-  : 'HIBP does not flag it as sensitive.'
+  ? 'HIBP also flags it as sensitive, which restricts how it shows up in searches on their site.'
+  : "It isn't flagged as sensitive."
 const passwordCopy = hasPasswords
-  ? 'This breach includes passwords. If you had an account here, change that password and every place you reused it. A password manager makes unique ones easy to keep. Turn on two-factor authentication where it is offered.'
-  : "The public record doesn't list passwords. The data it does list can still feed phishing and account-recovery attacks once someone combines it with other breaches."
+  ? "Passwords were part of this breach. If you had an account here, change that password and anywhere else you reused it. Using a password manager makes it much easier to keep a separate password for each site, and it's worth turning on two-factor authentication if the service supports it."
+  : "Passwords aren't listed in this breach, but the other exposed details can still be used for phishing or account recovery attacks, especially when combined with data from older leaks."
 const riskNotes = [
-  has('Email addresses', 'Usernames') && 'Email addresses and usernames are what phishers and account-lookup tools start from.',
+  has('Email addresses', 'Usernames') &&
+    'Exposed email addresses and usernames are usually what phishers and account lookup tools start with.',
   has('Physical addresses', 'Phone numbers', 'Dates of birth', 'Names') &&
-    'Names, addresses, phone numbers and birth dates make impersonation easier.',
+    'Personal details like names, addresses, phone numbers, and birth dates make it much easier for someone to impersonate you.',
   has('Credit cards', 'Bank account numbers', 'Social security numbers', 'Passport numbers', 'Government issued IDs') &&
-    'Financial and government identifiers are the ones worth a close look at your statements and credit reports.',
+    'Since financial details or government IDs were exposed, keep an eye on your bank statements and credit reports.',
 ].filter(Boolean) as string[]
-const caseDescription = `${breach.Title} TRACED case file with ${formatPwnCount(breach.PwnCount)} exposed accounts, breach date, affected data classes, HIBP status, and source context.`
+const caseDescription = `Case file for the ${breach.Title} data breach: ${formatPwnCount(breach.PwnCount)} exposed accounts, breach date, leaked data types, and HIBP status.`
 
 const siteUrl = 'https://traced.jonathanrreed.com'
 const caseUrl = `${siteUrl}/case/${slugify(breach.Name)}/`
@@ -152,11 +153,18 @@ const caseSchema = {
 
         <section class="case-section prose" aria-labelledby="advice-heading">
           <h2 id="advice-heading">What to do</h2>
-          <p>{passwordCopy}</p>
+          <p>
+            {passwordCopy}
+            {hasPasswords && (
+              <>
+                {' '}You can also <a href="/check/">check a password locally</a> to see if it appears in Pwned Passwords.
+              </>
+            )}
+          </p>
           {riskNotes.length > 0 && <p>{riskNotes.join(' ')}</p>}
           <p class="muted">
-            These counts describe the public record. They do not say whether you were in it. To find out, search your
-            email address on <a href="https://haveibeenpwned.com" target="_blank" rel="noopener">Have I Been Pwned<span class="sr-only"> (opens in a new tab)</span></a>.
+            These numbers only cover the public breach record and don't tell you if your own account was affected. To
+            check that, look up your email address on <a href="https://haveibeenpwned.com" target="_blank" rel="noopener">Have I Been Pwned<span class="sr-only"> (opens in a new tab)</span></a>.
           </p>
         </section>
 

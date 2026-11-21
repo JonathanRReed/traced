@@ -1,12 +1,12 @@
 # TRACED
 
-Browse the public [Have I Been Pwned](https://haveibeenpwned.com) breach database as one searchable printout with a case file per breach, and check a password against Pwned Passwords.
+A searchable frontend for the public [Have I Been Pwned](https://haveibeenpwned.com) breach database, with a case file for each breach and a local password checker backed by Pwned Passwords.
 
 ## Password checks
 
-The browser hashes the password and sends only the first five SHA-1 hash characters to the Pwned Passwords API. It compares the returned candidates locally. Neither the password nor its complete hash is transmitted.
+Your browser hashes the password with SHA-1 and sends only the first 5 characters of that hash to the Pwned Passwords API, then compares the returned candidates locally. Neither the password nor its full hash leaves the browser.
 
-The site has no application backend, database, analytics, or tracking cookies. It still makes hosting and API requests; static hosting does not establish that those providers keep no request logs.
+The site has no application backend, database, analytics, or tracking cookies. It still makes hosting and API requests, and static hosting doesn't mean those providers keep zero request logs.
 
 ## Develop
 

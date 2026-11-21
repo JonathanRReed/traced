@@ -20,8 +20,8 @@ const passwordBreaches = allBreaches
 
 <BaseLayout
   currentPath="/check/"
-  title="Password Exposure Check | TRACED Public Breach Archive"
-  description="Check whether a password appears in breach data. TRACED hashes it in your browser, sends only a hash prefix, and keeps the full password on your device."
+  title="Check a Password | TRACED"
+  description="Check if a password shows up in public breach data. Your browser hashes it locally and only sends a 5-character prefix."
 >
 
   <main id="main-content" tabindex="-1" class="check-page">
@@ -37,27 +37,26 @@ const passwordBreaches = allBreaches
 
     <div class="wrap">
       <section class="check-explainer prose" aria-labelledby="explainer-heading">
-        <h2 id="explainer-heading">What this check can and cannot tell you</h2>
+        <h2 id="explainer-heading">What this check can and can't tell you</h2>
         <p>
-          A match means the password is in the public Pwned Passwords corpus, so stop using it. Change it anywhere it
-          still protects an account, then turn on two-factor authentication on the services that matter.
+          If your password comes back with a match, it's already sitting in the public Pwned Passwords list and you
+          should stop using it. Change it on every account where it's still active, and turn on two-factor
+          authentication on the accounts you actually care about.
         </p>
         <p>
-          No match tells you less than people assume. It does not prove the password is strong or private, only that it
-          has not turned up in a public dump.
+          If you've been reusing that password across sites, fix the accounts someone could use to reset everything
+          else first, like your email, bank, cloud storage, work, or school logins. After that, replace any close
+          variations of the same phrase. A password manager is honestly the easiest way to keep a different, long
+          password for every site without trying to memorize them.
         </p>
         <p>
-          TRACED never ties the check to an email address, account name or browsing profile. There is nothing to sign
-          into and nothing to fill out.
+          Getting zero matches doesn't automatically mean a password is strong or safe. It just means that exact
+          password hasn't turned up in a public dump that HIBP tracks.
         </p>
         <p>
-          If you reuse passwords, fix the accounts an attacker would use to reset everything else first: email,
-          banking, cloud storage, school, work, shopping and social accounts. Then deal with weaker variants built on
-          the same phrase or pattern.
-        </p>
-        <p>
-          Long unique passwords beat reused memorable ones, and a password manager makes that realistic to keep up.
-          This page runs one check. It does not watch your accounts and will not tell you later if something changes.
+          Nothing you check here gets tied back to you because this page never asks for an email, username, or account.
+          Keep in mind that it only runs a single check right now. It won't watch your accounts or notify you if a
+          password leaks later.
         </p>
       </section>
     </div>

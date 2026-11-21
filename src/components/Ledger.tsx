@@ -295,7 +295,7 @@ export function Ledger({ initial, total, years, dataClasses }: Props) {
         <div className="ledger-status">
           <p aria-live="polite">
             {waiting ? (
-              error ? 'The full list did not load.' : 'Loading every breach…'
+              error ? "Couldn't load the full list." : 'Loading all breaches...'
             ) : (
               <>
                 <strong>{resultCount.toLocaleString('en-US')}</strong> breach{resultCount === 1 ? '' : 'es'}
@@ -329,8 +329,8 @@ export function Ledger({ initial, total, years, dataClasses }: Props) {
       {error && !all && !isDefault ? (
         <div className="wrap">
           <div className="notice" role="alert">
-            <h3>The full list did not load</h3>
-            <p>{error} Search and filters need it. The newest breaches are still listed below.</p>
+            <h3>Couldn't load the full list</h3>
+            <p>{error} Search and filters need the full list, though the newest breaches are still shown below.</p>
             <Button variant="outline" size="sm" onClick={() => void loadAll(true)}>Try again</Button>
           </div>
         </div>
@@ -338,8 +338,8 @@ export function Ledger({ initial, total, years, dataClasses }: Props) {
 
       {rows.length === 0 ? (
         <div className="ledger-empty wrap">
-          <h3>Nothing on file matches</h3>
-          <p>That doesn't mean it was never breached, only that HIBP has no record of it.</p>
+          <h3>No matches found</h3>
+          <p>That doesn't mean the service was never breached. It just means HIBP doesn't have a public record of it.</p>
           <Button variant="outline" size="sm" onClick={() => update({ q: '', families: [], year: null, type: '' })}>
             Clear filters
           </Button>
